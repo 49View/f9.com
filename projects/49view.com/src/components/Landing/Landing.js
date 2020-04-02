@@ -7,12 +7,11 @@ import {
   SearchBarResultTrendId,
   SearchBarResultUser
 } from "./Landing.styled";
-import {getSimilarTrends} from "../../modules/trends/queries";
 import {useQuery} from "@apollo/react-hooks";
 import {Redirect} from "react-router-dom";
 
 const SearchResults = ({trendIdPartial}) => {
-  const {data, loading} = useQuery(getSimilarTrends(trendIdPartial));
+  const {data, loading} = {data:null, loading:null};   // useQuery(getSimilarTrends(trendIdPartial));
   const [results, setResults] = useState([]);
   const [finalized, setfinalized] = useState({
     clicked: false,
@@ -74,7 +73,7 @@ const Landing = () => {
       <LandingInner>
         <div>
           <span className="colorLogo1">Search </span>
-          <span className="colorLogo2">trend</span>
+          <span className="colorLogo2">Home</span>
         </div>
         <LandingSearchBar>
           <input

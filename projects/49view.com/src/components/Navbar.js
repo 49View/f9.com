@@ -34,9 +34,14 @@ const Navbar = (props) => {
   }
   if (!isReservedWord(props.trendId) && !isLocationReserved && !userName) {
     linkContent = (
-        <Link key={"login"} to={"/login"}>
-          <i className="fas fa-rocket"/>{" "}I wanna try!
+      <Fragment>
+        <Link key={"login"} to={"/register"}>
+          <i className="fas fa-user-plus"/>{" "}Register{" "}
         </Link>
+        <Link key={"login"} to={"/login"}>
+          {" "}<i className="fas fa-rocket"/>{" "}Login
+        </Link>
+      </Fragment>
     )
   }
 
@@ -55,12 +60,10 @@ const Navbar = (props) => {
           setTrend(null).then();
         }}>
           <Link to={"/"}>
-            <span className="colorLogo1">T</span>
-            <span>rends</span> <span className="colorLogo2">B</span>
-            <span>ar</span>
+            <span className="colorLogo2">49view</span>
           </Link>
         </Navbareh>
-        <NavbarTitle>{propTrendId}</NavbarTitle>
+        <NavbarTitle/>
         <UserNameText>{linkContent}</UserNameText>
       </NavbarGrid>
     </NavbarComponent>

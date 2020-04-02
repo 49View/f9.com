@@ -4,7 +4,6 @@ import {Route, Switch, useLocation} from 'react-router-dom';
 import Landing from "./components/Landing/Landing";
 import Navbar from "./components/Navbar";
 import {useGlobal} from 'reactn';
-import TrendPage from "./components/Trend/TrendPage";
 import {sanitizePathRoot} from "./futuremodules/utils/utils";
 import {initEH} from "./init";
 import Register from "./futuremodules/auth/components/Register";
@@ -41,7 +40,6 @@ const App = () => {
         <Route exact path="/login" component={Login}/>
         <Route exact path="/dashboarduser" render={ () => <DashboardUser auth={authApi}/> } />
         <Route path="/dashboardproject" render={ () => <DashboardProject auth={authApi}/> }/>
-        <Route path="/:usernameSplit/:trendIdSplit" component={TrendPage}/>
       </Switch>
       <EHAlert/>
     </Body>

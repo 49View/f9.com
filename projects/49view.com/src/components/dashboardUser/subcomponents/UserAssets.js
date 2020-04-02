@@ -1,13 +1,11 @@
 import React, {Fragment, useState, useGlobal} from "reactn";
 import {DashboardUserInnerMargins} from "../DashboardUser.styled";
 import {useQuery} from "@apollo/react-hooks";
-import {getUserTrends} from "../../../modules/trends/queries";
 import {LinkContainer} from "react-router-bootstrap";
 import {Button, Dropdown, FormControl, InputGroup, SplitButton} from "react-bootstrap";
 import {alertIfSuccessful, api, useApi} from "../../../futuremodules/api/apiEntryPoint";
 import {sendInvitationToProject} from "../../../futuremodules/auth/projectApiCalls";
 import {getUserName} from "../../../futuremodules/auth/authAccessors";
-import {EditingUserTrend} from "../../../modules/trends/globals";
 
 const YourAssetsTitle = () => {
   return (
@@ -78,8 +76,8 @@ const ProjectManagement = ({name}) => {
 export const UserAssets = ({auth}) => {
 
   const name = getUserName(auth);
-  const [, setEditingUserTrend] = useGlobal(EditingUserTrend);
-  const {data, loading} = useQuery(getUserTrends(), {variables: {name}});
+  // const [, setEditingUserTrend] = useGlobal(EditingUserTrend);
+  // const {data, loading} = useQuery(getUserTrends(), {variables: {name}});
 
   const onManageProject = name => {
     // setCurrentManagedProject(name);
@@ -94,55 +92,55 @@ export const UserAssets = ({auth}) => {
     </span>
   );
 
-  if (data && loading === false) {
-    const trends = data.user.trends;
-    userProjects = (
-      <div className="project-login">
-        {trends.map(elem => {
-            const trendId = elem.trendId;
-            const projectLink = "/dashboardproject/" + trendId;
-            return (
-              <div key={`fragment-${trendId}`} className="inliner-block my-1">
-                <LinkContainer to={projectLink} onClick={ () => setEditingUserTrend(trendId)}>
-                  <SplitButton
-                    title={trendId}
-                    variant="primary"
-                    id={`dropdown-split-variants-${trendId}`}
-                    key={trendId}
-                  >
-                    <LinkContainer to={projectLink}>
-                      <Dropdown.Item
-                        eventKey="1"
-                      >
-                        Open
-                      </Dropdown.Item>
-                    </LinkContainer>
-                    <Dropdown.Item
-                      eventKey="2"
-                      onClick={e => onManageProject(trendId)}
-                    >
-                      Invite People
-                    </Dropdown.Item>
-                    <Dropdown.Divider/>
-                    <Dropdown.Item
-                      eventKey="3"
-                      variant="danger"
-                      onClick={e => onRemoveProject(trendId)}
-                    >
-                      Delete
-                    </Dropdown.Item>
-                  </SplitButton>
-                </LinkContainer>
-                <div
-                  key={`dropdown-split-spacer-${trendId}`}
-                  className="inliner mx-1"
-                />
-              </div>)
-          }
-        )}
-      </div>
-    );
-  }
+  // if (data && loading === false) {
+  //   const trends = data.user.trends;
+  //   userProjects = (
+  //     <div className="project-login">
+  //       {trends.map(elem => {
+  //           const trendId = elem.trendId;
+  //           const projectLink = "/dashboardproject/" + trendId;
+  //           return (
+  //             <div key={`fragment-${trendId}`} className="inliner-block my-1">
+  //               <LinkContainer to={projectLink} onClick={ () => {}}>
+  //                 <SplitButton
+  //                   title={trendId}
+  //                   variant="primary"
+  //                   id={`dropdown-split-variants-${trendId}`}
+  //                   key={trendId}
+  //                 >
+  //                   <LinkContainer to={projectLink}>
+  //                     <Dropdown.Item
+  //                       eventKey="1"
+  //                     >
+  //                       Open
+  //                     </Dropdown.Item>
+  //                   </LinkContainer>
+  //                   <Dropdown.Item
+  //                     eventKey="2"
+  //                     onClick={e => onManageProject(trendId)}
+  //                   >
+  //                     Invite People
+  //                   </Dropdown.Item>
+  //                   <Dropdown.Divider/>
+  //                   <Dropdown.Item
+  //                     eventKey="3"
+  //                     variant="danger"
+  //                     onClick={e => onRemoveProject(trendId)}
+  //                   >
+  //                     Delete
+  //                   </Dropdown.Item>
+  //                 </SplitButton>
+  //               </LinkContainer>
+  //               <div
+  //                 key={`dropdown-split-spacer-${trendId}`}
+  //                 className="inliner mx-1"
+  //               />
+  //             </div>)
+  //         }
+  //       )}
+  //     </div>
+  //   );
+  // }
 
   return (
     <Fragment>

@@ -1,14 +1,13 @@
 import React, {Fragment, useGlobal, useState} from "reactn";
 import {alertWarning, NotificationAlert} from "../../../futuremodules/alerts/alerts";
 import {useMutation} from "@apollo/react-hooks";
-import {CREATE_TREND} from "../../../modules/trends/mutations";
 import {DashboardUserInnerMargins} from "../DashboardUser.styled";
 import {getUserName} from "../../../futuremodules/auth/authAccessors";
 
 export const AssetCreator = ({auth}) => {
 
   const [,alertStore] = useGlobal(NotificationAlert);
-  const [createTrendM] = useMutation(CREATE_TREND);
+  // const [createTrendM] = useMutation(CREATE_TREND);
   const [newTrendFormInput, setNewTrendFormInput] = useState();
   const name = getUserName(auth);
 
@@ -18,14 +17,14 @@ export const AssetCreator = ({auth}) => {
       alertWarning(alertStore, "I see no trend in here!");
       return;
     }
-    createTrendM({
-      variables: {
-        trendId: newTrendFormInput,
-        username: name
-      }
-    }).then().catch((e) => {
-      alertWarning(alertStore, "Big problem with this trend");
-    });;
+    // createTrendM({
+    //   variables: {
+    //     trendId: newTrendFormInput,
+    //     username: name
+    //   }
+    // }).then().catch((e) => {
+    //   alertWarning(alertStore, "Big problem with this trend");
+    // });
   };
 
   return (
