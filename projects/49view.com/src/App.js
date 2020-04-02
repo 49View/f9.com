@@ -14,7 +14,7 @@ import {apiSilent, useApi} from "./futuremodules/api/apiEntryPoint";
 import {loadUser} from "./futuremodules/auth/authApiCalls";
 import {Auth} from "./futuremodules/auth/authAccessors";
 import {DashboardProject} from "./components/dashboardProject/DashboardProject";
-import {Body} from "./components/common.styled";
+import {Body, Content} from "./components/common.styled";
 
 
 initEH();
@@ -32,17 +32,19 @@ const App = () => {
   }, []);
 
   return (
-    <Body>
+    <Content>
       <Navbar trendId={trendId}/>
-      <Switch>
-        <Route exact path="/"  component={Landing}/>
-        <Route exact path="/register" component={Register}/>
-        <Route exact path="/login" component={Login}/>
-        <Route exact path="/dashboarduser" render={ () => <DashboardUser auth={authApi}/> } />
-        <Route path="/dashboardproject" render={ () => <DashboardProject auth={authApi}/> }/>
-      </Switch>
-      <EHAlert/>
-    </Body>
+      <Body>
+        <Switch>
+          <Route exact path="/" component={Landing}/>
+          <Route exact path="/register" component={Register}/>
+          <Route exact path="/login" component={Login}/>
+          <Route exact path="/dashboarduser" render={() => <DashboardUser auth={authApi}/>}/>
+          <Route path="/dashboardproject" render={() => <DashboardProject auth={authApi}/>}/>
+        </Switch>
+        <EHAlert/>
+      </Body>
+    </Content>
   );
 };
 

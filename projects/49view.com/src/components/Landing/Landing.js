@@ -5,13 +5,15 @@ import {
   LandingSection,
   SearchBarResultContainer,
   SearchBarResultTrendId,
-  SearchBarResultUser
+  SearchBarResultUser,
+  SearchText,
+  SearchTextAlt,
+  SearchTitleText
 } from "./Landing.styled";
-import {useQuery} from "@apollo/react-hooks";
 import {Redirect} from "react-router-dom";
 
 const SearchResults = ({trendIdPartial}) => {
-  const {data, loading} = {data:null, loading:null};   // useQuery(getSimilarTrends(trendIdPartial));
+  const {data, loading} = {data: null, loading: null};   // useQuery(getSimilarTrends(trendIdPartial));
   const [results, setResults] = useState([]);
   const [finalized, setfinalized] = useState({
     clicked: false,
@@ -25,7 +27,7 @@ const SearchResults = ({trendIdPartial}) => {
     }
   }
 
-  if ( finalized.clicked ) {
+  if (finalized.clicked) {
     return <Redirect push={true} to={`/${finalized.username}/${finalized.trendId}`}/>
   }
 
@@ -36,11 +38,11 @@ const SearchResults = ({trendIdPartial}) => {
         return (
           <SearchBarResultContainer
             key={key}
-            onClick={ () => setfinalized({
+            onClick={() => setfinalized({
               clicked: true,
               username: e.user.name,
               trendId: e.trendId
-            }) }
+            })}
           >
             <SearchBarResultTrendId>
               {e.trendId}
@@ -71,19 +73,16 @@ const Landing = () => {
   return (
     <LandingSection>
       <LandingInner>
-        <div>
-          <span className="colorLogo1">Search </span>
-          <span className="colorLogo2">Home</span>
-        </div>
-        <LandingSearchBar>
-          <input
-            ref={searchBox}
-            type="text"
-            className="search-bar"
-            id="search-bar"
-            autoComplete={"off"}
-            onChange={e => setTrendIdPartial(e.target.value)}
-          />
+        <SearchTitleText>
+          <SearchText>Search </SearchText>
+          <SearchTextAlt>Home</SearchTextAlt>
+        </SearchTitleText>
+        <LandingSearchBar
+          ref={searchBox}
+          type="text"
+          id="search-bar"
+          autoComplete={"off"}
+          onChange={e => setTrendIdPartial(e.target.value)}>
         </LandingSearchBar>
         <SearchResults trendIdPartial={trendIdPartial}/>
       </LandingInner>

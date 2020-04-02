@@ -2,14 +2,19 @@ import React, {Fragment} from "react";
 import {useGlobal} from "reactn";
 import {Link, useLocation} from "react-router-dom";
 import {ProgressBar} from "../futuremodules/progressbar/ProgressBar";
-import {NavbarComponent, Navbareh, NavbarGrid, NavbarLogo, NavbarTitle, UserNameText} from "./Navbar.styled";
-import {getUserName, logoffFromProject, useGetAuth} from "../futuremodules/auth/authAccessors";
+import {LinkContainer} from "react-router-bootstrap";
 import {
-  getFileNameOnlyNoExt,
-  isReservedWord,
-  isReservedWordSanitized,
-  sanitizeAvoidReservedWords
-} from "../futuremodules/utils/utils";
+  Mx1,
+  NavbarComponent,
+  Navbareh,
+  NavbarLogo,
+  NavbarLogoAndTitle,
+  NavbarTitle, TextFocusD1, TextFocusD2, TextFocusD3, TextShadow,
+  UserNameText
+} from "./Navbar.styled";
+import {getUserName, logoffFromProject, useGetAuth} from "../futuremodules/auth/authAccessors";
+import {isReservedWord, isReservedWordSanitized} from "../futuremodules/utils/utils";
+import Button from "react-bootstrap/Button";
 
 const Navbar = (props) => {
 
@@ -18,7 +23,6 @@ const Navbar = (props) => {
   const auth = useGetAuth();
   const userName = getUserName(auth);
   const isLocationReserved = isReservedWordSanitized(location.pathname);
-  const propTrendId = !isLocationReserved && getFileNameOnlyNoExt(sanitizeAvoidReservedWords(props.trendId));
 
   let linkContent = <Fragment/>;
 
@@ -34,38 +38,33 @@ const Navbar = (props) => {
   }
   if (!isReservedWord(props.trendId) && !isLocationReserved && !userName) {
     linkContent = (
-      <Fragment>
-        <Link key={"login"} to={"/register"}>
-          <i className="fas fa-user-plus"/>{" "}Register{" "}
-        </Link>
-        <Link key={"login"} to={"/login"}>
-          {" "}<i className="fas fa-rocket"/>{" "}Login
-        </Link>
-      </Fragment>
+      <UserNameText>
+        <LinkContainer key={"register"} to={"/register"}>
+          <Button variant={"info"}> <i className="fas fa-user"/>{" "}Register{" "}</Button>
+        </LinkContainer>
+        <Mx1/>
+        <LinkContainer key={"login"} to={"/login"}>
+          <Button variant={"primary"}> {" "}<i className="fas fa-rocket"/>{" "}Login</Button>
+        </LinkContainer>
+      </UserNameText>
     )
   }
 
   return (
     <NavbarComponent>
+      <NavbarLogoAndTitle>
+        <NavbarLogo><Link to={"/"}><img src="/ehlogo.svg" alt=""/></Link></NavbarLogo>
+        <Navbareh><Link to={"/"}>49view</Link></Navbareh>
+      </NavbarLogoAndTitle>
+      <NavbarTitle>
+        <TextShadow>
+          <TextFocusD1>Your home.</TextFocusD1>{" "}
+          <TextFocusD2>Your way.</TextFocusD2>{" "}
+          <TextFocusD3>Now.</TextFocusD3>
+        </TextShadow>
+      </NavbarTitle>
+      {linkContent}
       <ProgressBar/>
-      <NavbarGrid>
-        <NavbarLogo onClick={() => {
-          setTrend(null).then();
-        }}>
-          <Link to={"/"}>
-            <img src="/ehlogo.svg" alt=""/>
-          </Link>
-        </NavbarLogo>
-        <Navbareh onClick={() => {
-          setTrend(null).then();
-        }}>
-          <Link to={"/"}>
-            <span className="colorLogo2">49view</span>
-          </Link>
-        </Navbareh>
-        <NavbarTitle/>
-        <UserNameText>{linkContent}</UserNameText>
-      </NavbarGrid>
     </NavbarComponent>
   );
 };
