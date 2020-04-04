@@ -2,6 +2,7 @@ import React from "react";
 import "./Property.css";
 import {PropertyLayout} from "./PropertyLayout";
 import styled, {keyframes} from "styled-components";
+import {PropertyContainer} from "./Property.styled";
 
 export const Property = () => {
   let canvasContainer = React.useRef(null);
@@ -13,7 +14,7 @@ export const Property = () => {
     return (
       <div>
         <div className="a49view-magic-selector-mainIcon">
-          <i className={elem.icon} />
+          <i className={elem.icon}/>
         </div>
         <div className="a49view-magic-selector-mainText"> {elem.text}</div>
         <div className="a49view-magic-selector-arrow">
@@ -98,7 +99,7 @@ export const Property = () => {
   };
 
   return (
-    <div className="selling-property-grid">
+    <PropertyContainer>
       {/*<div className="a49view-magic">*/}
       {/*  <div className="a49view-makeyourown-tag">*/}
       {/*    Your Home, <b>Your Way</b>, <i>Now</i>.*/}
@@ -122,8 +123,8 @@ export const Property = () => {
       {/*  </div>*/}
       {/*</div>*/}
       {/*<div className="a49view-magic-result">{a49ResultContent}</div>*/}
-      <div className="canvas-next" ref={canvasContainer}></div>
-      <PropertyLayout></PropertyLayout>
-    </div>
+      {/*<div className="canvas-next" ref={canvasContainer}></div>*/}
+      <PropertyLayout/>
+    </PropertyContainer>
   );
 };

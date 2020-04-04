@@ -11,43 +11,34 @@ export const NavbarComponent = styled.div` {
   background-color: var(--dark-color-transparent);
   display: flex;
   justify-content: space-between;
-  align-content: center;
+  align-items:center;
   border-bottom: 1px solid var(--middle-grey-color);
-  padding: 0px 20px;
+  padding: 0 20px;
   border-bottom: 1px solid var(--middle-grey-color);
 }`;
 
 export const UserNameText = styled.div` {
-  align-self: center;
   min-width: ${minWidthOuterNavBarElements};
 }`;
 
 export const NavbarLogoAndTitle = styled.div` {
   display: flex;
-  align-self: center;
+  align-items:center;
   min-width: ${minWidthOuterNavBarElements};
 }`;
 
 export const NavbarLogo = styled.div` {
-  align-self: center;
   width:var(--navbar-logo-size);
   height:var(--navbar-logo-size);
 }`;
 
 export const Navbareh = styled.div` {
-  align-self: center;
   font-family: "Pompiere", cursive;
   font-size: 2.0rem;
   padding-left: 1.5%;
-  line-height: 1.0;
 }`;
 
 export const NavbarTitle = styled.div`{
-  grid-area: navbartitle;
-  align-self: center;
-  justify-self: center;
-  font-size: 1.3rem;
-  color: var(--secondary-alt-color);
 }`;
 
 export const Mx1 = styled.span` {

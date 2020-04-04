@@ -18,7 +18,7 @@ export const Content = styled.section` {
 
 export const Body = styled.div `{
   max-width: 1024px;
-  margin: auto;
+  margin: 20px auto;
 }`;
 
 
