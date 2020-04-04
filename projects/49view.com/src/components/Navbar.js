@@ -16,7 +16,7 @@ import {getUserName, logoffFromProject, useGetAuth} from "../futuremodules/auth/
 import {isReservedWord, isReservedWordSanitized} from "../futuremodules/utils/utils";
 import Button from "react-bootstrap/Button";
 
-const Navbar = (props) => {
+const Navbar = () => {
 
   const location = useLocation();
   const [, setTrend] = useGlobal('trendId');
@@ -26,7 +26,7 @@ const Navbar = (props) => {
 
   let linkContent = <Fragment/>;
 
-  if (!isReservedWord(props.trendId) && !isLocationReserved && userName) {
+  if (!isLocationReserved && userName) {
     linkContent = (
       <Link to="/dashboarduser" onClick={() => {
         logoffFromProject(auth);
@@ -36,7 +36,7 @@ const Navbar = (props) => {
       </Link>
     )
   }
-  if (!isReservedWord(props.trendId) && !isLocationReserved && !userName) {
+  if (!isLocationReserved && !userName) {
     linkContent = (
       <UserNameText>
         <LinkContainer key={"register"} to={"/register"}>

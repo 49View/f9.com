@@ -15,6 +15,7 @@ import {loadUser} from "./futuremodules/auth/authApiCalls";
 import {Auth} from "./futuremodules/auth/authAccessors";
 import {DashboardProject} from "./components/dashboardProject/DashboardProject";
 import {Body, Content} from "./components/common.styled";
+import {Property} from "./components/PropertyPage/Property";
 
 
 initEH();
@@ -33,7 +34,7 @@ const App = () => {
 
   return (
     <Content>
-      <Navbar trendId={trendId}/>
+      <Navbar/>
       <Body>
         <Switch>
           <Route exact path="/" component={Landing}/>
@@ -41,6 +42,7 @@ const App = () => {
           <Route exact path="/login" component={Login}/>
           <Route exact path="/dashboarduser" render={() => <DashboardUser auth={authApi}/>}/>
           <Route path="/dashboardproject" render={() => <DashboardProject auth={authApi}/>}/>
+          <Route path="/property/:pid" render={() => <Property auth={authApi}/>}/>
         </Switch>
         <EHAlert/>
       </Body>
