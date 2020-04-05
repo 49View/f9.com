@@ -6,7 +6,7 @@ import {
   PropertyTitleAddressRoad,
   PropertyTitleAddressTown,
   PropertyTitleInfo,
-  PropertyTitleInfoSecondLine
+  PropertyTitleInfoSecondLine, PropertyTitlePrice, PropertyTitleRentOrBuy, PropertyTitleType
 } from "./Property.styled";
 
 export const PropertyLayout = () => {
@@ -15,8 +15,8 @@ export const PropertyLayout = () => {
   return (
     <Fragment>
       <PropertyTitleInfo>
-        <div className="property-type">2 bedroom apartment</div>
-        <div className="property-price">£525,000</div>
+        <PropertyTitleType className="property-type">2 bedroom apartment</PropertyTitleType>
+        <PropertyTitlePrice>£525,000</PropertyTitlePrice>
       </PropertyTitleInfo>
       <PropertyTitleInfoSecondLine>
         <PropertyTitleAddress>
@@ -29,7 +29,7 @@ export const PropertyLayout = () => {
           <PropertyTitleAddressPostcode>KT2
           </PropertyTitleAddressPostcode>
         </PropertyTitleAddress>
-        <div className="property-rentorbuy">for sale</div>
+        <PropertyTitleRentOrBuy>for sale</PropertyTitleRentOrBuy>
       </PropertyTitleInfoSecondLine>
 
       {/*<div className="property-details">*/}

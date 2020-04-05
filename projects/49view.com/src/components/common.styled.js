@@ -17,7 +17,7 @@ export const Content = styled.section` {
 }`;
 
 export const Body = styled.div `{
-  max-width: 1024px;
+  max-width: var(--body-width);
   margin: 20px auto;
 }`;
 
@@ -25,4 +25,13 @@ export const Body = styled.div `{
 export const TrendGrid = styled.div` {
   height: calc(100vh - var(--navbar-height));
   margin: 0 var(--mainMargin);
+}`;
+
+export const AvatarRound = styled.img` {
+    vertical-align: middle;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid var(--warning);
+    margin-bottom: 10px;
 }`;

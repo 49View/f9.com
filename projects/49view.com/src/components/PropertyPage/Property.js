@@ -2,7 +2,18 @@ import React from "react";
 import "./Property.css";
 import {PropertyLayout} from "./PropertyLayout";
 import styled, {keyframes} from "styled-components";
-import {PropertyContainer} from "./Property.styled";
+import {
+  PropertyCanvas,
+  PropertyContainer,
+  PropertyManagingEstateAgent,
+  PropertyMarketedBy,
+  PropertyRightMenu,
+  PropertyStarOfTheShow,
+  PropertyVirtualBooking, PropertyVirtualBookingCharCallVideo, PropertyVirtualBookingFooter,
+  PropertyVirtualBookingTitle
+} from "./Property.styled";
+import {Button, ButtonGroup} from "react-bootstrap";
+import {AvatarRound} from "../common.styled";
 
 export const Property = () => {
   let canvasContainer = React.useRef(null);
@@ -123,8 +134,32 @@ export const Property = () => {
       {/*  </div>*/}
       {/*</div>*/}
       {/*<div className="a49view-magic-result">{a49ResultContent}</div>*/}
-      {/*<div className="canvas-next" ref={canvasContainer}></div>*/}
       <PropertyLayout/>
+      <PropertyStarOfTheShow>
+        <PropertyCanvas/>
+        <PropertyRightMenu>
+          <PropertyMarketedBy>
+            Brought to you by:
+          </PropertyMarketedBy>
+          <PropertyManagingEstateAgent src={"/andrew-scott-robertson-logo.png"} width={"244"} height={"72"}/>
+          <PropertyVirtualBooking>
+            <PropertyVirtualBookingTitle>
+              Real time virtual viewing
+            </PropertyVirtualBookingTitle>
+            <AvatarRound src={"/dado.png"}/>
+            <PropertyVirtualBookingCharCallVideo>
+              <ButtonGroup aria-label="">
+                <Button variant="primary"><i className={"fas fa-comments"}/>{" "}chat</Button>
+                <Button variant="info"><i className={"fas fa-phone-alt"}/>{" "}phone</Button>
+                <Button variant="success"><i className={"fas fa-video"}/>{" "}video</Button>
+              </ButtonGroup>
+            </PropertyVirtualBookingCharCallVideo>
+            <PropertyVirtualBookingFooter>
+              Booking for a viewing is a thing of the past! Give real time virtual viewing a shot.
+            </PropertyVirtualBookingFooter>
+          </PropertyVirtualBooking>
+        </PropertyRightMenu>
+      </PropertyStarOfTheShow>
     </PropertyContainer>
   );
 };
