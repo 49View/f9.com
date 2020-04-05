@@ -162,7 +162,7 @@ export const Property = () => {
                   </InfoTextSpan>
                 </EstateAgentRepMainNameTitle>
                 <EstateAgentRepAssistingText>
-                  <LightTextSpan fontSize={"0.5rem"}>
+                  <LightTextSpan fontSize={"0.6rem"}>
                   is looking after this property
                   </LightTextSpan>
                 </EstateAgentRepAssistingText>

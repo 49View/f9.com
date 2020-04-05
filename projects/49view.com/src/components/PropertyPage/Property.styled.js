@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled, {keyframes} from 'styled-components'
 
 const mainPadding = "15px";
 const wasmCanvasSize = {x: "720px", y: "540px"};
@@ -81,8 +81,7 @@ export const PropertyCanvas = styled.div`{
   min-width: 640px;
   height: 480px;
   border-radius: 5px;
-  background-image: linear-gradient(var(--dark-color), var(--dark-color-transparent-very) );
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.9), 0 4px 10px 0 rgba(0, 0, 0, 0.99);
+  border: 1px solid var(--middle-grey-color);
 }`;
 
 export const PropertyRightMenu = styled.div`{
@@ -94,12 +93,21 @@ export const PropertyRightMenu = styled.div`{
   background-image: linear-gradient(var(--dark-color-transparent), var(--dark-color-transparent-very) );
 }`;
 
+const chatAnimIn = keyframes`
+from {
+  height: 30%;
+}
+to {
+  height: 100%;
+}`;
+
 export const PropertyMarketedBy = styled.div`{
   font-weight: bold;
   color: var(--light-color);
-  margin-bottom: 10px;
   border-radius: 4px;
   border: solid 1px var(--info);
+  animation: ${chatAnimIn} 0s ease-out;
+  //height: auto;
 }`;
 
 export const PropertyManagingEstateAgent = styled.img`{
