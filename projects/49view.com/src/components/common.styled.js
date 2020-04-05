@@ -16,7 +16,7 @@ export const Content = styled.section` {
   overflow: hidden;
 }`;
 
-export const Body = styled.div `{
+export const Body = styled.div`{
   max-width: var(--body-width);
   margin: 20px auto;
 }`;
@@ -28,10 +28,75 @@ export const TrendGrid = styled.div` {
 }`;
 
 export const AvatarRound = styled.img` {
-    vertical-align: middle;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: 2px solid var(--warning);
-    margin-bottom: 10px;
+  vertical-align: middle;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid var(--logo-color-1);
+}`;
+
+export const InfoTextSpan = styled.span` {
+  color: var(--info);  
+  font-size: ${props => props.fontSize};  
+}`;
+
+export const InfoTextSpanBold = styled.span` {
+  color: var(--info);  
+  font-weight: bold;
+  font-size: ${props => props.fontSize};  
+}`;
+
+export const Logo1TextSpan = styled.span` {
+  color: var(--logo-color-1);  
+  font-size: ${props => props.fontSize};  
+}`;
+
+export const Logo1TextSpanBold = styled.span` {
+  color: var(--logo-color-1);  
+  font-weight: bold;
+  font-size: ${props => props.fontSize};  
+}`;
+
+export const Logo2TextSpan = styled.span` {
+  color: var(--logo-color-2);  
+  font-size: ${props => props.fontSize};  
+}`;
+
+export const Logo2TextSpanBold = styled.span` {
+  color: var(--logo-color-2);  
+  font-weight: bold;
+  font-size: ${props => props.fontSize};  
+}`;
+
+export const SuccessTextSpan = styled.span` {
+  color: var(--success);  
+  font-size: ${props => props.fontSize};  
+}`;
+
+export const SuccessTextSpanBold = styled.span` {
+  color: var(--success);  
+  font-weight: bold;
+  font-size: ${props => props.fontSize};  
+}`;
+
+export const LightTextSpan = styled.span` {
+  color: var(--light);
+  font-size: ${props => props.fontSize};  
+}`;
+
+export const LightTextSpanBold = styled.span` {
+  color: var(--light);  
+  font-weight: bold;
+  font-size: ${props => props.fontSize};  
+}`;
+
+export const LightColorTextSpan = styled.span` {
+  color: var(--light-color);  
+  font-size: ${props => props.fontSize};  
+}`;
+
+export const LightColorTextSpanBold = styled.span` {
+  color: var(--light-color);  
+  font-weight: bold;
+  font-size: ${props => props.fontSize};  
 }`;

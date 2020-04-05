@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 
 const mainPadding = "15px";
-const wasmCanvasSize = { x: "720px", y: "540px" };
+const wasmCanvasSize = {x: "720px", y: "540px"};
 
 export const PropertyContainer = styled.div`{
   border: 1px solid #d1d1d110;
@@ -62,7 +62,7 @@ export const PropertyTitleAddressRoad = styled.span`{
 
 export const PropertyTitleAddressTown = styled.span`{
   font-weight: bold;
-  color: var(--secondary-alt-color);
+  color: var(--logo-color-1);
 }`;
 
 export const PropertyTitleAddressPostcode = styled.span`{
@@ -88,31 +88,36 @@ export const PropertyCanvas = styled.div`{
 export const PropertyRightMenu = styled.div`{
   display: flex;
   flex-direction: column;
+  border-radius:4px;
+  padding: 8px;
+  border: solid 1px var(--middle-grey-color);
+  background-image: linear-gradient(var(--dark-color-transparent), var(--dark-color-transparent-very) );
 }`;
 
 export const PropertyMarketedBy = styled.div`{
-  text-align: center;
   font-weight: bold;
-  color: var(--light);
+  color: var(--light-color);
   margin-bottom: 10px;
+  border-radius: 4px;
+  border: solid 1px var(--info);
 }`;
 
 export const PropertyManagingEstateAgent = styled.img`{
   background-color: white;
   object-fit: contain;
-  padding: 3px;
-  border-radius: 4px;
-  border: solid 1px var(--info);
+  padding: 10px;
   margin-bottom: 10px;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  border-left: 1px solid var(--info);
+  border-top: 1px solid var(--info);
+  border-right: 1px solid var(--info);
 }`;
 
 export const PropertyVirtualBooking = styled.div`{
   display: flex;
   flex-direction: column;
-  border-radius:4px;
-  padding: 8px;
-  border: solid 1px var(--info);
-  background-image: linear-gradient(var(--background-color), var(--dark-color-transparent-very) );
+  padding: 0px 10px 10px 10px;
 }`;
 
 export const PropertyVirtualBookingTitle = styled.div`{
@@ -134,4 +139,27 @@ export const PropertyVirtualBookingFooter = styled.div`{
 export const PropertyVirtualBookingCharCallVideo = styled.div`{
   display: flex;
   flex-direction: column;
+}`;
+
+export const EstateAgentRep = styled.div`{
+  display: grid;
+  grid-template-columns: 35px calc(100% - 35px - 5px);
+  grid-template-rows: 50% 50%;
+  grid-template-areas: "EstateAgentRepIcon EstateAgentRepMainNameTitle"
+                       "EstateAgentRepIcon EstateAgentRepAssistingText";
+  margin-bottom: 10px;
+}`;
+
+export const EstateAgentRepIcon = styled.div`{
+  grid-area: EstateAgentRepIcon;
+}`;
+
+export const EstateAgentRepMainNameTitle = styled.div`{
+  grid-area: EstateAgentRepMainNameTitle;
+}`;
+
+export const EstateAgentRepAssistingText = styled.div`{
+  display: flex;
+  grid-area: EstateAgentRepAssistingText;
+  align-self: end;
 }`;

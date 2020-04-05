@@ -3,17 +3,25 @@ import "./Property.css";
 import {PropertyLayout} from "./PropertyLayout";
 import styled, {keyframes} from "styled-components";
 import {
+  EstateAgentRep, EstateAgentRepAssistingText, EstateAgentRepIcon, EstateAgentRepMainNameTitle,
   PropertyCanvas,
   PropertyContainer,
   PropertyManagingEstateAgent,
   PropertyMarketedBy,
   PropertyRightMenu,
   PropertyStarOfTheShow,
-  PropertyVirtualBooking, PropertyVirtualBookingCharCallVideo, PropertyVirtualBookingFooter,
-  PropertyVirtualBookingTitle
+  PropertyVirtualBooking,
+  PropertyVirtualBookingCharCallVideo
 } from "./Property.styled";
 import {Button, ButtonGroup} from "react-bootstrap";
-import {AvatarRound} from "../common.styled";
+import {
+  AvatarRound, InfoTextSpan,
+  InfoTextSpanBold,
+  LightColorTextSpanBold,
+  LightTextSpan,
+  LightTextSpanBold
+} from "../common.styled";
+import {Mx1} from "../Navbar.styled";
 
 export const Property = () => {
   let canvasContainer = React.useRef(null);
@@ -139,25 +147,35 @@ export const Property = () => {
         <PropertyCanvas/>
         <PropertyRightMenu>
           <PropertyMarketedBy>
-            Brought to you by:
+            <PropertyManagingEstateAgent src={"/andrew-scott-robertson-logo.png"} width={"244"} height={"72"}/>
+            <PropertyVirtualBooking>
+              <EstateAgentRep>
+                <EstateAgentRepIcon>
+                  <AvatarRound src={"/dado3.png"}/>
+                </EstateAgentRepIcon>
+                <EstateAgentRepMainNameTitle>
+                  <LightColorTextSpanBold>
+                    Dado,
+                  </LightColorTextSpanBold>
+                  <InfoTextSpan fontSize={"smaller"}>
+                    {" "}the big cheese
+                  </InfoTextSpan>
+                </EstateAgentRepMainNameTitle>
+                <EstateAgentRepAssistingText>
+                  <LightTextSpan fontSize={"0.5rem"}>
+                  is looking after this property
+                  </LightTextSpan>
+                </EstateAgentRepAssistingText>
+              </EstateAgentRep>
+              <PropertyVirtualBookingCharCallVideo>
+                <ButtonGroup aria-label="">
+                  <Button variant="primary"><i className={"fas fa-comments"}/>{" "}chat</Button>
+                  <Button variant="info"><i className={"fas fa-phone-alt"}/>{" "}phone</Button>
+                  <Button variant="success"><i className={"fas fa-video"}/>{" "}video</Button>
+                </ButtonGroup>
+              </PropertyVirtualBookingCharCallVideo>
+            </PropertyVirtualBooking>
           </PropertyMarketedBy>
-          <PropertyManagingEstateAgent src={"/andrew-scott-robertson-logo.png"} width={"244"} height={"72"}/>
-          <PropertyVirtualBooking>
-            <PropertyVirtualBookingTitle>
-              Real time virtual viewing
-            </PropertyVirtualBookingTitle>
-            <AvatarRound src={"/dado.png"}/>
-            <PropertyVirtualBookingCharCallVideo>
-              <ButtonGroup aria-label="">
-                <Button variant="primary"><i className={"fas fa-comments"}/>{" "}chat</Button>
-                <Button variant="info"><i className={"fas fa-phone-alt"}/>{" "}phone</Button>
-                <Button variant="success"><i className={"fas fa-video"}/>{" "}video</Button>
-              </ButtonGroup>
-            </PropertyVirtualBookingCharCallVideo>
-            <PropertyVirtualBookingFooter>
-              Booking for a viewing is a thing of the past! Give real time virtual viewing a shot.
-            </PropertyVirtualBookingFooter>
-          </PropertyVirtualBooking>
         </PropertyRightMenu>
       </PropertyStarOfTheShow>
     </PropertyContainer>
