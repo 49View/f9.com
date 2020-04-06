@@ -9,11 +9,15 @@ import {
   Navbareh,
   NavbarLogo,
   NavbarLogoAndTitle,
-  NavbarTitle, TextFocusD1, TextFocusD2, TextFocusD3, TextShadow,
+  NavbarTitle,
+  TextFocusD1,
+  TextFocusD2,
+  TextFocusD3,
+  TextShadow,
   UserNameText
 } from "./Navbar.styled";
 import {getUserName, logoffFromProject, useGetAuth} from "../futuremodules/auth/authAccessors";
-import {isReservedWord, isReservedWordSanitized} from "../futuremodules/utils/utils";
+import {isReservedWordSanitized} from "../futuremodules/utils/utils";
 import Button from "react-bootstrap/Button";
 
 const Navbar = () => {

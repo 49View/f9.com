@@ -1,21 +1,15 @@
 import React from "reactn";
-import {getUserName, isUserAuthenticated} from "../../futuremodules/auth/authAccessors";
-import {getFileNameOnlyNoExt, sanitizeURLParams} from "../../futuremodules/utils/utils";
-import {useLocation} from "react-router-dom";
+import {isUserAuthenticated} from "../../futuremodules/auth/authAccessors";
 import {ProjectTabs} from "./DashboardProject.styled";
-import {Fragment, useState} from "react";
+import {Fragment} from "react";
 
 export const DashboardProject = ({auth}) => {
 
-  const trendId = sanitizeURLParams(getFileNameOnlyNoExt(useLocation().pathname));
-  const [activeTab, setActiveTab] = useState("DataSources");
-
-  if (!isUserAuthenticated(auth) || trendId === null) {
+  if (!isUserAuthenticated(auth)) {
     return (<Fragment/>)
-    // return (<Redirect to={"/"}/>)
   }
 
-  const username = getUserName(auth);
+  // const username = getUserName(auth);
 
   return (
       <ProjectTabs>

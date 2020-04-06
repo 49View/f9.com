@@ -1,9 +1,11 @@
 import React, {useGlobal} from "reactn";
 import "./Property.css";
 import {PropertyLayout} from "./PropertyLayout";
-import styled, {keyframes} from "styled-components";
 import {
-  EstateAgentRep, EstateAgentRepAssistingText, EstateAgentRepIcon, EstateAgentRepMainNameTitle,
+  EstateAgentRep,
+  EstateAgentRepAssistingText,
+  EstateAgentRepIcon,
+  EstateAgentRepMainNameTitle,
   PropertyCanvas,
   PropertyContainer,
   PropertyManagingEstateAgent,
@@ -17,7 +19,8 @@ import {Button, ButtonGroup} from "react-bootstrap";
 import {
   AvatarRound,
   InfoTextSpan,
-  LightColorTextSpanBold, LightTextSpan
+  LightColorTextSpanBold,
+  LightTextSpan
 } from "../../futuremodules/reactComponentStyles/reactCommon.styled";
 import WasmCanvas, {ReactWasm} from "../../futuremodules/reactwasmcanvas/localreacwasmcanvas";
 
@@ -27,80 +30,6 @@ export const Property = () => {
   const wasmDispatcher = useGlobal(ReactWasm);
   const wwwPrefixToAvoidSSLMadness = process.env.REACT_APP_EH_CLOUD_HOST === 'localhost' ? "" : "www.";
   let wasmArgumentList = [`hostname=${wwwPrefixToAvoidSSLMadness}${process.env.REACT_APP_EH_CLOUD_HOST}`];
-
-  const transformAnimFuncString = (x, y) => {
-    return `transform: translate(${x * 100.0}%, ${y * 100.0}%)`;
-  };
-
-  const transformAnimFunc = (menuIndex, velocity, depthPect) => {
-    return keyframes`
-    from {
-      ${transformAnimFuncString((menuIndex + -velocity) * depthPect, 0)}
-    }
-    to {
-      ${transformAnimFuncString(menuIndex * depthPect, 0)}
-    }`;
-  };
-
-  const menuDepth = 3;
-  const menuDepthOver = 1.0 / menuDepth;
-  const menuItemPadding = 15;
-  const anim = transformAnimFunc(
-    0,
-    1,
-    -menuDepthOver
-  );
-
-  const ResultContainer = styled.div`
-    width: calc(${menuDepth * 100.0}% + ${menuItemPadding * menuDepth}px);
-    overflow: hidden;
-    float: left;
-    animation: ${anim} 1.5s ease-in-out 0s 1 normal forwards;
-  `;
-
-  const ResultContainerItem = styled.div`
-    width: calc( ${menuDepthOver * 100.0}% - ${menuItemPadding}px );
-    overflow: hidden;
-    float: left;
-    margin-right: ${menuItemPadding}px;
-  }`;
-
-  const a49ResultContent = (
-    <ResultContainer>
-    </ResultContainer>
-  );
-
-  const sendCommandScripts = ev => {
-    let command = "";
-    const commandTime = "change time ";
-    const commandFloor = "change floor ";
-    const commandPaintWalls = "paint walls ";
-    const commandTimeLUAStart = "rr.changeTime('";
-    const commandFloorLUAStart = "rr.changeMaterialFor(8, '";
-    const commandWallPaintLUAStart = "rr.changeColorFor(2, ";
-    const commandLUAEnd = "')";
-    const commandLUAEndNoQuote = ")";
-    if (ev.includes(commandTime)) {
-      command =
-        commandTimeLUAStart +
-        ev.substr(commandTime.length, ev.length) +
-        commandLUAEnd;
-    } else if (ev.includes(commandFloor)) {
-      command =
-        commandFloorLUAStart +
-        ev.substr(commandFloor.length, ev.length) +
-        commandLUAEnd;
-    } else if (ev.includes(commandPaintWalls)) {
-      command =
-        commandWallPaintLUAStart +
-        ev.substr(commandPaintWalls.length, ev.length) +
-        commandLUAEndNoQuote;
-    }
-    if (command !== "") {
-      console.log(command);
-      // sendScript(command);
-    }
-  };
 
   return (
     <PropertyContainer>

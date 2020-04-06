@@ -1,8 +1,6 @@
-import React, {Fragment, useState, useGlobal} from "reactn";
+import React, {Fragment, useState} from "reactn";
 import {DashboardUserInnerMargins} from "../DashboardUser.styled";
-import {useQuery} from "@apollo/react-hooks";
-import {LinkContainer} from "react-router-bootstrap";
-import {Button, Dropdown, FormControl, InputGroup, SplitButton} from "react-bootstrap";
+import {Button, FormControl, InputGroup} from "react-bootstrap";
 import {alertIfSuccessful, api, useApi} from "../../../futuremodules/api/apiEntryPoint";
 import {sendInvitationToProject} from "../../../futuremodules/auth/projectApiCalls";
 import {getUserName} from "../../../futuremodules/auth/authAccessors";
@@ -79,12 +77,12 @@ export const UserAssets = ({auth}) => {
   // const [, setEditingUserTrend] = useGlobal(EditingUserTrend);
   // const {data, loading} = useQuery(getUserTrends(), {variables: {name}});
 
-  const onManageProject = name => {
-    // setCurrentManagedProject(name);
-  };
-
-  const onRemoveProject = name => {
-  };
+  // const onManageProject = name => {
+  //   // setCurrentManagedProject(name);
+  // };
+  //
+  // const onRemoveProject = name => {
+  // };
 
   let userProjects = (
     <span className="normal text-primary">

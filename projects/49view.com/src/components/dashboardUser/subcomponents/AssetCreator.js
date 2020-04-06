@@ -1,21 +1,18 @@
 import React, {Fragment, useGlobal, useState} from "reactn";
 import {alertWarning, NotificationAlert} from "../../../futuremodules/alerts/alerts";
-import {useMutation} from "@apollo/react-hooks";
 import {DashboardUserInnerMargins} from "../DashboardUser.styled";
-import {getUserName} from "../../../futuremodules/auth/authAccessors";
 
 export const AssetCreator = ({auth}) => {
 
   const [,alertStore] = useGlobal(NotificationAlert);
   // const [createTrendM] = useMutation(CREATE_TREND);
   const [newTrendFormInput, setNewTrendFormInput] = useState();
-  const name = getUserName(auth);
+  // const name = getUserName(auth);
 
   const onCreateProject = e => {
     e.preventDefault();
     if (!newTrendFormInput) {
       alertWarning(alertStore, "I see no trend in here!");
-      return;
     }
     // createTrendM({
     //   variables: {

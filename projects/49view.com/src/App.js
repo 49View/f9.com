@@ -16,18 +16,9 @@ import {Property} from "./components/PropertyPage/Property";
 import {Body} from "./futuremodules/reactComponentStyles/reactCommon.styled";
 import styled from "styled-components";
 
-
 initEH();
 
-const App = () => {
-
-  const authApi = useApi(Auth);
-  useEffect(() => {
-    apiSilent(authApi, loadUser).then();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const Content = styled.section` {
+const Content = styled.section` {
     position: absolute;
     top: 0;
     left: 0;
@@ -42,6 +33,14 @@ const App = () => {
     background-size: cover;
     overflow: hidden;
   }`;
+
+const App = () => {
+
+  const authApi = useApi(Auth);
+  useEffect(() => {
+    apiSilent(authApi, loadUser).then();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Content>
