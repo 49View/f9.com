@@ -1,10 +1,8 @@
 import "./App.css";
 import React, {useEffect} from "react";
-import {Route, Switch, useLocation} from 'react-router-dom';
+import {Route, Switch} from 'react-router-dom';
 import Landing from "./components/Landing/Landing";
 import Navbar from "./components/Navbar";
-import {useGlobal} from 'reactn';
-import {sanitizePathRoot} from "./futuremodules/utils/utils";
 import {initEH} from "./init";
 import Register from "./futuremodules/auth/components/Register";
 import Login from "./futuremodules/auth/components/Login";
@@ -14,17 +12,14 @@ import {apiSilent, useApi} from "./futuremodules/api/apiEntryPoint";
 import {loadUser} from "./futuremodules/auth/authApiCalls";
 import {Auth} from "./futuremodules/auth/authAccessors";
 import {DashboardProject} from "./components/dashboardProject/DashboardProject";
-import {Body, Content} from "./components/common.styled";
 import {Property} from "./components/PropertyPage/Property";
+import {Body} from "./futuremodules/reactComponentStyles/reactCommon.styled";
+import styled from "styled-components";
 
 
 initEH();
 
 const App = () => {
-  const location = useLocation();
-  const [trend] = useGlobal('trendId');
-  const trendId = sanitizePathRoot(trend ? trend : location.pathname);
-  // const [usernameSplit, trendIdSplit] = trendId.split("/");
 
   const authApi = useApi(Auth);
   useEffect(() => {
@@ -32,20 +27,40 @@ const App = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const Content = styled.section` {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: url("/grant-UhpYKnqZwE8-unsplash.jpg") no-repeat center center
+      fixed;
+    width: 100%;
+    height: 100%;
+  
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    overflow: hidden;
+  }`;
+
+  const Darker = styled.section` {
+    background-color: #202020E0;
+  }`;
+
   return (
     <Content>
       <Navbar/>
-      <Body>
-        <Switch>
-          <Route exact path="/" component={Landing}/>
-          <Route exact path="/register" component={Register}/>
-          <Route exact path="/login" component={Login}/>
-          <Route exact path="/dashboarduser" render={() => <DashboardUser auth={authApi}/>}/>
-          <Route path="/dashboardproject" render={() => <DashboardProject auth={authApi}/>}/>
-          <Route path="/property/:pid" render={() => <Property auth={authApi}/>}/>
-        </Switch>
-        <EHAlert/>
-      </Body>
+        <Body>
+          <Switch>
+            <Route exact path="/" component={Landing}/>
+            <Route exact path="/register" component={Register}/>
+            <Route exact path="/login" component={Login}/>
+            <Route exact path="/dashboarduser" render={() => <DashboardUser auth={authApi}/>}/>
+            <Route path="/dashboardproject" render={() => <DashboardProject auth={authApi}/>}/>
+            <Route path="/property/:pid" render={() => <Property auth={authApi}/>}/>
+          </Switch>
+          <EHAlert/>
+        </Body>
     </Content>
   );
 };

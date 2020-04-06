@@ -11,6 +11,7 @@ export const PropertyContainer = styled.div`{
   background-image: linear-gradient(var(--dark-color), var(--dark-color-transparent-very) );
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.9), 0 4px 10px 0 rgba(0, 0, 0, 0.99);
   overflow: hidden;
+  margin-top: 20px;
 }`;
 
 export const PropertyTitleInfo = styled.div`{

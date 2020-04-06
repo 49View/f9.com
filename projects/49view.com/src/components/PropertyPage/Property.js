@@ -15,33 +15,12 @@ import {
 } from "./Property.styled";
 import {Button, ButtonGroup} from "react-bootstrap";
 import {
-  AvatarRound, InfoTextSpan,
-  InfoTextSpanBold,
-  LightColorTextSpanBold,
-  LightTextSpan,
-  LightTextSpanBold
-} from "../common.styled";
-import {Mx1} from "../Navbar.styled";
+  AvatarRound,
+  InfoTextSpan,
+  LightColorTextSpanBold, LightTextSpan
+} from "../../futuremodules/reactComponentStyles/reactCommon.styled";
 
 export const Property = () => {
-  let canvasContainer = React.useRef(null);
-  // const commandLine = useSelector(state => state.command);
-
-  console.log("Property.js redraw");
-
-  const topSideEntry = elem => {
-    return (
-      <div>
-        <div className="a49view-magic-selector-mainIcon">
-          <i className={elem.icon}/>
-        </div>
-        <div className="a49view-magic-selector-mainText"> {elem.text}</div>
-        <div className="a49view-magic-selector-arrow">
-          <i className="fas fa-arrow-alt-circle-right"></i>
-        </div>
-      </div>
-    );
-  };
 
   const transformAnimFuncString = (x, y) => {
     return `transform: translate(${x * 100.0}%, ${y * 100.0}%)`;
