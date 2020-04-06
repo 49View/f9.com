@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useGlobal} from "reactn";
 import "./Property.css";
 import {PropertyLayout} from "./PropertyLayout";
 import styled, {keyframes} from "styled-components";
@@ -19,8 +19,14 @@ import {
   InfoTextSpan,
   LightColorTextSpanBold, LightTextSpan
 } from "../../futuremodules/reactComponentStyles/reactCommon.styled";
+import WasmCanvas, {ReactWasm} from "../../futuremodules/reactwasmcanvas/localreacwasmcanvas";
 
 export const Property = () => {
+
+  let canvasContainer = React.useRef(null);
+  const wasmDispatcher = useGlobal(ReactWasm);
+  const wwwPrefixToAvoidSSLMadness = process.env.REACT_APP_EH_CLOUD_HOST === 'localhost' ? "" : "www.";
+  let wasmArgumentList = [`hostname=${wwwPrefixToAvoidSSLMadness}${process.env.REACT_APP_EH_CLOUD_HOST}`];
 
   const transformAnimFuncString = (x, y) => {
     return `transform: translate(${x * 100.0}%, ${y * 100.0}%)`;
@@ -98,32 +104,19 @@ export const Property = () => {
 
   return (
     <PropertyContainer>
-      {/*<div className="a49view-magic">*/}
-      {/*  <div className="a49view-makeyourown-tag">*/}
-      {/*    Your Home, <b>Your Way</b>, <i>Now</i>.*/}
-      {/*  </div>*/}
-      {/*  <div className="a49view-magic-inputbar">*/}
-      {/*    <input*/}
-      {/*      className="search-bar a49view-magic"*/}
-      {/*      type="text"*/}
-      {/*      id="search-bar"*/}
-      {/*      placeholder="I would like to..."*/}
-      {/*      onKeyUp={async e => {*/}
-      {/*        if (e.keyCode === 13) {*/}
-      {/*          e.preventDefault();*/}
-      {/*          sendCommandScripts(e.target.value);*/}
-      {/*        }*/}
-      {/*      }}*/}
-      {/*    ></input>*/}
-      {/*  </div>*/}
-      {/*  <div className="a49view-magic-inputbaricon">*/}
-      {/*    <img src="/49view_logo_round_floor.svg" alt="" />*/}
-      {/*  </div>*/}
-      {/*</div>*/}
-      {/*<div className="a49view-magic-result">{a49ResultContent}</div>*/}
       <PropertyLayout/>
       <PropertyStarOfTheShow>
-        <PropertyCanvas/>
+        <PropertyCanvas ref={canvasContainer}>
+          <WasmCanvas
+            wasmName='../editor'
+            dispatcher={wasmDispatcher}
+            canvasContainer={canvasContainer.current}
+            initialRect={{top: 0, left: 0, width: 0, height: 0}}
+            initialVisibility={false}
+            argumentList={wasmArgumentList}
+            mandatoryWebGLVersionSupporNumber="webgl2"
+          />
+        </PropertyCanvas>
         <PropertyRightMenu>
           <PropertyMarketedBy>
             <PropertyManagingEstateAgent src={"/andrew-scott-robertson-logo.png"} width={"244"} height={"72"}/>
