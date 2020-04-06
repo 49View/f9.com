@@ -43,10 +43,6 @@ const App = () => {
     overflow: hidden;
   }`;
 
-  const Darker = styled.section` {
-    background-color: #202020E0;
-  }`;
-
   return (
     <Content>
       <Navbar/>
