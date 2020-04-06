@@ -23,6 +23,7 @@ import {
   LightTextSpan
 } from "../../futuremodules/reactComponentStyles/reactCommon.styled";
 import WasmCanvas, {ReactWasm} from "../../futuremodules/reactwasmcanvas/localreacwasmcanvas";
+import VideoPhoneChat from "../../futuremodules/webrtc/components/VideoPhoneChat";
 
 export const Property = () => {
 
@@ -75,6 +76,7 @@ export const Property = () => {
                   <Button variant="success"><i className={"fas fa-video"}/>{" "}video</Button>
                 </ButtonGroup>
               </PropertyVirtualBookingCharCallVideo>
+              <VideoPhoneChat/>
             </PropertyVirtualBooking>
           </PropertyMarketedBy>
         </PropertyRightMenu>
