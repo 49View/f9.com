@@ -5,7 +5,6 @@ const wasmCanvasSize = {x: "720px", y: "540px"};
 
 export const PropertyContainer = styled.div`{
   border: 1px solid #d1d1d110;
-  height: 100vh;
   padding: 10px ${mainPadding};
   border-radius: 5px;
   background-image: linear-gradient(var(--dark-color), var(--dark-color-transparent-very) );
@@ -81,8 +80,8 @@ export const PropertyStarOfTheShow = styled.div`{
 export const PropertyCanvas = styled.div`{
   min-width: 640px;
   height: 480px;
-  border-radius: 5px;
-  border: 1px solid var(--middle-grey-color);
+  //border-radius: 5px;
+  //border: 1px solid var(--middle-grey-color);
 }`;
 
 export const PropertyRightMenu = styled.div`{
@@ -152,11 +151,11 @@ export const PropertyVirtualBookingCharCallVideo = styled.div`{
 
 export const EstateAgentRep = styled.div`{
   display: grid;
-  grid-template-columns: 35px calc(100% - 35px - 5px);
+  grid-template-columns: 50px calc(100% - 50px - 5px);
   grid-template-rows: 50% 50%;
   grid-template-areas: "EstateAgentRepIcon EstateAgentRepMainNameTitle"
                        "EstateAgentRepIcon EstateAgentRepAssistingText";
-  margin-bottom: 10px;
+  margin: 5px 0px;
 }`;
 
 export const EstateAgentRepIcon = styled.div`{
@@ -168,7 +167,7 @@ export const EstateAgentRepMainNameTitle = styled.div`{
 }`;
 
 export const EstateAgentRepAssistingText = styled.div`{
-  display: flex;
-  grid-area: EstateAgentRepAssistingText;
-  align-self: end;
+  color: var(--light);
+  font-weight: bold;
+  font-size: ${props => props.fontSize};  
 }`;

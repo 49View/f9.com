@@ -15,12 +15,10 @@ import {
   PropertyVirtualBooking,
   PropertyVirtualBookingCharCallVideo
 } from "./Property.styled";
-import {Button, ButtonGroup} from "react-bootstrap";
 import {
   AvatarRound,
   InfoTextSpan,
-  LightColorTextSpanBold,
-  LightTextSpan
+  LightColorTextSpanBold
 } from "../../futuremodules/reactComponentStyles/reactCommon.styled";
 import WasmCanvas, {ReactWasm} from "../../futuremodules/reactwasmcanvas/localreacwasmcanvas";
 import VideoPhoneChat from "../../futuremodules/webrtc/components/VideoPhoneChat";
@@ -43,6 +41,8 @@ export const Property = () => {
             canvasContainer={canvasContainer.current}
             initialRect={{top: 0, left: 0, width: 0, height: 0}}
             initialVisibility={false}
+            borderRadius={"5px"}
+            border={"1px solid var(--middle-grey-color)"}
             argumentList={wasmArgumentList}
             mandatoryWebGLVersionSupporNumber="webgl2"
           />
@@ -63,20 +63,13 @@ export const Property = () => {
                     {" "}the big cheese
                   </InfoTextSpan>
                 </EstateAgentRepMainNameTitle>
-                <EstateAgentRepAssistingText>
-                  <LightTextSpan fontSize={"0.6rem"}>
+                <EstateAgentRepAssistingText fontSize={"0.75rem"}>
                   is looking after this property
-                  </LightTextSpan>
                 </EstateAgentRepAssistingText>
               </EstateAgentRep>
               <PropertyVirtualBookingCharCallVideo>
-                <ButtonGroup aria-label="">
-                  <Button variant="primary"><i className={"fas fa-comments"}/>{" "}chat</Button>
-                  <Button variant="info"><i className={"fas fa-phone-alt"}/>{" "}phone</Button>
-                  <Button variant="success"><i className={"fas fa-video"}/>{" "}video</Button>
-                </ButtonGroup>
+                <VideoPhoneChat/>
               </PropertyVirtualBookingCharCallVideo>
-              <VideoPhoneChat/>
             </PropertyVirtualBooking>
           </PropertyMarketedBy>
         </PropertyRightMenu>

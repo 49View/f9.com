@@ -1,27 +1,34 @@
-import React from "reactn";
+import React, {withGlobal} from "reactn";
 import {DashboardUserFragment} from "./DashboardUser.styled";
-import {isUserAuthenticated} from "../../futuremodules/auth/authAccessors";
-import {WelcomeToTheJungle} from "./subcomponents/WelcomeToTheJungle"
-import {UserAssets} from "./subcomponents/UserAssets";
+import WelcomeToTheJungle from "./subcomponents/WelcomeToTheJungle"
 import {Logoff} from "./subcomponents/Logoff";
-import {AssetCreator} from "./subcomponents/AssetCreator";
-import {Redirect} from "react-router-dom";
+import UserAssets from "./subcomponents/UserAssets";
 
-const DashboardUser = ({auth}) => {
+const DashboardUser = (props) => {
 
-  if (!isUserAuthenticated(auth)) {
-    return (<Redirect to={"/"}/>)
-  }
+  const auth = props.auth;
+
+  // useEffect( () => {
+  //   if ( !auth ) {
+  //     // if (!isUserAuthenticated(auth)) {
+  //       return (<Redirect to={"/"}/>)
+  //     // }
+  //   }
+  // }, [auth]);
 
   return (
     <DashboardUserFragment>
       <WelcomeToTheJungle auth={auth}/>
-      <UserAssets auth={auth}/>
-      <AssetCreator auth={auth}/>
-      {/*<AssetInvitations auth={auth}/>*/}
+      <UserAssets/>
+      {/*<AssetCreator auth={auth}/>*/}
+      {/*/!*<AssetInvitations auth={auth}/>*!/*/}
       <Logoff auth={auth}/>
     </DashboardUserFragment>
   );
 };
 
-export default DashboardUser;
+export default withGlobal(
+  global => ({
+    auth: global.auth,
+  }),
+)(DashboardUser);

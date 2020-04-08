@@ -1,16 +1,26 @@
-import React from "reactn";
-import {getUserName} from "../../../futuremodules/auth/authAccessors";
+import React, {withGlobal} from "reactn";
+import {getAuthUserName} from "../../../futuremodules/auth/authAccessors";
+import {
+  LightColorTextSpan,
+  SecondaryAltColorTextSpanBold
+} from "../../../futuremodules/reactComponentStyles/reactCommon.styled";
 
-export const WelcomeToTheJungle = ({auth}) => {
+const WelcomeToTheJungle = (props) => {
 
-  const name = getUserName(auth);
+  const name = getAuthUserName(props.auth);
 
   return (
-    <div className="large">
-      <span>Hello, </span>{" "}
-      <span className="navdiv-projecttext">
+    <div>
+      <LightColorTextSpan fontSize={"var(--font-size-medium)"}>Hello, </LightColorTextSpan>{" "}
+      <SecondaryAltColorTextSpanBold fontSize={"var(--font-size-large)"}>
           {name}
-      </span>
+      </SecondaryAltColorTextSpanBold>
     </div>
   )
 }
+
+export default withGlobal(
+  global => ({
+    auth: global.auth,
+  }),
+)(WelcomeToTheJungle);

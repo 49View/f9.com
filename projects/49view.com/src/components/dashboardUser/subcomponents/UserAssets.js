@@ -1,79 +1,85 @@
-import React, {Fragment, useState} from "reactn";
-import {DashboardUserInnerMargins} from "../DashboardUser.styled";
-import {Button, FormControl, InputGroup} from "react-bootstrap";
-import {alertIfSuccessful, api, useApi} from "../../../futuremodules/api/apiEntryPoint";
-import {sendInvitationToProject} from "../../../futuremodules/auth/projectApiCalls";
-import {getUserName} from "../../../futuremodules/auth/authAccessors";
+import React, {Fragment, useState, withGlobal} from "reactn";
+import {Button} from "react-bootstrap";
+import {Redirect} from "react-router-dom";
 
-const YourAssetsTitle = () => {
-  return (
-    <DashboardUserInnerMargins>
-      <i className="fas fa-rocket"/> Your Trends:
-    </DashboardUserInnerMargins>
-  );
-}
+// const YourAssetsTitle = () => {
+//   return (
+//     <DashboardUserInnerMargins>
+//       <i className="fas fa-rocket"/> Your Trends:
+//     </DashboardUserInnerMargins>
+//   );
+// }
+//
+// const ProjectManagement = ({name}) => {
+//
+//   const projectApi = useApi('project');
+//   const [, , , alertStore] = projectApi;
+//   let inviteNameRef = React.useRef(null);
+//   const [currentManagedProject, setCurrentManagedProject] = useState(null);
+//
+//   if (!currentManagedProject) return <Fragment/>
+//
+//   const invite = async () => {
+//     const invited = inviteNameRef.current.value;
+//     const res = await api(projectApi, sendInvitationToProject, name, currentManagedProject, invited);
+//     alertIfSuccessful(res, alertStore, "Great stuff!", invited + " has been invited, give them a shout!");
+//   }
+//
+//   const closeProjectManagement = () => {
+//     setCurrentManagedProject(null);
+//   };
+//
+//   return (
+//     <div className="projectManagementContainer">
+//       <div className="projectInvitationGrid">
+//         <div className="lead text-secondary-alt">{currentManagedProject}</div>
+//         <div className="closeButton-a">
+//           <Button
+//             variant="outline-dark"
+//             onClick={e => closeProjectManagement()}
+//           >
+//             <i className="fas fa-times-circle"/>
+//           </Button>
+//         </div>
+//       </div>
+//       <div className="width100">Send invitation to join:</div>
+//       <InputGroup className="mb-3" onKeyPress={(target) => {
+//         if (target.charCode === 13) {
+//           invite()
+//         }
+//       }}
+//       >
+//         <InputGroup.Prepend>
+//           <InputGroup.Text id="basic-addon1">@</InputGroup.Text>
+//         </InputGroup.Prepend>
+//         <FormControl
+//           placeholder="Username or email address"
+//           aria-label="Username"
+//           aria-describedby="basic-addon1"
+//           ref={inviteNameRef}
+//         />
+//         <InputGroup.Append>
+//           <Button variant="info" onClick={() => invite()}>
+//             Invite
+//           </Button>
+//         </InputGroup.Append>
+//       </InputGroup>
+//     </div>
+//   );
+// };
 
-const ProjectManagement = ({name}) => {
+const UserAssets = (props) => {
 
-  const projectApi = useApi('project');
-  const [, , , alertStore] = projectApi;
-  let inviteNameRef = React.useRef(null);
-  const [currentManagedProject, setCurrentManagedProject] = useState(null);
+  // const auth = props.auth;
+  const [propertyId, gotoProperty] = useState(null);
 
-  if (!currentManagedProject) return <Fragment/>
-
-  const invite = async () => {
-    const invited = inviteNameRef.current.value;
-    const res = await api(projectApi, sendInvitationToProject, name, currentManagedProject, invited);
-    alertIfSuccessful(res, alertStore, "Great stuff!", invited + " has been invited, give them a shout!");
+  if ( propertyId ) {
+    return (
+      <Redirect to={`/property/${propertyId}`}/>
+    )
   }
 
-  const closeProjectManagement = () => {
-    setCurrentManagedProject(null);
-  };
-
-  return (
-    <div className="projectManagementContainer">
-      <div className="projectInvitationGrid">
-        <div className="lead text-secondary-alt">{currentManagedProject}</div>
-        <div className="closeButton-a">
-          <Button
-            variant="outline-dark"
-            onClick={e => closeProjectManagement()}
-          >
-            <i className="fas fa-times-circle"/>
-          </Button>
-        </div>
-      </div>
-      <div className="width100">Send invitation to join:</div>
-      <InputGroup className="mb-3" onKeyPress={(target) => {
-        if (target.charCode === 13) {
-          invite()
-        }
-      }}
-      >
-        <InputGroup.Prepend>
-          <InputGroup.Text id="basic-addon1">@</InputGroup.Text>
-        </InputGroup.Prepend>
-        <FormControl
-          placeholder="Username or email address"
-          aria-label="Username"
-          aria-describedby="basic-addon1"
-          ref={inviteNameRef}
-        />
-        <InputGroup.Append>
-          <Button variant="info" onClick={() => invite()}>
-            Invite
-          </Button>
-        </InputGroup.Append>
-      </InputGroup>
-    </div>
-  );
-};
-
-export const UserAssets = ({auth}) => {
-
-  const name = getUserName(auth);
+  // const name = getAuthUserName(auth);
   // const [, setEditingUserTrend] = useGlobal(EditingUserTrend);
   // const {data, loading} = useQuery(getUserTrends(), {variables: {name}});
 
@@ -84,11 +90,11 @@ export const UserAssets = ({auth}) => {
   // const onRemoveProject = name => {
   // };
 
-  let userProjects = (
-    <span className="normal text-primary">
-      It feels quite lonely in here!
-    </span>
-  );
+  // let userProjects = (
+  //   <span className="normal text-primary">
+  //     It feels quite lonely in here!
+  //   </span>
+  // );
 
   // if (data && loading === false) {
   //   const trends = data.user.trends;
@@ -142,9 +148,18 @@ export const UserAssets = ({auth}) => {
 
   return (
     <Fragment>
-      <YourAssetsTitle/>
-      {userProjects}
-      <ProjectManagement name={name}/>
+      <br/>
+      <br/>
+      <Button variant={"info"} onClick={ () => gotoProperty(13) }>2 Bedroom flat</Button>
+      {/*<YourAssetsTitle/>*/}
+      {/*{userProjects}*/}
+      {/*<ProjectManagement name={name}/>*/}
     </Fragment>
   )
 };
+
+export default withGlobal(
+  global => ({
+    auth: global.auth,
+  }),
+)(UserAssets);
