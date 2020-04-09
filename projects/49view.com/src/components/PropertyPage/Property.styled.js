@@ -5,6 +5,7 @@ const wasmCanvasSize = {x: "720px", y: "540px"};
 
 export const PropertyContainer = styled.div`{
   border: 1px solid #d1d1d110;
+  height: auto;
   padding: 10px ${mainPadding};
   border-radius: 5px;
   background-image: linear-gradient(var(--dark-color), var(--dark-color-transparent-very) );

@@ -14,6 +14,7 @@
   --primary-color-dark: rgb(20, 100, 112);
   --primary-color-light: rgb(23, 162, 244);
   --dark-color: #343a40;
+  --navbar-color-transparent: #343a40EF;
   --dark-color-transparent: #343a4070;
   --dark-color-transparent-very: #343a4010;
   --light-color: #f4f4f4;
@@ -25,8 +26,8 @@
   --logo-color-2: #2B4764;
   --background-color: #3F3F3F;
   --middle-grey-color: #7f7f7f;
-  --navbar-height: 70px;
-  --navbar-logo-size: 55px;
+  --navbar-height: 80px;
+  --navbar-logo-size: 40px;
   --material-texture-size: 128px;
   --scheme-color-1: #D1793F;
   --scheme-color-2: #fccb7b;
@@ -34,7 +35,6 @@
   --mainMargin: 2%;
   --searchbar-height: 38px;
   --body-width: 1024px;
-  height: 100vh;
 }
 
 * {
@@ -55,7 +55,6 @@
 
 body {
   margin: 0 auto;
-  height: 100vh;
   min-width: var(--body-width);
   font-family: var(--font-family-default);
   font-size: 1rem;
@@ -77,6 +76,7 @@ a, a:link, a:visited, a:focus, a:hover, a:active{
   text-decoration-color: inherit;
   color: inherit;
 }
+
 ::-webkit-scrollbar {
   width: 0 !important;
 }

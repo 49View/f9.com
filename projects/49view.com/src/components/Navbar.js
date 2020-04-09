@@ -13,7 +13,6 @@ import {
   TextFocusD1,
   TextFocusD2,
   TextFocusD3,
-  TextShadow,
   UserNameText
 } from "./Navbar.styled";
 import {getUserName, logoffFromProject, useGetAuth} from "../futuremodules/auth/authAccessors";
@@ -59,14 +58,12 @@ const Navbar = () => {
       <NavbarLogoAndTitle>
         <NavbarLogo><Link to={"/"}><img src="/ehlogo.svg" alt=""/></Link></NavbarLogo>
         <Navbareh><Link to={"/"}>49view</Link></Navbareh>
-      </NavbarLogoAndTitle>
-      <NavbarTitle>
-        <TextShadow>
+        <NavbarTitle>
           <TextFocusD1>Your home.</TextFocusD1>{" "}
           <TextFocusD2>Your way.</TextFocusD2>{" "}
           <TextFocusD3>Now.</TextFocusD3>
-        </TextShadow>
-      </NavbarTitle>
+        </NavbarTitle>
+      </NavbarLogoAndTitle>
       {linkContent}
       <ProgressBar/>
     </NavbarComponent>

@@ -19,7 +19,6 @@ export const LandingContainer = styled.section` {
 
 export const LandingSection = styled.section` {
   position: relative;
-  height: 100vh;
 }`;
 
 export const LandingInner = styled.div` {

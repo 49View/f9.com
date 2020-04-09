@@ -19,20 +19,17 @@ import styled from "styled-components";
 initEH();
 
 const Content = styled.section` {
-    position: absolute;
-    top: 0;
-    left: 0;
     background: url("/grant-UhpYKnqZwE8-unsplash.jpg") no-repeat center center
       fixed;
-    width: 100%;
-    height: 100%;
-  
-    -webkit-background-size: cover;
-    -moz-background-size: cover;
-    -o-background-size: cover;
+    height: auto;
+    min-height: 100vh;  
     background-size: cover;
     overflow: hidden;
   }`;
+
+const FakeNavBar = styled.div `{
+  min-height: var(--navbar-height);
+}`;
 
 const App = () => {
 
@@ -45,17 +42,18 @@ const App = () => {
   return (
     <Content>
       <Navbar/>
-        <Body>
-          <Switch>
-            <Route exact path="/" component={Landing}/>
-            <Route exact path="/register" component={Register}/>
-            <Route exact path="/login" component={Login}/>
-            <Route exact path="/dashboarduser" component={DashboardUser}/>
-            <Route path="/dashboardproject" render={() => <DashboardProject auth={authApi}/>}/>
-            <Route path="/property/:pid" render={() => <Property auth={authApi}/>}/>
-          </Switch>
-          <EHAlert/>
-        </Body>
+      <FakeNavBar/>
+      <Body>
+        <Switch>
+          <Route exact path="/" component={Landing}/>
+          <Route exact path="/register" component={Register}/>
+          <Route exact path="/login" component={Login}/>
+          <Route exact path="/dashboarduser" component={DashboardUser}/>
+          <Route path="/dashboardproject" render={() => <DashboardProject auth={authApi}/>}/>
+          <Route path="/property/:pid" render={() => <Property auth={authApi}/>}/>
+        </Switch>
+        <EHAlert/>
+      </Body>
     </Content>
   );
 };
