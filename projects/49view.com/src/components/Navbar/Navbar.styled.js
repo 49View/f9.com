@@ -1,6 +1,6 @@
 import styled, {keyframes} from 'styled-components'
 
-export const NavbarLogoAndTitle = styled.div` {
+export const NavbarLogoAndTitleContainer = styled.div` {
   display: grid;
   grid-template-columns: 55px 95px;
   grid-template-rows: calc(var(--navbar-height) * 0.56) calc(var(--navbar-height) * 0.27);

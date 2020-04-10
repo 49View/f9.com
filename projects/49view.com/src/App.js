@@ -2,7 +2,7 @@ import "./App.css";
 import React, {useEffect} from "react";
 import {Route, Switch} from 'react-router-dom';
 import Landing from "./components/Landing/Landing";
-import Navbar from "./components/Navbar";
+import Navbar from "./components/Navbar/Navbar";
 import {initEH} from "./init";
 import Register from "./futuremodules/auth/components/Register";
 import Login from "./futuremodules/auth/components/Login";
