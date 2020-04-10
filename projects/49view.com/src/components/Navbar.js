@@ -1,47 +1,33 @@
-import React, {Fragment} from "react";
-import {useGlobal} from "reactn";
-import {Link, useLocation} from "react-router-dom";
+import React from "react";
+import {Link} from "react-router-dom";
 import {ProgressBar} from "../futuremodules/progressbar/ProgressBar";
 import {LinkContainer} from "react-router-bootstrap";
 import {
-  Mx1,
-  NavbarComponent,
   Navbareh,
   NavbarLogo,
   NavbarLogoAndTitle,
   NavbarTitle,
   TextFocusD1,
   TextFocusD2,
-  TextFocusD3,
-  UserNameText
+  TextFocusD3
 } from "./Navbar.styled";
 import {getUserName, logoffFromProject, useGetAuth} from "../futuremodules/auth/authAccessors";
-import {isReservedWordSanitized} from "../futuremodules/utils/utils";
 import Button from "react-bootstrap/Button";
+import {Mx1, NavbarComponent} from "../futuremodules/reactComponentStyles/reactCommon.styled";
 
 const Navbar = () => {
 
-  const location = useLocation();
-  const [, setTrend] = useGlobal('trendId');
   const auth = useGetAuth();
   const userName = getUserName(auth);
-  const isLocationReserved = isReservedWordSanitized(location.pathname);
 
-  let linkContent = <Fragment/>;
-
-  if (!isLocationReserved && userName) {
-    linkContent = (
+  const linkContent = userName ? (
       <Link to="/dashboarduser" onClick={() => {
         logoffFromProject(auth);
-        setTrend(null).then();
       }}>
         {userName && <span><i className="fas fa-user"/>{" "}{userName}</span>}
       </Link>
-    )
-  }
-  if (!isLocationReserved && !userName) {
-    linkContent = (
-      <UserNameText>
+    ) : (
+      <div>
         <LinkContainer key={"register"} to={"/register"}>
           <Button variant={"info"}> <i className="fas fa-user"/>{" "}Register{" "}</Button>
         </LinkContainer>
@@ -49,9 +35,8 @@ const Navbar = () => {
         <LinkContainer key={"login"} to={"/login"}>
           <Button variant={"primary"}> {" "}<i className="fas fa-rocket"/>{" "}Login</Button>
         </LinkContainer>
-      </UserNameText>
-    )
-  }
+      </div>
+    );
 
   return (
     <NavbarComponent>

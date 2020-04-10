@@ -13,7 +13,7 @@ import {loadUser} from "./futuremodules/auth/authApiCalls";
 import {Auth} from "./futuremodules/auth/authAccessors";
 import {DashboardProject} from "./components/dashboardProject/DashboardProject";
 import {Property} from "./components/PropertyPage/Property";
-import {Body} from "./futuremodules/reactComponentStyles/reactCommon.styled";
+import {Body, FakeNavBar} from "./futuremodules/reactComponentStyles/reactCommon.styled";
 import styled from "styled-components";
 
 initEH();
@@ -26,10 +26,6 @@ const Content = styled.section` {
     background-size: cover;
     overflow: hidden;
   }`;
-
-const FakeNavBar = styled.div `{
-  min-height: var(--navbar-height);
-}`;
 
 const App = () => {
 

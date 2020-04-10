@@ -1,31 +1,9 @@
 import styled, {keyframes} from 'styled-components'
 
-const minWidthOuterNavBarElements = `182px`;
-
-export const NavbarComponent = styled.div` {
-  position: fixed;
-  top: 0;
-  left: 0;
-  color: var(--light-color);
-  width: 100%;
-  z-index: 50000;
-  height: var(--navbar-height);
-  background: var(--navbar-color-transparent);
-  display: flex;
-  justify-content: space-between;
-  align-items:center;
-  border-bottom: 1px solid var(--middle-grey-color);
-  padding: 0 20px;
-}`;
-
-export const UserNameText = styled.div` {
-  min-width: ${minWidthOuterNavBarElements};
-}`;
-
 export const NavbarLogoAndTitle = styled.div` {
   display: grid;
-  grid-template-columns: 50px 100px;
-  grid-template-rows: calc(var(--navbar-height) * 0.50) calc(var(--navbar-height) * 0.3);
+  grid-template-columns: 55px 95px;
+  grid-template-rows: calc(var(--navbar-height) * 0.56) calc(var(--navbar-height) * 0.27);
   grid-template-areas: "logo    logotext"
                        "tagline tagline";
   justify-items: start;
@@ -43,7 +21,8 @@ export const Navbareh = styled.div` {
   grid-area: logotext;
   font-family: "Pompiere", cursive;
   font-size: 2.0rem;
-  padding-left: 8px;
+  padding-left: 6px;
+  padding-top: 3px;
 }`;
 
 export const NavbarTitle = styled.div`{
@@ -53,10 +32,6 @@ export const NavbarTitle = styled.div`{
   text-shadow: #000 1px 0 10px;
   color: var(--light-color);
   font-family: "Pompiere", cursive;
-}`;
-
-export const Mx1 = styled.span` {
-  padding-left: 6px;
 }`;
 
 const textFocusInKeyFrame = keyframes`
