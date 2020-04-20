@@ -1,5 +1,5 @@
 import "./App.css";
-import React, {useEffect} from "react";
+import React from "react";
 import {Route, Switch} from 'react-router-dom';
 import Landing from "./components/Landing/Landing";
 import Navbar from "./components/Navbar/Navbar";
@@ -8,13 +8,11 @@ import Register from "./futuremodules/auth/components/Register";
 import Login from "./futuremodules/auth/components/Login";
 import DashboardUser from "./components/dashboardUser/DashboardUser";
 import {EHAlert} from "./futuremodules/alerts/alerts";
-import {apiSilent, useApi} from "./futuremodules/api/apiEntryPoint";
-import {loadUser} from "./futuremodules/auth/authApiCalls";
-import {Auth} from "./futuremodules/auth/authAccessors";
 import {DashboardProject} from "./components/dashboardProject/DashboardProject";
 import {Property} from "./components/PropertyPage/Property";
 import {Body, FakeNavBar} from "./futuremodules/reactComponentStyles/reactCommon.styled";
 import styled from "styled-components";
+import {useAuth} from "./AppLogic";
 
 initEH();
 
@@ -29,11 +27,7 @@ const Content = styled.section` {
 
 const App = () => {
 
-  const authApi = useApi(Auth);
-  useEffect(() => {
-    apiSilent(authApi, loadUser).then();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  useAuth();
 
   return (
     <Content>
@@ -45,11 +39,11 @@ const App = () => {
           <Route exact path="/register" component={Register}/>
           <Route exact path="/login" component={Login}/>
           <Route exact path="/dashboarduser" component={DashboardUser}/>
-          <Route path="/dashboardproject" render={() => <DashboardProject auth={authApi}/>}/>
-          <Route path="/property/:pid" render={() => <Property auth={authApi}/>}/>
+          <Route path="/dashboardproject" render={() => <DashboardProject/>}/>
+          <Route path="/property/:pid" render={() => <Property/>}/>
         </Switch>
-        <EHAlert/>
       </Body>
+      <EHAlert/>
     </Content>
   );
 };
