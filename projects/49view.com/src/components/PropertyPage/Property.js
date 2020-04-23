@@ -22,6 +22,8 @@ import {
 } from "../../futuremodules/reactComponentStyles/reactCommon.styled";
 import WasmCanvas, {ReactWasm} from "../../futuremodules/reactwasmcanvas/localreacwasmcanvas";
 import VideoPhoneChat from "../../futuremodules/webrtc/components/VideoPhoneChat";
+import {useApi} from "../../futuremodules/api/apiEntryPoint";
+import {useEffect} from "react";
 
 export const Property = () => {
 
@@ -29,6 +31,11 @@ export const Property = () => {
   const wasmDispatcher = useGlobal(ReactWasm);
   const wwwPrefixToAvoidSSLMadness = process.env.REACT_APP_EH_CLOUD_HOST === 'localhost' ? "" : "www.";
   let wasmArgumentList = [`hostname=${wwwPrefixToAvoidSSLMadness}${process.env.REACT_APP_EH_CLOUD_HOST}`];
+  const pbapi = useApi('property');
+
+  // useEffect( () => {
+  //   apiCall( pbapi, "")
+  // }, [] );
 
   return (
     <PropertyContainer>

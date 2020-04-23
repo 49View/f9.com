@@ -1,4 +1,5 @@
 import {scrapeExcaliburFloorplan} from "../controllers/propertyController";
+import {propertyModel} from "../models/property";
 
 const express = require("express");
 const router = express.Router();
@@ -2756,7 +2757,8 @@ router.post("/fetch/floorplan/excalibur", async (req, res, next) => {
   try {
     // const response = await fetch(req.body.url);
     // const text = await response.text();
-    const result = scrapeExcaliburFloorplan(req.body.url, testHtml);
+    const result = await scrapeExcaliburFloorplan(req.body.url, testHtml);
+
     logger.info(req.url);
     res.send(result);
   } catch (ex) {

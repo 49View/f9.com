@@ -1,6 +1,6 @@
 import React, {withGlobal} from "reactn";
 import {DashboardUserFragment} from "./DashboardUser.styled";
-import WelcomeToTheJungle from "../../futuremodules/auth/components/WelcomeToTheJungle"
+import {WelcomeToTheJungle} from "../../futuremodules/auth/components/WelcomeToTheJungle"
 import {Logoff} from "../../futuremodules/auth/components/Logoff";
 import UserAssets from "./subcomponents/UserAssets";
 import {Redirect} from "react-router-dom";
@@ -19,8 +19,6 @@ const DashboardUser = (props) => {
     <DashboardUserFragment>
       <WelcomeToTheJungle/>
       <UserAssets/>
-      {/*<AssetCreator auth={auth}/>*/}
-      {/*/!*<AssetInvitations auth={auth}/>*!/*/}
       <Logoff tagline={"Great Scott, get me out of here"}/>
     </DashboardUserFragment>
   );

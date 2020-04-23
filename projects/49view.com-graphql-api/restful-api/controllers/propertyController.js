@@ -1,7 +1,16 @@
 // import * as cheerio from "cheerio";
+import {propertyModel} from "../models/property";
+import {propertyBinaryModel} from "../models/property_binary";
+const BSON = require('bson');
+
+const fs = require('fs');
+const fetch = require('node-fetch');
+const globalConfig = require("eh_config");
 const url = require('url');
 const path = require('path');
 const cheerio = require('cheerio');
+const hash = require('object-hash');
+const db = require('eh_db');
 
 const regexMatch = (regex, text, requiredMatches, matchIndex) => {
 
@@ -46,7 +55,7 @@ const cleanString = (source) => {
   }
 }
 
-export const scrapeExcaliburFloorplan = (htmlUrl, htmlSource) => {
+export const scrapeExcaliburFloorplan = async (htmlUrl, htmlSource) => {
 
   let floorplansString;
   let floorplansArray;
@@ -57,6 +66,7 @@ export const scrapeExcaliburFloorplan = (htmlUrl, htmlSource) => {
   let latitude, longitude;
 
   result = {
+    sourceHash: null,
     name: null,
     estateAgentName: null,
     estateAgentBranch: null,
@@ -190,6 +200,33 @@ export const scrapeExcaliburFloorplan = (htmlUrl, htmlSource) => {
     regex = /<img[^>]+src="([^">]+)"[^>]*class="site-plan"/mg
     result.floorplanUrl = regexMatch(regex, htmlSource, 2, 1);
   }
+
+  result.sourceHash = hash(globalConfig.mJWTSecret + htmlUrl);
+
+  // Save to DB
+  const propertyDoc = await db.upsert(propertyModel, {sourceHash: result.sourceHash}, result);
+
+  const fres = await fetch(result.floorplanUrl);
+  const floorplan = await fres.buffer();
+
+  const thumbs = [];
+  const images = [];
+  const captions = [];
+  for ( const elem of result.images ) {
+    const tres = await fetch(elem.thumbnailUrl);
+    thumbs.push(await tres.buffer());
+    const ires = await fetch(elem.masterUrl);
+    images.push(await ires.buffer());
+    captions.push(elem.caption);
+  }
+
+  await db.upsert(propertyBinaryModel, {propertyId: propertyDoc._id}, {
+    propertyId: propertyDoc._id,
+    floorplan,
+    thumbs,
+    images,
+    captions,
+  });
 
   return result;
 };

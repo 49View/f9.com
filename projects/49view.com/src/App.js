@@ -8,7 +8,6 @@ import Register from "./futuremodules/auth/components/Register";
 import Login from "./futuremodules/auth/components/Login";
 import DashboardUser from "./components/dashboardUser/DashboardUser";
 import {EHAlert} from "./futuremodules/alerts/alerts";
-import {DashboardProject} from "./components/dashboardProject/DashboardProject";
 import {Property} from "./components/PropertyPage/Property";
 import {Body, FakeNavBar} from "./futuremodules/reactComponentStyles/reactCommon.styled";
 import styled from "styled-components";
@@ -39,7 +38,6 @@ const App = () => {
           <Route exact path="/register" component={Register}/>
           <Route exact path="/login" component={Login}/>
           <Route exact path="/dashboarduser" component={DashboardUser}/>
-          <Route path="/dashboardproject" render={() => <DashboardProject/>}/>
           <Route path="/property/:pid" render={() => <Property/>}/>
         </Switch>
       </Body>

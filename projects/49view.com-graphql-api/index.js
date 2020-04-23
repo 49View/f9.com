@@ -9,6 +9,7 @@ const usersRoute    = require("eh_auth_and_auth/routes/usersRoute");
 const tokenRoute    = require("eh_auth_and_auth/routes/tokenRoute");
 const entitiesRoute = require("./restful-api/routes/entitiesRoute");
 const propertyRoute = require("./restful-api/routes/propertyRoute");
+const propertyBinaryRoute = require("./restful-api/routes/propertyBinaryRoute");
 
 const init = () => {
   dbi.initDB().then();
@@ -22,6 +23,7 @@ const use = () => {
   app.use("/user", usersRoute);
   app.use("/entities", entitiesRoute);
   app.use("/property", propertyRoute);
+  app.use("/propertyBinary", propertyBinaryRoute);
   app.use(authController.authenticate);
 };
 
