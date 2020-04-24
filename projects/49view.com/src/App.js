@@ -38,7 +38,7 @@ const App = () => {
           <Route exact path="/register" component={Register}/>
           <Route exact path="/login" component={Login}/>
           <Route exact path="/dashboarduser" component={DashboardUser}/>
-          <Route path="/property/:pid" render={() => <Property/>}/>
+          <Route path="/property/:pid" component={Property}/>
         </Switch>
       </Body>
       <EHAlert/>

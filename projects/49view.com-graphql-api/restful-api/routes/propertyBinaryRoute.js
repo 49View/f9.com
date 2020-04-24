@@ -1,6 +1,6 @@
 import {writeFile} from "../controllers/fsController";
 
-import {propertyBinaryModel} from "../models/property_binary";
+import {propertyBinaryModel} from "../../models/property_binary";
 
 const BSON = require('bson');
 const entityController = require("../controllers/entityController");

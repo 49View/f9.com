@@ -2,8 +2,8 @@ type User {
     _id: ID!
     name: String!
     email: String!
-    trends: [Trend]
-    trend(trendId: String!): Trend
+    properties: [Property]
+    property(id: ID!): Property
 }
 
 

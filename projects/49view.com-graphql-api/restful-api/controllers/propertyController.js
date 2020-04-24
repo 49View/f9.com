@@ -1,13 +1,9 @@
 // import * as cheerio from "cheerio";
-import {propertyModel} from "../models/property";
-import {propertyBinaryModel} from "../models/property_binary";
-const BSON = require('bson');
+import {propertyModel} from "../../models/property";
+import {propertyBinaryModel} from "../../models/property_binary";
 
-const fs = require('fs');
 const fetch = require('node-fetch');
 const globalConfig = require("eh_config");
-const url = require('url');
-const path = require('path');
 const cheerio = require('cheerio');
 const hash = require('object-hash');
 const db = require('eh_db');

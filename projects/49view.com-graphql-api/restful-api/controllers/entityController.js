@@ -1,5 +1,5 @@
 import * as asyncModelOperations from "../assistants/asyncModelOperations";
-import {entityModel} from "../models/entity";
+import {entityModel} from "../../models/entity";
 
 const mongoose = require("mongoose");
 const zlib = require("zlib");

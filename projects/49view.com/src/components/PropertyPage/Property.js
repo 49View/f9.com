@@ -22,24 +22,25 @@ import {
 } from "../../futuremodules/reactComponentStyles/reactCommon.styled";
 import WasmCanvas, {ReactWasm} from "../../futuremodules/reactwasmcanvas/localreacwasmcanvas";
 import VideoPhoneChat from "../../futuremodules/webrtc/components/VideoPhoneChat";
-import {useApi} from "../../futuremodules/api/apiEntryPoint";
-import {useEffect} from "react";
+import {useQLProperty} from "./PropertyLogic";
+import {SpinnerTopMiddle} from "../../futuremodules/spinner/Spinner";
 
-export const Property = () => {
-
+export const Property = (props) => {
   let canvasContainer = React.useRef(null);
   const wasmDispatcher = useGlobal(ReactWasm);
   const wwwPrefixToAvoidSSLMadness = process.env.REACT_APP_EH_CLOUD_HOST === 'localhost' ? "" : "www.";
   let wasmArgumentList = [`hostname=${wwwPrefixToAvoidSSLMadness}${process.env.REACT_APP_EH_CLOUD_HOST}`];
-  const pbapi = useApi('property');
+  const { match: { params } } = props;
 
-  // useEffect( () => {
-  //   apiCall( pbapi, "")
-  // }, [] );
+  const {property} = useQLProperty(params.pid);
+
+  if ( !property ) {
+    return <SpinnerTopMiddle/>
+  }
 
   return (
     <PropertyContainer>
-      <PropertyLayout/>
+      <PropertyLayout property={property}/>
       <PropertyStarOfTheShow>
         <PropertyCanvas ref={canvasContainer}>
           <WasmCanvas

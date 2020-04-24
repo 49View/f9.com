@@ -1,0 +1,25 @@
+type Location {
+    type: String
+    coordinates: [Float]
+}
+
+type Property {
+    _id: ID!
+    addressLine1: String
+    description: String
+    estateAgentAddress: String
+    estateAgentBranch: String
+    estateAgentName: String
+    keyFeatures: [String]
+    location: Location
+    name: String
+    origin: String
+    price: Int,
+    priceReadable: String
+    priceUnity: String
+    sourceHash: String
+}
+
+type Query {
+    property(_id: ID!): Property
+}

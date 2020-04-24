@@ -17,12 +17,9 @@ export class MongoDataSourceExtended extends MongoDataSource {
     // return this.model.find({});
   }
 
-  async findSimilar(query) {
-    return await this.model.find({trendId: {"$regex": query.trendId, "$options": "i"}});
-  }
-
   async findOne(query) {
-    return await this.model.findOne(query).collation({locale: "en", strength: 2});
+    const doc = await this.model.findOne(query).collation({locale: "en", strength: 2});
+    return doc.toObject();
   }
 
   async updateOne(query, data) {

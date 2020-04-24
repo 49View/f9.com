@@ -6,32 +6,36 @@ import {
   PropertyTitleAddressRoad,
   PropertyTitleAddressTown,
   PropertyTitleInfo,
-  PropertyTitleInfoSecondLine, PropertyTitlePrice, PropertyTitleRentOrBuy, PropertyTitleType
+  PropertyTitleInfoSecondLine,
+  PropertyTitlePrice,
+  PropertyTitleRentOrBuy,
+  PropertyTitleType
 } from "./Property.styled";
+import {propertyAddressSplit, propertyForSaleOrToRent, propertyNameSanitize} from "./PropertyLogic";
 
-export const PropertyLayout = () => {
-  // const tabKey = 1;
+const PropertyAddress = ({addrSplit}) => {
+
+  return (
+    <PropertyTitleAddress>
+      {addrSplit[0] && <PropertyTitleAddressRoad>{addrSplit[0]},{" "}</PropertyTitleAddressRoad>}
+      {addrSplit[1] && <PropertyTitleAddressTown>{addrSplit[1]},{" "}</PropertyTitleAddressTown>}
+      {addrSplit[2] && <PropertyTitleAddressPostcode>{addrSplit[2]}</PropertyTitleAddressPostcode>}
+    </PropertyTitleAddress>
+  );
+};
+
+export const PropertyLayout = ({property}) => {
 
   return (
     <Fragment>
       <PropertyTitleInfo>
-        <PropertyTitleType className="property-type">2 bedroom apartment</PropertyTitleType>
-        <PropertyTitlePrice>£525,000</PropertyTitlePrice>
+        <PropertyTitleType className="property-type">{propertyNameSanitize(property.name)}</PropertyTitleType>
+        <PropertyTitlePrice>{property.priceReadable}</PropertyTitlePrice>
       </PropertyTitleInfo>
       <PropertyTitleInfoSecondLine>
-        <PropertyTitleAddress>
-          <PropertyTitleAddressRoad>
-            Skerne Road,{" "}
-          </PropertyTitleAddressRoad>
-          <PropertyTitleAddressTown>
-            Kingston upon Thames,{" "}
-          </PropertyTitleAddressTown>
-          <PropertyTitleAddressPostcode>KT2
-          </PropertyTitleAddressPostcode>
-        </PropertyTitleAddress>
-        <PropertyTitleRentOrBuy>for sale</PropertyTitleRentOrBuy>
+        <PropertyAddress addrSplit={propertyAddressSplit(property.addressLine1)}/>
+        <PropertyTitleRentOrBuy>{propertyForSaleOrToRent(property.name)}</PropertyTitleRentOrBuy>
       </PropertyTitleInfoSecondLine>
-
       {/*<div className="property-details">*/}
       {/*  <Tabs*/}
       {/*    id="controlled-tab-example"*/}
