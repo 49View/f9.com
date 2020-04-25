@@ -4,6 +4,6 @@ export const estateAgentModel = mongoose.model("estate_agents", new mongoose.Sch
   address: {type: String},
   branch: {type: String},
   name: {type: String},
-  logo: {type: mongoose.Schema.Types.Buffer},
+  logo: {type: String},
   properties: [{type: mongoose.Schema.Types.ObjectId, ref: "properties", index: true, unique: true}]
 }, {timestamps: true, strict: false}));

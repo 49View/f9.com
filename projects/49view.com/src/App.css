@@ -84,10 +84,6 @@ a, a:link, a:visited, a:focus, a:hover, a:active{
   color: inherit;
 }
 
-::-webkit-scrollbar {
-  width: 0 !important;
-}
-
-img {
-  width: 100%;
-}
+/*::-webkit-scrollbar {*/
+/*  width: 0 !important;*/
+/*}*/

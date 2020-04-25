@@ -89,8 +89,8 @@ export const PropertyRightMenu = styled.div`{
   display: flex;
   flex-direction: column;
   border-radius:4px;
-  padding: 8px;
-  border: solid 1px var(--middle-grey-color);
+  //padding: 8px;
+  border: solid 1px var(--info);
   background-image: linear-gradient(var(--dark-color-transparent), var(--dark-color-transparent-very) );
 }`;
 
@@ -105,22 +105,19 @@ to {
 export const PropertyMarketedBy = styled.div`{
   font-weight: bold;
   color: var(--light-color);
-  border-radius: 4px;
-  border: solid 1px var(--info);
+  background-color: white;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  border-left: 0.5px solid var(--info);
+  border-top: 0.5px solid var(--info);
+  border-right: 0.5px solid var(--info);
   animation: ${chatAnimIn} 0s ease-out;
-  //height: auto;
 }`;
 
 export const PropertyManagingEstateAgent = styled.img`{
   background-color: white;
   object-fit: contain;
   padding: 10px;
-  margin-bottom: 10px;
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
-  border-left: 1px solid var(--info);
-  border-top: 1px solid var(--info);
-  border-right: 1px solid var(--info);
 }`;
 
 export const PropertyVirtualBooking = styled.div`{

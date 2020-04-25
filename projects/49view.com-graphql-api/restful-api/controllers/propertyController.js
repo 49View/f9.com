@@ -5,6 +5,8 @@ import {propertyBinaryModel} from "../../models/property_binary";
 import {estateAgentModel} from "../../models/estate_agent";
 import {trimLeft} from "csvtojson/v2/util";
 import {testHtml} from "../routes/excaliburCachedExample";
+import {mkdir, writeFile} from "./fsController";
+import {getFileNameExt} from "eh_helpers";
 
 const fetch = require('node-fetch');
 const cheerio = require('cheerio');
@@ -69,7 +71,7 @@ const cleanString = (source) => {
 
 export const propertyAddressSplit = (address) => {
   const splitBy = ",";
-  return address.split(splitBy).map(elem=> trimLeft(elem));
+  return address.split(splitBy).map(elem => trimLeft(elem));
 }
 
 const forSale = "for sale";
@@ -85,22 +87,22 @@ const searchToRentInString = name => {
 
 export const propertyNameSanitize = (name) => {
   const sale = searchForSaleInString(name);
-  if ( sale > 1 ) {
-    return name.substring(0, sale-1);
+  if (sale > 1) {
+    return name.substring(0, sale - 1);
   }
   const rent = searchForSaleInString(name);
-  if ( rent > 1 ) {
-    return name.substring(0, rent-1);
+  if (rent > 1) {
+    return name.substring(0, rent - 1);
   }
 }
 
 export const propertyForSaleOrToRent = (name) => {
   const sale = searchForSaleInString(name);
-  if ( sale >= 0 ) {
+  if (sale >= 0) {
     return forSale;
   }
   const rent = searchToRentInString(name);
-  if ( rent >= 0 ) {
+  if (rent >= 0) {
     return toRent;
   }
 
@@ -113,7 +115,7 @@ const updatePropertyBinaries = async (result, propertyDoc) => {
   const thumbs = [];
   const images = [];
   const captions = [];
-  for ( const elem of result.images ) {
+  for (const elem of result.images) {
     const tres = await fetch(elem.thumbnailUrl);
     thumbs.push(await tres.buffer());
     const ires = await fetch(elem.masterUrl);
@@ -136,13 +138,21 @@ const updateEstateAgentFromExcalibur = async (result) => {
     name: result.estateAgentName,
   };
   const checkExist = await estateAgentModel.findOne(query);
-  if ( !checkExist ) {
+  if (!checkExist) {
+    const ret = await db.upsert(estateAgentModel, query, query);
+
+    // Save estate agent logo
+    const fext = getFileNameExt(result.estateAgentLogo);
     const fres = await fetch(result.estateAgentLogo);
     const estateAgentLogo = await fres.buffer();
-    const ret = await db.upsert(estateAgentModel, query, {
-      ...query,
-      logo: estateAgentLogo
-    });
+    const eapath = "estate_agent";
+    const filename = `${eapath}/${ret._id}_logo.${fext}`;
+    mkdir(eapath);
+    writeFile(filename, estateAgentLogo);
+
+    // add logo link to estate agent
+    await db.upsert(estateAgentModel, query, {logo:filename});
+
     return ret;
   }
   return checkExist;
@@ -152,12 +162,12 @@ export const scrapeExcaliburFloorplan = async (htmlUrl) => {
 
   const origin = Buffer.from(htmlUrl).toString('base64');
 
-  if ( await propertyModel.findOne({origin}) ) {
-    return null;
-  }
-  const response = await fetch(htmlUrl);
-  const htmlSource = await response.text();
-  // const htmlSource = testHtml;
+  // if ( await propertyModel.findOne({origin}) ) {
+  //   return null;
+  // }
+  // const response = await fetch(htmlUrl);
+  // const htmlSource = await response.text();
+  const htmlSource = testHtml;
 
 
   let floorplansString;
@@ -166,7 +176,7 @@ export const scrapeExcaliburFloorplan = async (htmlUrl) => {
   let imagesArray;
   let regex;
   let latitude, longitude;
-  const   result = {
+  const result = {
     origin: origin,
     estateAgentId: null,
     name: null,
@@ -201,15 +211,15 @@ export const scrapeExcaliburFloorplan = async (htmlUrl) => {
   console.log("Estate Agent SEARCH");
   const estateAgemtScriptNode = html('script').map((i, x) => x.children[0]).filter((i, x) => x && x.data.match(/}\('branch',/)).get(0);
   const ea = regExMatch101(/(?=["])"(?:[^"\\]*(?:\\[\s\S][^"\\]*)*"|'[^'\\]*(?:\\[\s\S][^'\\]*)*')/gm, estateAgemtScriptNode.data);
-  for ( let t = 0; t < ea.length; t++ ) {
-    if ( ea[t].includes("brandName") && t+1<ea.length) {
-      estateAgent.estateAgentName = ea[t+1].slice(1, -1);
+  for (let t = 0; t < ea.length; t++) {
+    if (ea[t].includes("brandName") && t + 1 < ea.length) {
+      estateAgent.estateAgentName = ea[t + 1].slice(1, -1);
     }
-    if ( ea[t].includes("branchName") && t+1<ea.length) {
-      estateAgent.estateAgentBranch = ea[t+1].slice(1, -1);
+    if (ea[t].includes("branchName") && t + 1 < ea.length) {
+      estateAgent.estateAgentBranch = ea[t + 1].slice(1, -1);
     }
-    if ( ea[t].includes("displayAddress") && t+1<ea.length) {
-      estateAgent.estateAgentAddress = ea[t+1].slice(1, -1);
+    if (ea[t].includes("displayAddress") && t + 1 < ea.length) {
+      estateAgent.estateAgentAddress = ea[t + 1].slice(1, -1);
     }
   }
   // Logo
@@ -229,13 +239,13 @@ export const scrapeExcaliburFloorplan = async (htmlUrl) => {
   console.log("ADDRESS SEARCH");
   const address = cleanString(html('h1[class=fs-22]').parent().find('address[itemprop=address]').text());
   const addressSplit = propertyAddressSplit(address);
-  if ( addressSplit.length >= 3 ) {
+  if (addressSplit.length >= 3) {
     [result.addressLine1, result.addressLine2, result.addressLine3] = addressSplit;
   }
-  if ( addressSplit.length === 2 ) {
+  if (addressSplit.length === 2) {
     [result.addressLine1, result.addressLine2] = addressSplit;
   }
-  if ( addressSplit.length === 1 ) {
+  if (addressSplit.length === 1) {
     [result.addressLine1] = addressSplit;
   }
 
@@ -330,7 +340,7 @@ export const scrapeExcaliburFloorplan = async (htmlUrl) => {
   const propertyDoc = await upsert2(propertyModel, {origin: result.origin}, result);
 
   // Update property binaries
-  await updatePropertyBinaries(binaries, propertyDoc);
+  // await updatePropertyBinaries(binaries, propertyDoc);
 
   // Upsert the estate agent with the new property in its list
   await estateAgentModel.updateOne({_id:estateAgentDoc._id}, {$addToSet: {properties: propertyDoc._id}});
@@ -338,9 +348,9 @@ export const scrapeExcaliburFloorplan = async (htmlUrl) => {
   return propertyDoc;
 };
 
-const upsert2 = async ( model, query, data) => {
+const upsert2 = async (model, query, data) => {
   try {
-    return await model.findOneAndUpdate(query, data, {new:true, upsert: true});
+    return await model.findOneAndUpdate(query, data, {new: true, upsert: true});
   } catch (e) {
     console.error(e);
     return null;

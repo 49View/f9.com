@@ -16,7 +16,7 @@ import {
   PropertyVirtualBookingCharCallVideo
 } from "./Property.styled";
 import {
-  AvatarRound,
+  AvatarRound, Flex,
   InfoTextSpan,
   LightColorTextSpanBold
 } from "../../futuremodules/reactComponentStyles/reactCommon.styled";
@@ -59,8 +59,13 @@ export const Property = (props) => {
         </PropertyCanvas>
         <PropertyRightMenu>
           <PropertyMarketedBy>
-            <PropertyManagingEstateAgent src={"/andrew-scott-robertson-logo.png"} width={"244"} height={"72"}/>
-            <PropertyVirtualBooking>
+            <Flex justifyContent={"center"}>
+              <div>
+            <PropertyManagingEstateAgent src={`https://localhost/media/${property.estateAgent.logo}`}/>
+              </div>
+            </Flex>
+          </PropertyMarketedBy>
+          <PropertyVirtualBooking>
               <EstateAgentRep>
                 <EstateAgentRepIcon>
                   <AvatarRound src={"/dado3.png"}/>
@@ -81,7 +86,6 @@ export const Property = (props) => {
                 <VideoPhoneChat/>
               </PropertyVirtualBookingCharCallVideo>
             </PropertyVirtualBooking>
-          </PropertyMarketedBy>
         </PropertyRightMenu>
       </PropertyStarOfTheShow>
     </PropertyContainer>

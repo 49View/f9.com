@@ -8,32 +8,32 @@ import gql from "graphql-tag";
 // GraphQL Queries
 // ------------------------------
 
-const propertyQuery = (id) => {
-  return gql`{
-      property(_id:"${id}") {
-          name
-          origin
-          addressLine1
-          addressLine2
-          addressLine3
-          buyOrLet
-          description
-          keyFeatures
-          estateAgent {
-              name
-              address
-              branch
-          }
-          location {
-              type
-              coordinates
-          }
-          price
-          priceReadable
-          priceUnity
-      }
-  }`;
-};
+const propertyQuery = (id) => gql`{
+    property(_id:"${id}") {
+        name
+        origin
+        addressLine1
+        addressLine2
+        addressLine3
+        buyOrLet
+        description
+        keyFeatures
+        estateAgent {
+            name
+            address
+            branch
+            logo
+        }
+        location {
+            type
+            coordinates
+        }
+        price
+        priceReadable
+        priceUnity
+    }
+}`;
+
 
 // ------------------------------
 // Hooks
@@ -62,7 +62,7 @@ export const useQLProperty = (id) => {
 export const getLocalePropertyPrice = (property) => {
   let defSymbol = "";
 
-  if ( property.priceUnity === "pound" ) {
+  if (property.priceUnity === "pound") {
     defSymbol = "£";
   }
 

@@ -1,5 +1,7 @@
+import globalConfig  from "eh_config";
+import fs from "fs";
 
-exports.writeFile = (res, entity, data) => {
+exports.writeResFile = (res, entity, data) => {
   res
     .status(200)
     .set({
@@ -11,8 +13,13 @@ exports.writeFile = (res, entity, data) => {
     .send(data);
 };
 
-exports.writeError = (res, number, err, message) => {
-  console.log("[ERROR-CAUGHT]");
-  console.log(err, err.stack);
-  res.status(number).send(message);
-};
+export const writeFile = (filename, data) => {
+  fs.writeFile(`${globalConfig.FileRoot}media/${filename}`, data, (err) => {
+    if (err) return console.log(err);
+  });
+}
+
+export const mkdir = (dirpath) => {
+  fs.mkdirSync(`${globalConfig.FileRoot}media/${dirpath}`, {recursive:true});
+}
+

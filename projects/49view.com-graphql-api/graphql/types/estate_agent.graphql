@@ -3,6 +3,7 @@ type EstateAgent {
     address: String
     branch: String
     name: String
+    logo: String
 }
 
 type Query {
