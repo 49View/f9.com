@@ -1,12 +1,28 @@
-// import * as cheerio from "cheerio";
+"use strict";
+
 import {propertyModel} from "../../models/property";
 import {propertyBinaryModel} from "../../models/property_binary";
+import {estateAgentModel} from "../../models/estate_agent";
+import {trimLeft} from "csvtojson/v2/util";
+import {testHtml} from "../routes/excaliburCachedExample";
 
 const fetch = require('node-fetch');
-const globalConfig = require("eh_config");
 const cheerio = require('cheerio');
-const hash = require('object-hash');
 const db = require('eh_db');
+
+// const CryptoJS = require('crypto-js');
+//
+// const encryptWithAES = text => {
+//   const passphrase = globalConfig.mJWTSecret;
+//   return CryptoJS.AES.encrypt(text, passphrase).toString();
+// };
+//
+// const decryptWithAES = ciphertext => {
+//   const passphrase = globalConfig.mJWTSecret;
+//   const bytes = CryptoJS.AES.decrypt(ciphertext, passphrase);
+//   const originalText = bytes.toString(CryptoJS.enc.Utf8);
+//   return originalText;
+// };
 
 const regexMatch = (regex, text, requiredMatches, matchIndex) => {
 
@@ -51,34 +67,130 @@ const cleanString = (source) => {
   }
 }
 
-export const scrapeExcaliburFloorplan = async (htmlUrl, htmlSource) => {
+export const propertyAddressSplit = (address) => {
+  const splitBy = ",";
+  return address.split(splitBy).map(elem=> trimLeft(elem));
+}
+
+const forSale = "for sale";
+const toRent = "to rent";
+
+const searchForSaleInString = name => {
+  return name.toLowerCase().indexOf(forSale);
+}
+
+const searchToRentInString = name => {
+  return name.toLowerCase().indexOf(toRent);
+}
+
+export const propertyNameSanitize = (name) => {
+  const sale = searchForSaleInString(name);
+  if ( sale > 1 ) {
+    return name.substring(0, sale-1);
+  }
+  const rent = searchForSaleInString(name);
+  if ( rent > 1 ) {
+    return name.substring(0, rent-1);
+  }
+}
+
+export const propertyForSaleOrToRent = (name) => {
+  const sale = searchForSaleInString(name);
+  if ( sale >= 0 ) {
+    return forSale;
+  }
+  const rent = searchToRentInString(name);
+  if ( rent >= 0 ) {
+    return toRent;
+  }
+
+  return forSale;
+}
+
+const updatePropertyBinaries = async (result, propertyDoc) => {
+  const fres = await fetch(result.floorplanUrl);
+  const floorplan = await fres.buffer();
+  const thumbs = [];
+  const images = [];
+  const captions = [];
+  for ( const elem of result.images ) {
+    const tres = await fetch(elem.thumbnailUrl);
+    thumbs.push(await tres.buffer());
+    const ires = await fetch(elem.masterUrl);
+    images.push(await ires.buffer());
+    captions.push(elem.caption);
+  }
+  await db.upsert(propertyBinaryModel, {propertyId: propertyDoc._id}, {
+    propertyId: propertyDoc._id,
+    floorplan,
+    thumbs,
+    images,
+    captions,
+  });
+}
+
+const updateEstateAgentFromExcalibur = async (result) => {
+  const query = {
+    address: result.estateAgentAddress,
+    branch: result.estateAgentBranch,
+    name: result.estateAgentName,
+  };
+  const checkExist = await estateAgentModel.findOne(query);
+  if ( !checkExist ) {
+    const fres = await fetch(result.estateAgentLogo);
+    const estateAgentLogo = await fres.buffer();
+    const ret = await db.upsert(estateAgentModel, query, {
+      ...query,
+      logo: estateAgentLogo
+    });
+    return ret;
+  }
+  return checkExist;
+}
+
+export const scrapeExcaliburFloorplan = async (htmlUrl) => {
+
+  const origin = Buffer.from(htmlUrl).toString('base64');
+
+  if ( await propertyModel.findOne({origin}) ) {
+    return null;
+  }
+  const response = await fetch(htmlUrl);
+  const htmlSource = await response.text();
+  // const htmlSource = testHtml;
+
 
   let floorplansString;
   let floorplansArray;
   let imagesString;
   let imagesArray;
-  let result;
   let regex;
   let latitude, longitude;
-
-  result = {
-    sourceHash: null,
+  const   result = {
+    origin: origin,
+    estateAgentId: null,
     name: null,
+    buyOrLet: forSale,
+    addressLine1: null,
+    addressLine2: null,
+    addressLine3: null,
+    description: null,
+    price: [],
+    priceReadable: null,
+    priceUnity: null,
+    location: null,
+    keyFeatures: []
+  };
+  const estateAgent = {
     estateAgentName: null,
     estateAgentBranch: null,
     estateAgentAddress: null,
-    addressLine1: null,
-    description: null,
-    price: null,
-    priceReadable: null,
-    priceUnity: null,
-    floorplanUrl: null,
-    images: null,
-    location: null,
-    keyFeatures: [],
-    origin: htmlUrl
+    estateAgentLogo: null
   };
-
+  const binaries = {
+    floorplanUrl: null,
+    images: null
+  };
 
   // console.log(htmlSource);
   const html = cheerio.load(htmlSource);
@@ -86,31 +198,46 @@ export const scrapeExcaliburFloorplan = async (htmlUrl, htmlSource) => {
   //
   // ESTATE AGENT DETAILS
   //
+  console.log("Estate Agent SEARCH");
   const estateAgemtScriptNode = html('script').map((i, x) => x.children[0]).filter((i, x) => x && x.data.match(/}\('branch',/)).get(0);
   const ea = regExMatch101(/(?=["])"(?:[^"\\]*(?:\\[\s\S][^"\\]*)*"|'[^'\\]*(?:\\[\s\S][^'\\]*)*')/gm, estateAgemtScriptNode.data);
   for ( let t = 0; t < ea.length; t++ ) {
     if ( ea[t].includes("brandName") && t+1<ea.length) {
-      result.estateAgentName = ea[t+1].slice(1, -1);
+      estateAgent.estateAgentName = ea[t+1].slice(1, -1);
     }
     if ( ea[t].includes("branchName") && t+1<ea.length) {
-      result.estateAgentBranch = ea[t+1].slice(1, -1);
+      estateAgent.estateAgentBranch = ea[t+1].slice(1, -1);
     }
     if ( ea[t].includes("displayAddress") && t+1<ea.length) {
-      result.estateAgentAddress = ea[t+1].slice(1, -1);
+      estateAgent.estateAgentAddress = ea[t+1].slice(1, -1);
     }
   }
+  // Logo
+  estateAgent.estateAgentLogo = html('a[class=agent-details-agent-logo]').find('img').attr('src');
 
   //
   // TITLE
   //
   console.log("TITLE SEARCH");
-  result.name = cleanString(html('h1[class=fs-22]').text());
+  const propertyName = cleanString(html('h1[class=fs-22]').text());
+  result.buyOrLet = propertyForSaleOrToRent(propertyName);
+  result.name = propertyNameSanitize(propertyName);
 
   //
   // ADDRESS
   //
   console.log("ADDRESS SEARCH");
-  result.addressLine1 = cleanString(html('h1[class=fs-22]').parent().find('address[itemprop=address]').text());
+  const address = cleanString(html('h1[class=fs-22]').parent().find('address[itemprop=address]').text());
+  const addressSplit = propertyAddressSplit(address);
+  if ( addressSplit.length >= 3 ) {
+    [result.addressLine1, result.addressLine2, result.addressLine3] = addressSplit;
+  }
+  if ( addressSplit.length === 2 ) {
+    [result.addressLine1, result.addressLine2] = addressSplit;
+  }
+  if ( addressSplit.length === 1 ) {
+    [result.addressLine1] = addressSplit;
+  }
 
   //
   // DESCRIPTION
@@ -127,9 +254,9 @@ export const scrapeExcaliburFloorplan = async (htmlUrl, htmlSource) => {
   result.priceUnity = "pound";
   price = price.replace(/,/g, "").replace(/£/g, "").trim();
   if (isNaN(price)) {
-    result.price = -1;
+    result.price.push(-1);
   } else {
-    result.price = Number(price);
+    result.price.push(Number(price));
   }
 
   //
@@ -174,7 +301,7 @@ export const scrapeExcaliburFloorplan = async (htmlUrl, htmlSource) => {
   if (imagesString !== null) {
     imagesArray = JSON.parse(imagesString);
     if (imagesArray != null && imagesArray.constructor === Array) {
-      result.images = imagesArray;
+      binaries.images = imagesArray;
     }
   }
 
@@ -188,41 +315,34 @@ export const scrapeExcaliburFloorplan = async (htmlUrl, htmlSource) => {
   if (floorplansString !== null) {
     floorplansArray = JSON.parse(floorplansString);
     if (floorplansArray != null && floorplansArray.constructor === Array) {
-      result.floorplanUrl = floorplansArray[floorplansArray.length - 1];
+      binaries.floorplanUrl = floorplansArray[floorplansArray.length - 1];
     }
   }
-  if (result.floorplanUrl === null) {
+  if (binaries.floorplanUrl === null) {
     console.log("FLOORPLAN TYPE 2 SEARCH");
     regex = /<img[^>]+src="([^">]+)"[^>]*class="site-plan"/mg
-    result.floorplanUrl = regexMatch(regex, htmlSource, 2, 1);
+    binaries.floorplanUrl = regexMatch(regex, htmlSource, 2, 1);
   }
-
-  result.sourceHash = hash(globalConfig.mJWTSecret + htmlUrl);
 
   // Save to DB
-  const propertyDoc = await db.upsert(propertyModel, {sourceHash: result.sourceHash}, result);
+  const estateAgentDoc = await updateEstateAgentFromExcalibur(estateAgent);
+  result.estateAgentId = estateAgentDoc._id;
+  const propertyDoc = await upsert2(propertyModel, {origin: result.origin}, result);
 
-  const fres = await fetch(result.floorplanUrl);
-  const floorplan = await fres.buffer();
+  // Update property binaries
+  await updatePropertyBinaries(binaries, propertyDoc);
 
-  const thumbs = [];
-  const images = [];
-  const captions = [];
-  for ( const elem of result.images ) {
-    const tres = await fetch(elem.thumbnailUrl);
-    thumbs.push(await tres.buffer());
-    const ires = await fetch(elem.masterUrl);
-    images.push(await ires.buffer());
-    captions.push(elem.caption);
+  // Upsert the estate agent with the new property in its list
+  await estateAgentModel.updateOne({_id:estateAgentDoc._id}, {$addToSet: {properties: propertyDoc._id}});
+
+  return propertyDoc;
+};
+
+const upsert2 = async ( model, query, data) => {
+  try {
+    return await model.findOneAndUpdate(query, data, {new:true, upsert: true});
+  } catch (e) {
+    console.error(e);
+    return null;
   }
-
-  await db.upsert(propertyBinaryModel, {propertyId: propertyDoc._id}, {
-    propertyId: propertyDoc._id,
-    floorplan,
-    thumbs,
-    images,
-    captions,
-  });
-
-  return result;
 };

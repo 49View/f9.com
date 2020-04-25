@@ -11,7 +11,7 @@ import {
   PropertyTitleRentOrBuy,
   PropertyTitleType
 } from "./Property.styled";
-import {propertyAddressSplit, propertyForSaleOrToRent, propertyNameSanitize} from "./PropertyLogic";
+import {getLocalePropertyPrice} from "./PropertyLogic";
 
 const PropertyAddress = ({addrSplit}) => {
 
@@ -29,12 +29,12 @@ export const PropertyLayout = ({property}) => {
   return (
     <Fragment>
       <PropertyTitleInfo>
-        <PropertyTitleType className="property-type">{propertyNameSanitize(property.name)}</PropertyTitleType>
-        <PropertyTitlePrice>{property.priceReadable}</PropertyTitlePrice>
+        <PropertyTitleType className="property-type">{property.name}</PropertyTitleType>
+        <PropertyTitlePrice>{getLocalePropertyPrice(property)}</PropertyTitlePrice>
       </PropertyTitleInfo>
       <PropertyTitleInfoSecondLine>
-        <PropertyAddress addrSplit={propertyAddressSplit(property.addressLine1)}/>
-        <PropertyTitleRentOrBuy>{propertyForSaleOrToRent(property.name)}</PropertyTitleRentOrBuy>
+        <PropertyAddress addrSplit={[property.addressLine1,property.addressLine2,property.addressLine3]}/>
+        <PropertyTitleRentOrBuy>{property.buyOrLet}</PropertyTitleRentOrBuy>
       </PropertyTitleInfoSecondLine>
       {/*<div className="property-details">*/}
       {/*  <Tabs*/}

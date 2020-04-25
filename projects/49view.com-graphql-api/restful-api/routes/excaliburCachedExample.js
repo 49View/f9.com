@@ -1,4 +1,4 @@
-const testHtml=`
+export const testHtml=`
 <!DOCTYPE html>
         <html lang="en-GB" class="no-js ">
         <head>
@@ -454,6 +454,7 @@ const testHtml=`
             <strong>andrew scott robertson, Wimbledon Hill - Sales </strong>
             <address>50 Wimbledon Hill Road,
 London,
+
 SW19 7PA</address>
             <p><strong><a href="tel:020 8012 0379" class="branch-telephone-number">
         <strong>020 8012 0379</strong>

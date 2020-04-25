@@ -4,28 +4,40 @@ import {checkQueryHasLoadedWithData, getQueryLoadedWithValue} from "../../future
 import {useQuery} from "@apollo/react-hooks";
 import gql from "graphql-tag";
 
+// ------------------------------
+// GraphQL Queries
+// ------------------------------
+
 const propertyQuery = (id) => {
   return gql`{
       property(_id:"${id}") {
+          name
+          origin
           addressLine1
+          addressLine2
+          addressLine3
+          buyOrLet
           description
-          estateAgentAddress
-          estateAgentBranch
-          estateAgentName
           keyFeatures
+          estateAgent {
+              name
+              address
+              branch
+          }
           location {
               type
               coordinates
           }
-          name
-          origin
           price
           priceReadable
           priceUnity
-          sourceHash
       }
   }`;
 };
+
+// ------------------------------
+// Hooks
+// ------------------------------
 
 export const useQLProperty = (id) => {
   const [property, setProperty] = useState(null);
@@ -43,43 +55,16 @@ export const useQLProperty = (id) => {
   }
 };
 
+// ------------------------------
+// Javascript functions
+// ------------------------------
 
-export const propertyAddressSplit = (address) => {
-  const splitBy = ",";
-  return address.split(splitBy);
-}
+export const getLocalePropertyPrice = (property) => {
+  let defSymbol = "";
 
-const forSale = "for sale";
-const toRent = "to rent";
-
-const searchForSaleInString = name => {
-  return name.toLowerCase().indexOf(forSale);
-}
-
-const searchToRentInString = name => {
-  return name.toLowerCase().indexOf(toRent);
-}
-
-export const propertyNameSanitize = (name) => {
-  const sale = searchForSaleInString(name);
-  if ( sale > 1 ) {
-    return name.substring(0, sale);
-  }
-  const rent = searchForSaleInString(name);
-  if ( rent > 1 ) {
-    return name.substring(0, rent);
-  }
-}
-
-export const propertyForSaleOrToRent = (name) => {
-  const sale = searchForSaleInString(name);
-  if ( sale >= 0 ) {
-    return forSale;
-  }
-  const rent = searchToRentInString(name);
-  if ( rent >= 0 ) {
-    return toRent;
+  if ( property.priceUnity === "pound" ) {
+    defSymbol = "£";
   }
 
-  return forSale;
+  return `${defSymbol}${property.priceReadable}`;
 }

@@ -1,0 +1,10 @@
+type EstateAgent {
+    _id: ID!
+    address: String
+    branch: String
+    name: String
+}
+
+type Query {
+    estateAgent(_id: ID!): EstateAgent
+}

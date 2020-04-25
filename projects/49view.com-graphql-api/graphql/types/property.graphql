@@ -5,19 +5,19 @@ type Location {
 
 type Property {
     _id: ID!
-    addressLine1: String
-    description: String
-    estateAgentAddress: String
-    estateAgentBranch: String
-    estateAgentName: String
-    keyFeatures: [String]
-    location: Location
     name: String
     origin: String
-    price: Int,
+    addressLine1: String
+    addressLine2: String
+    addressLine3: String
+    buyOrLet: String
+    description: String
+    keyFeatures: [String]
+    location: Location
+    price: [Int],
     priceReadable: String
     priceUnity: String
-    sourceHash: String
+    estateAgent: EstateAgent
 }
 
 type Query {

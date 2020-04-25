@@ -1,4 +1,5 @@
 import {scrapeExcaliburFloorplan} from "../controllers/propertyController";
+import {testHtml} from "./excaliburCachedExample";
 
 const express = require("express");
 const router = express.Router();
@@ -9,10 +10,12 @@ router.post("/fetch/floorplan/excalibur", async (req, res, next) => {
 
   try {
     logger.info(req.url);
-    const response = await fetch(req.body.url);
-    const text = await response.text();
-    const result = await scrapeExcaliburFloorplan(req.body.url, text);
-    res.send(result);
+    const result = await scrapeExcaliburFloorplan(req.body.url);
+    if ( !result ) {
+      res.sendStatus(204);
+    } else {
+      res.send(result);
+    }
   } catch (ex) {
     logger.error("Error fetching excalibur: ", ex);
     res.status(400).send(ex);

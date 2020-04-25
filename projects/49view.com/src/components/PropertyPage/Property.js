@@ -1,4 +1,4 @@
-import React, {useGlobal} from "reactn";
+import React from "reactn";
 import "./Property.css";
 import {PropertyLayout} from "./PropertyLayout";
 import {
@@ -20,14 +20,14 @@ import {
   InfoTextSpan,
   LightColorTextSpanBold
 } from "../../futuremodules/reactComponentStyles/reactCommon.styled";
-import WasmCanvas, {ReactWasm} from "../../futuremodules/reactwasmcanvas/localreacwasmcanvas";
+import WasmCanvas from "../../futuremodules/reactwasmcanvas/localreacwasmcanvas";
 import VideoPhoneChat from "../../futuremodules/webrtc/components/VideoPhoneChat";
 import {useQLProperty} from "./PropertyLogic";
 import {SpinnerTopMiddle} from "../../futuremodules/spinner/Spinner";
 
 export const Property = (props) => {
   let canvasContainer = React.useRef(null);
-  const wasmDispatcher = useGlobal(ReactWasm);
+  const wasmDispatcher = null;//useGlobal(ReactWasm);
   const wwwPrefixToAvoidSSLMadness = process.env.REACT_APP_EH_CLOUD_HOST === 'localhost' ? "" : "www.";
   let wasmArgumentList = [`hostname=${wwwPrefixToAvoidSSLMadness}${process.env.REACT_APP_EH_CLOUD_HOST}`];
   const { match: { params } } = props;
@@ -37,6 +37,8 @@ export const Property = (props) => {
   if ( !property ) {
     return <SpinnerTopMiddle/>
   }
+
+  console.log("Property:", property);
 
   return (
     <PropertyContainer>
