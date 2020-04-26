@@ -7,14 +7,14 @@ import {
   EstateAgentRepIcon,
   EstateAgentRepMainNameTitle,
   PropertyCanvas,
-  PropertyCarousel,
+  PropertyCarouselDiv,
   PropertyContainer,
-  PropertyDescription,
+  PropertyDescriptionDiv,
   PropertyHCaption,
   PropertyManagingEstateAgent,
   PropertyMarketedBy,
   PropertyRightMenu,
-  PropertyStarOfTheShow,
+  PropertyStarOfTheShowDiv,
   PropertyTitleType,
   PropertyVirtualBooking,
   PropertyVirtualBookingCharCallVideo
@@ -22,7 +22,8 @@ import {
 import {
   AvatarRound,
   Div,
-  DivInlineFlex, DivRightBorder,
+  DivInlineFlex,
+  DivRightBorder,
   Flex,
   HR,
   Img100,
@@ -30,7 +31,7 @@ import {
   LightColorTextSpanBold,
   My075,
   My1,
-  My2, Span,
+  My2,
   ULUnstyled
 } from "../../futuremodules/reactComponentStyles/reactCommon.styled";
 import WasmCanvas from "../../futuremodules/reactwasmcanvas/localreacwasmcanvas";
@@ -40,6 +41,20 @@ import {SpinnerTopMiddle} from "../../futuremodules/spinner/Spinner";
 import {useState} from "react";
 import {Carousel} from "react-bootstrap";
 import {FAIcon, SpanV} from "../../futuremodules/reactComponentStyles/reactCommon";
+
+const PHeader = (props) => {
+  return (
+    <>
+      <My2/>
+      <HR/>
+      <My1/>
+      <PropertyHCaption>
+        <PropertyTitleType>{props.children}</PropertyTitleType>
+      </PropertyHCaption>
+      <My1/>
+    </>
+  )
+}
 
 function ControlledCarousel({property}) {
   const [index, setIndex] = useState(0);
@@ -66,124 +81,134 @@ function ControlledCarousel({property}) {
   );
 }
 
-export const Property = (props) => {
+const PropertyGeneralInformation = ({property}) => {
+  return (
+    <>
+      <PHeader>
+        General information:
+      </PHeader>
+      <PropertyDescriptionDiv>
+        <DivRightBorder variant={"info"} padding={"20px"}>
+          <ULUnstyled>
+            {property.keyFeatures.map(elem => {
+              return (
+                <>
+                  <li key={elem}><strong>
+                    <FAIcon icon={"dot-circle"} variant={"logo-color-1"}/>{" "}
+                    {elem}
+                  </strong>
+                  </li>
+                  <My075/>
+                </>
+              )
+            })}
+          </ULUnstyled>
+        </DivRightBorder>
+
+        <Div padding={"20px"} fontSize={"var(--font-size-onemedium)"}
+             dangerouslySetInnerHTML={{__html: property.description}}/>
+      </PropertyDescriptionDiv>
+    </>
+  )
+}
+
+const PropertyPhotographs = ({property}) => {
+  return (
+    <>
+      <PHeader>
+        Photographs: (<SpanV variant={"logo-color-1"} text={property.thumbs.length}/>)
+      </PHeader>
+      <PropertyCarouselDiv>
+        <ControlledCarousel property={property}/>
+        <Div justifyContent={"flex-start"} overflowY={"scroll"} overflowX={"hide"} className={"shadow"}>
+          {property.thumbs.map(thumb => {
+              return (
+                <DivInlineFlex width={"48%"} margin={"1%"}>
+                  <Img100
+                    className="d-block w-100 rounded border border-dark"
+                    src={`https://localhost/media/${thumb}`}
+                    alt={thumb}
+                  />
+                </DivInlineFlex>
+              )
+            }
+          )}
+        </Div>
+      </PropertyCarouselDiv>
+    </>
+  )
+}
+
+const PropertyStartOfTheShow = ({property}) => {
   let canvasContainer = React.useRef(null);
   const wasmDispatcher = null;//useGlobal(ReactWasm);
   const wwwPrefixToAvoidSSLMadness = process.env.REACT_APP_EH_CLOUD_HOST === 'localhost' ? "" : "www.";
   let wasmArgumentList = [`hostname=${wwwPrefixToAvoidSSLMadness}${process.env.REACT_APP_EH_CLOUD_HOST}`];
-  const {match: {params}} = props;
 
+  return (
+    <PropertyStarOfTheShowDiv>
+      <PropertyCanvas ref={canvasContainer}>
+        <WasmCanvas
+          wasmName='../editor'
+          dispatcher={wasmDispatcher}
+          canvasContainer={canvasContainer.current}
+          initialRect={{top: 0, left: 0, width: 0, height: 0}}
+          initialVisibility={false}
+          borderRadius={"5px"}
+          border={"1px solid var(--middle-grey-color)"}
+          argumentList={wasmArgumentList}
+          mandatoryWebGLVersionSupporNumber="webgl2"
+        />
+      </PropertyCanvas>
+      <PropertyRightMenu>
+        <PropertyMarketedBy>
+          <Flex justifyContent={"center"}>
+            <div>
+              <PropertyManagingEstateAgent src={`https://localhost/media/${property.estateAgent.logo}`}/>
+            </div>
+          </Flex>
+        </PropertyMarketedBy>
+        <PropertyVirtualBooking>
+          <EstateAgentRep>
+            <EstateAgentRepIcon>
+              <AvatarRound src={"/dado3.png"}/>
+            </EstateAgentRepIcon>
+            <EstateAgentRepMainNameTitle>
+              <LightColorTextSpanBold>
+                Dado,
+              </LightColorTextSpanBold>
+              <InfoTextSpan fontSize={"smaller"}>
+                {" "}the big cheese
+              </InfoTextSpan>
+            </EstateAgentRepMainNameTitle>
+            <EstateAgentRepAssistingText fontSize={"0.75rem"}>
+              is looking after this property
+            </EstateAgentRepAssistingText>
+          </EstateAgentRep>
+          <PropertyVirtualBookingCharCallVideo>
+            <VideoPhoneChat/>
+          </PropertyVirtualBookingCharCallVideo>
+        </PropertyVirtualBooking>
+      </PropertyRightMenu>
+    </PropertyStarOfTheShowDiv>
+  )
+}
+
+export const Property = (props) => {
+  const {match: {params}} = props;
   const {property} = useQLProperty(params.pid);
 
   if (!property) {
     return <SpinnerTopMiddle/>
   }
 
-  console.log("Property:", property);
-
   return (
     <>
       <PropertyContainer>
         <PropertyLayout property={property}/>
-        <PropertyStarOfTheShow>
-          <PropertyCanvas ref={canvasContainer}>
-            <WasmCanvas
-              wasmName='../editor'
-              dispatcher={wasmDispatcher}
-              canvasContainer={canvasContainer.current}
-              initialRect={{top: 0, left: 0, width: 0, height: 0}}
-              initialVisibility={false}
-              borderRadius={"5px"}
-              border={"1px solid var(--middle-grey-color)"}
-              argumentList={wasmArgumentList}
-              mandatoryWebGLVersionSupporNumber="webgl2"
-            />
-          </PropertyCanvas>
-          <PropertyRightMenu>
-            <PropertyMarketedBy>
-              <Flex justifyContent={"center"}>
-                <div>
-                  <PropertyManagingEstateAgent src={`https://localhost/media/${property.estateAgent.logo}`}/>
-                </div>
-              </Flex>
-            </PropertyMarketedBy>
-            <PropertyVirtualBooking>
-              <EstateAgentRep>
-                <EstateAgentRepIcon>
-                  <AvatarRound src={"/dado3.png"}/>
-                </EstateAgentRepIcon>
-                <EstateAgentRepMainNameTitle>
-                  <LightColorTextSpanBold>
-                    Dado,
-                  </LightColorTextSpanBold>
-                  <InfoTextSpan fontSize={"smaller"}>
-                    {" "}the big cheese
-                  </InfoTextSpan>
-                </EstateAgentRepMainNameTitle>
-                <EstateAgentRepAssistingText fontSize={"0.75rem"}>
-                  is looking after this property
-                </EstateAgentRepAssistingText>
-              </EstateAgentRep>
-              <PropertyVirtualBookingCharCallVideo>
-                <VideoPhoneChat/>
-              </PropertyVirtualBookingCharCallVideo>
-            </PropertyVirtualBooking>
-          </PropertyRightMenu>
-        </PropertyStarOfTheShow>
-
-
-        <My2/>
-        <HR/>
-        <My1/>
-        <PropertyHCaption>
-          <PropertyTitleType>General information:</PropertyTitleType>
-        </PropertyHCaption>
-        <My2/>
-        <PropertyDescription>
-          <DivRightBorder variant={"info"} padding={"20px"} fontSize={"var(--font-size-onemedium)"}
-               dangerouslySetInnerHTML={{__html: property.description}}/>
-          <Div padding={"20px 10px"}>
-            <ULUnstyled>
-              {property.keyFeatures.map(elem => {
-                return (
-                  <>
-                    <li key={elem}>
-                      <FAIcon icon={"dot-circle"} variant={"logo-color-1"}/>{" "}
-                      {elem}
-                    </li>
-                    <My075/>
-                  </>
-                )
-              })}
-            </ULUnstyled>
-          </Div>
-        </PropertyDescription>
-
-
-        <My2/>
-        <HR/>
-        <My1/>
-        <PropertyHCaption>
-          <PropertyTitleType>Photographs: (<SpanV variant={"logo-color-1"} text={property.thumbs.length}/>)</PropertyTitleType>
-        </PropertyHCaption>
-        <My1/>
-        <PropertyCarousel>
-          <ControlledCarousel property={property}/>
-          <Div justifyContent={"flex-start"} overflowY={"scroll"} overflowX={"hide"} className={"shadow"}>
-            {property.thumbs.map(thumb => {
-                return (
-                  <DivInlineFlex width={"48%"} margin={"1%"}>
-                    <Img100
-                      className="d-block w-100 rounded border border-dark"
-                      src={`https://localhost/media/${thumb}`}
-                      alt={thumb}
-                    />
-                  </DivInlineFlex>
-                )
-              }
-            )}
-          </Div>
-        </PropertyCarousel>
+        <PropertyStartOfTheShow property={property}/>
+        <PropertyGeneralInformation property={property}/>
+        <PropertyPhotographs property={property}/>
       </PropertyContainer>
       <My2/>
     </>

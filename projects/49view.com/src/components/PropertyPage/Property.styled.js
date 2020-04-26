@@ -23,9 +23,11 @@ export const PropertyTitleInfo = styled.div`{
 
 export const PropertyHCaption = styled.div`{
   display: flex;
+  padding: 5px;
+  border-radius: 3px;
   justify-content: space-between;
   align-items: baseline;
-  background-image: linear-gradient(var(--dark), var(--dark-color-transparent-very) );
+  background-image: linear-gradient(var(--dark), var(--dark-color-transparent) );
 }`;
 
 
@@ -78,7 +80,7 @@ export const PropertyTitleAddressPostcode = styled.span`{
   font-weight: bold;
 }`;
 
-export const PropertyStarOfTheShow = styled.div`{
+export const PropertyStarOfTheShowDiv = styled.div`{
   display: grid;
   margin-top: 20px;
   grid-gap: 10px;
@@ -86,7 +88,7 @@ export const PropertyStarOfTheShow = styled.div`{
   grid-template-rows: 100%;
 }`;
 
-export const PropertyCarousel = styled.div`{
+export const PropertyCarouselDiv = styled.div`{
   display: grid;
   height: 480px;
   grid-gap: 10px;
@@ -185,11 +187,12 @@ export const EstateAgentRepAssistingText = styled.div`{
   font-size: ${props => props.fontSize};  
 }`;
 
-export const PropertyDescription = styled.div`{
+export const PropertyDescriptionDiv = styled.div`{
   display: grid;
   height:auto;
   grid-gap: 10px;
-  grid-template-columns: ${wasmCanvasSize.x} calc( var(--body-width) - ${mainPadding}*2 - ${wasmCanvasSize.x} - 10px );
+  //grid-template-columns: calc( var(--body-width) - ${mainPadding}*2 - ${wasmCanvasSize.x} - 10px ) ${wasmCanvasSize.x} ;
+  grid-template-columns: 30% calc(70% - 10px);
   grid-template-rows: 100%;
   border-radius: 5px;
   background-image: linear-gradient(var(--dark-color), var(--dark-color-transparent-very) );
