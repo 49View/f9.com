@@ -8,32 +8,38 @@ import {
   EstateAgentRepMainNameTitle,
   PropertyCanvas,
   PropertyCarousel,
-  PropertyContainer, PropertyDescription, PropertyHCaption,
+  PropertyContainer,
+  PropertyDescription,
+  PropertyHCaption,
   PropertyManagingEstateAgent,
   PropertyMarketedBy,
   PropertyRightMenu,
-  PropertyStarOfTheShow, PropertyTitleInfo, PropertyTitlePrice, PropertyTitleType,
+  PropertyStarOfTheShow,
+  PropertyTitleType,
   PropertyVirtualBooking,
   PropertyVirtualBookingCharCallVideo
 } from "./Property.styled";
 import {
   AvatarRound,
   Div,
-  Div50, DivInlineFlex,
+  DivInlineFlex, DivRightBorder,
   Flex,
   HR,
   Img100,
   InfoTextSpan,
   LightColorTextSpanBold,
+  My075,
   My1,
-  My2
+  My2, Span,
+  ULUnstyled
 } from "../../futuremodules/reactComponentStyles/reactCommon.styled";
 import WasmCanvas from "../../futuremodules/reactwasmcanvas/localreacwasmcanvas";
 import VideoPhoneChat from "../../futuremodules/webrtc/components/VideoPhoneChat";
-import {getLocalePropertyPrice, useQLProperty} from "./PropertyLogic";
+import {useQLProperty} from "./PropertyLogic";
 import {SpinnerTopMiddle} from "../../futuremodules/spinner/Spinner";
-import {Fragment, useState} from "react";
+import {useState} from "react";
 import {Carousel} from "react-bootstrap";
+import {FAIcon, SpanV} from "../../futuremodules/reactComponentStyles/reactCommon";
 
 function ControlledCarousel({property}) {
   const [index, setIndex] = useState(0);
@@ -134,8 +140,23 @@ export const Property = (props) => {
         </PropertyHCaption>
         <My2/>
         <PropertyDescription>
-          <Div padding={"20px"} fontSize={"var(--font-size-onemedium)"} dangerouslySetInnerHTML={{ __html: property.description }} />
-          <Div></Div>
+          <DivRightBorder variant={"info"} padding={"20px"} fontSize={"var(--font-size-onemedium)"}
+               dangerouslySetInnerHTML={{__html: property.description}}/>
+          <Div padding={"20px 10px"}>
+            <ULUnstyled>
+              {property.keyFeatures.map(elem => {
+                return (
+                  <>
+                    <li key={elem}>
+                      <FAIcon icon={"dot-circle"} variant={"logo-color-1"}/>{" "}
+                      {elem}
+                    </li>
+                    <My075/>
+                  </>
+                )
+              })}
+            </ULUnstyled>
+          </Div>
         </PropertyDescription>
 
 
@@ -143,12 +164,12 @@ export const Property = (props) => {
         <HR/>
         <My1/>
         <PropertyHCaption>
-          <PropertyTitleType>Photographs: ({property.thumbs.length})</PropertyTitleType>
+          <PropertyTitleType>Photographs: (<SpanV variant={"logo-color-1"} text={property.thumbs.length}/>)</PropertyTitleType>
         </PropertyHCaption>
         <My1/>
         <PropertyCarousel>
           <ControlledCarousel property={property}/>
-          <Div justifyContent={"flex-start"}  overflowY={"scroll"} overflowX={"hide"} className={"shadow"}>
+          <Div justifyContent={"flex-start"} overflowY={"scroll"} overflowX={"hide"} className={"shadow"}>
             {property.thumbs.map(thumb => {
                 return (
                   <DivInlineFlex width={"48%"} margin={"1%"}>

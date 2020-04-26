@@ -187,11 +187,13 @@ export const EstateAgentRepAssistingText = styled.div`{
 
 export const PropertyDescription = styled.div`{
   display: grid;
+  height:auto;
   grid-gap: 10px;
   grid-template-columns: ${wasmCanvasSize.x} calc( var(--body-width) - ${mainPadding}*2 - ${wasmCanvasSize.x} - 10px );
   grid-template-rows: 100%;
   border-radius: 5px;
   background-image: linear-gradient(var(--dark-color), var(--dark-color-transparent-very) );
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.9), 0 4px 10px 0 rgba(0, 0, 0, 0.99);
-
+  overflow-y: hidden;
+  overflow-x: hidden;
 }`;
