@@ -1,4 +1,6 @@
 import styled, {keyframes} from 'styled-components'
+import {HR, My1, My2} from "../../futuremodules/reactComponentStyles/reactCommon.styled";
+import React from "reactn";
 
 const mainPadding = "15px";
 const wasmCanvasSize = {x: "720px", y: "540px"};
@@ -133,8 +135,9 @@ export const PropertyMarketedBy = styled.div`{
 
 export const PropertyManagingEstateAgent = styled.img`{
   background-color: white;
-  object-fit: contain;
-  padding: 10px;
+  object-fit: scale-down;
+  height: 60px;
+  padding: 5px;
 }`;
 
 export const PropertyVirtualBooking = styled.div`{
@@ -142,6 +145,13 @@ export const PropertyVirtualBooking = styled.div`{
   flex-direction: column;
   padding: 0 5px;
 }`;
+
+export const PropertySmallMapContainer = styled.div`{
+  margin: 0px 8px 8px 8px;
+  border-radius: 5px;
+  border: 3px solid var(--warning);
+}`;
+
 
 export const PropertyVirtualBookingTitle = styled.div`{
   font-size: var(--font-size-medium);
@@ -199,3 +209,17 @@ export const PropertyDescriptionDiv = styled.div`{
   overflow-y: hidden;
   overflow-x: hidden;
 }`;
+
+export const PHeader = (props) => {
+  return (
+    <>
+      <My2/>
+      <HR/>
+      <My1/>
+      <PropertyHCaption>
+        <PropertyTitleType>{props.children}</PropertyTitleType>
+      </PropertyHCaption>
+      <My1/>
+    </>
+  )
+}

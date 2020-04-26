@@ -71,3 +71,7 @@ export const getLocalePropertyPrice = (property) => {
 
   return `${defSymbol}${property.priceReadable}`;
 }
+
+export const getPropertyLngLat = (property) => {
+  return [property.location.coordinates[1],property.location.coordinates[0]];
+}

@@ -98,3 +98,7 @@ a, a:link, a:visited, a:focus, a:hover, a:active{
   text-decoration-color: inherit;
   color: inherit;
 }
+
+#smallMapID {
+  height: 247px;
+}
