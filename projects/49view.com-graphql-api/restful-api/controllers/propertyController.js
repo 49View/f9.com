@@ -109,26 +109,40 @@ export const propertyForSaleOrToRent = (name) => {
   return forSale;
 }
 
-const updatePropertyBinaries = async (result, propertyDoc) => {
-  const fres = await fetch(result.floorplanUrl);
-  const floorplan = await fres.buffer();
+const saveImageFromUrl = async (sourceUrl, mainPath, fileNameRule) => {
+  const fext = getFileNameExt(sourceUrl);
+  const fres = await fetch(sourceUrl);
+  const data = await fres.buffer();
+  const filename = `${mainPath}/${fileNameRule()}.${fext}`;
+  mkdir(mainPath);
+  writeFile(filename, data);
+  return filename;
+}
+
+const updatePropertyBinaries = async (result, propertyId) => {
+  const mp = "property"
+  const floorplanUrl =
+    await saveImageFromUrl( result.floorplanUrl, mp, ()=> `${propertyId}_floorplan`);
   const thumbs = [];
   const images = [];
-  const captions = [];
+  let inc = 0;
   for (const elem of result.images) {
-    const tres = await fetch(elem.thumbnailUrl);
-    thumbs.push(await tres.buffer());
-    const ires = await fetch(elem.masterUrl);
-    images.push(await ires.buffer());
-    captions.push(elem.caption);
+    const thumbUrl =
+      await saveImageFromUrl( elem.thumbnailUrl, mp,
+        ()=> `${propertyId}${elem.caption}_thumb_${inc}`);
+
+    const imageUrl =
+      await saveImageFromUrl( elem.masterUrl, mp,
+        ()=> `${propertyId}${elem.caption}_image_${inc}`);
+
+    thumbs.push(thumbUrl);
+    images.push(imageUrl);
   }
-  await db.upsert(propertyBinaryModel, {propertyId: propertyDoc._id}, {
-    propertyId: propertyDoc._id,
-    floorplan,
+  return {
+    floorplanUrl,
     thumbs,
-    images,
-    captions,
-  });
+    images
+  }
 }
 
 const updateEstateAgentFromExcalibur = async (result) => {
@@ -142,13 +156,7 @@ const updateEstateAgentFromExcalibur = async (result) => {
     const ret = await db.upsert(estateAgentModel, query, query);
 
     // Save estate agent logo
-    const fext = getFileNameExt(result.estateAgentLogo);
-    const fres = await fetch(result.estateAgentLogo);
-    const estateAgentLogo = await fres.buffer();
-    const eapath = "estate_agent";
-    const filename = `${eapath}/${ret._id}_logo.${fext}`;
-    mkdir(eapath);
-    writeFile(filename, estateAgentLogo);
+    const filename = await saveImageFromUrl(result.estateAgentLogo, "estate_agent", () => `${ret._id}_logo`);
 
     // add logo link to estate agent
     await db.upsert(estateAgentModel, query, {logo:filename});
@@ -162,12 +170,12 @@ export const scrapeExcaliburFloorplan = async (htmlUrl) => {
 
   const origin = Buffer.from(htmlUrl).toString('base64');
 
-  // if ( await propertyModel.findOne({origin}) ) {
-  //   return null;
-  // }
-  // const response = await fetch(htmlUrl);
-  // const htmlSource = await response.text();
-  const htmlSource = testHtml;
+  if ( await propertyModel.findOne({origin}) ) {
+    return null;
+  }
+  const response = await fetch(htmlUrl);
+  const htmlSource = await response.text();
+  // const htmlSource = testHtml;
 
 
   let floorplansString;
@@ -340,7 +348,8 @@ export const scrapeExcaliburFloorplan = async (htmlUrl) => {
   const propertyDoc = await upsert2(propertyModel, {origin: result.origin}, result);
 
   // Update property binaries
-  // await updatePropertyBinaries(binaries, propertyDoc);
+  const binaryDoc = await updatePropertyBinaries(binaries, propertyDoc._id);
+  await propertyModel.updateOne({_id:propertyDoc._id}, binaryDoc);
 
   // Upsert the estate agent with the new property in its list
   await estateAgentModel.updateOne({_id:estateAgentDoc._id}, {$addToSet: {properties: propertyDoc._id}});
