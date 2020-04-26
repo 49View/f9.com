@@ -2,6 +2,7 @@
 :root {
   --font-size-normal: 0.8rem;
   --font-size-one: 1rem;
+  --font-size-onemedium: 1.1rem;
   --font-size-medium: 1.25rem;
   --font-size-big: 1.5rem;
   --font-size-lead: 2rem;
@@ -37,6 +38,7 @@
   --mainMargin: 2%;
   --searchbar-height: 38px;
   --body-width: 1024px;
+  --scrollbarBG: #30303030;
 }
 
 * {
@@ -58,6 +60,18 @@
 @font-face {
   font-family: Pompiere;
   src: url(img/Pompiere-Regular.ttf);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--scrollbarBG);
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--logo-color-1);
+  border-radius: 6px;
+  border: 3px solid var(--dark);
 }
 
 body {
@@ -83,7 +97,3 @@ a, a:link, a:visited, a:focus, a:hover, a:active{
   text-decoration-color: inherit;
   color: inherit;
 }
-
-/*::-webkit-scrollbar {*/
-/*  width: 0 !important;*/
-/*}*/

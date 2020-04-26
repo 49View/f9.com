@@ -21,6 +21,14 @@ export const PropertyTitleInfo = styled.div`{
   margin-bottom: 5px;
 }`;
 
+export const PropertyHCaption = styled.div`{
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  background-image: linear-gradient(var(--dark), var(--dark-color-transparent-very) );
+}`;
+
+
 export const PropertyTitleType = styled.div`{
   font-weight: bold;
   font-size: var(--font-size-lead);
@@ -78,6 +86,14 @@ export const PropertyStarOfTheShow = styled.div`{
   grid-template-rows: 100%;
 }`;
 
+export const PropertyCarousel = styled.div`{
+  display: grid;
+  height: 480px;
+  grid-gap: 10px;
+  grid-template-columns: ${wasmCanvasSize.x} calc( var(--body-width) - ${mainPadding}*2 - ${wasmCanvasSize.x} - 10px );
+  grid-template-rows: 100%;
+}`;
+
 export const PropertyCanvas = styled.div`{
   min-width: 640px;
   height: 480px;
@@ -89,7 +105,6 @@ export const PropertyRightMenu = styled.div`{
   display: flex;
   flex-direction: column;
   border-radius:4px;
-  //padding: 8px;
   border: solid 1px var(--info);
   background-image: linear-gradient(var(--dark-color-transparent), var(--dark-color-transparent-very) );
 }`;
@@ -168,4 +183,15 @@ export const EstateAgentRepAssistingText = styled.div`{
   color: var(--light);
   font-weight: bold;
   font-size: ${props => props.fontSize};  
+}`;
+
+export const PropertyDescription = styled.div`{
+  display: grid;
+  grid-gap: 10px;
+  grid-template-columns: ${wasmCanvasSize.x} calc( var(--body-width) - ${mainPadding}*2 - ${wasmCanvasSize.x} - 10px );
+  grid-template-rows: 100%;
+  border-radius: 5px;
+  background-image: linear-gradient(var(--dark-color), var(--dark-color-transparent-very) );
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.9), 0 4px 10px 0 rgba(0, 0, 0, 0.99);
+
 }`;

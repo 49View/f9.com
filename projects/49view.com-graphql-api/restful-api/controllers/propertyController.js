@@ -261,7 +261,7 @@ export const scrapeExcaliburFloorplan = async (htmlUrl) => {
   // DESCRIPTION
   //
   console.log("DESCRIPTION SEARCH");
-  result.description = cleanString(html('p[itemprop=description]').text());
+  result.description = html('p[itemprop=description]').html();
 
   //
   // PRICE

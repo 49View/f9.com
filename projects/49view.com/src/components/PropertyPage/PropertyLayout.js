@@ -29,7 +29,7 @@ export const PropertyLayout = ({property}) => {
   return (
     <Fragment>
       <PropertyTitleInfo>
-        <PropertyTitleType className="property-type">{property.name}</PropertyTitleType>
+        <PropertyTitleType>{property.name}</PropertyTitleType>
         <PropertyTitlePrice>{getLocalePropertyPrice(property)}</PropertyTitlePrice>
       </PropertyTitleInfo>
       <PropertyTitleInfoSecondLine>

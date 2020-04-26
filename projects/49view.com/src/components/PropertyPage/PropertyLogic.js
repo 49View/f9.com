@@ -31,6 +31,9 @@ const propertyQuery = (id) => gql`{
         price
         priceReadable
         priceUnity
+        floorplanUrl
+        images
+        thumbs
     }
 }`;
 

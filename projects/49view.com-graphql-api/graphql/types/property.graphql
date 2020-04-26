@@ -18,6 +18,9 @@ type Property {
     priceReadable: String
     priceUnity: String
     estateAgent: EstateAgent
+    floorplanUrl: String
+    thumbs: [String]
+    images: [String]
 }
 
 type Query {
