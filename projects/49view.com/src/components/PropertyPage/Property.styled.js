@@ -140,7 +140,7 @@ export const PropertyManagingEstateAgent = styled.img`{
 export const PropertyVirtualBooking = styled.div`{
   display: flex;
   flex-direction: column;
-  padding: 0px 10px 10px 10px;
+  padding: 10px;
 }`;
 
 export const PropertyVirtualBookingTitle = styled.div`{
@@ -170,7 +170,6 @@ export const EstateAgentRep = styled.div`{
   grid-template-rows: 50% 50%;
   grid-template-areas: "EstateAgentRepIcon EstateAgentRepMainNameTitle"
                        "EstateAgentRepIcon EstateAgentRepAssistingText";
-  margin: 5px 0px;
 }`;
 
 export const EstateAgentRepIcon = styled.div`{

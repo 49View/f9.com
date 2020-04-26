@@ -1,6 +1,6 @@
 import React from "reactn";
 import "./Property.css";
-import {PropertyLayout} from "./PropertyLayout";
+import {PropertyNameAndPriceHeader} from "./PropertyNameAndPriceHeader";
 import {
   EstateAgentRep,
   EstateAgentRepAssistingText,
@@ -20,18 +20,20 @@ import {
   PropertyVirtualBookingCharCallVideo
 } from "./Property.styled";
 import {
-  AvatarRound,
+  AvatarRound, BadgeGroupVertical,
   Div,
   DivInlineFlex,
   DivRightBorder,
   Flex,
+  FlexVertical,
   HR,
   Img100,
   InfoTextSpan,
+  InfoTextSpanBold, LightColorTextSpan,
   LightColorTextSpanBold,
   My075,
   My1,
-  My2,
+  My2, SecondaryAltColorTextSpanBold, Text,
   ULUnstyled
 } from "../../futuremodules/reactComponentStyles/reactCommon.styled";
 import WasmCanvas from "../../futuremodules/reactwasmcanvas/localreacwasmcanvas";
@@ -168,6 +170,11 @@ const PropertyStartOfTheShow = ({property}) => {
             </div>
           </Flex>
         </PropertyMarketedBy>
+        <BadgeGroupVertical alignItems={"center"} padding={"10px 0"} lineHeight={"1.2"} margin={"5px"}>
+          <LightColorTextSpan fontSize={"var(--font-size-onemedium)"}>{property.estateAgent.name}</LightColorTextSpan>
+          <Text bold color={"var(--logo-color-1)"} fontSize={"var(--font-size-normal)"}>{property.estateAgent.branch}</Text>
+          <Text color={"var(--warning)"} fontSize={"var(--font-size-small)"}>{property.estateAgent.address}</Text>
+        </BadgeGroupVertical>
         <PropertyVirtualBooking>
           <EstateAgentRep>
             <EstateAgentRepIcon>
@@ -177,9 +184,9 @@ const PropertyStartOfTheShow = ({property}) => {
               <LightColorTextSpanBold>
                 Dado,
               </LightColorTextSpanBold>
-              <InfoTextSpan fontSize={"smaller"}>
+              <InfoTextSpanBold fontSize={"smaller"}>
                 {" "}the big cheese
-              </InfoTextSpan>
+              </InfoTextSpanBold>
             </EstateAgentRepMainNameTitle>
             <EstateAgentRepAssistingText fontSize={"0.75rem"}>
               is looking after this property
@@ -205,7 +212,7 @@ export const Property = (props) => {
   return (
     <>
       <PropertyContainer>
-        <PropertyLayout property={property}/>
+        <PropertyNameAndPriceHeader property={property}/>
         <PropertyStartOfTheShow property={property}/>
         <PropertyGeneralInformation property={property}/>
         <PropertyPhotographs property={property}/>

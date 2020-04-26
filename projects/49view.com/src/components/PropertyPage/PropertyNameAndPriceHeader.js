@@ -24,7 +24,7 @@ const PropertyAddress = ({addrSplit}) => {
   );
 };
 
-export const PropertyLayout = ({property}) => {
+export const PropertyNameAndPriceHeader = ({property}) => {
 
   return (
     <Fragment>
