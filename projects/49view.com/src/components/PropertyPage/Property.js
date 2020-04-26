@@ -2,8 +2,8 @@ import React from "reactn";
 import "./Property.css";
 import {PropertyNameAndPriceHeader} from "./PropertyNameAndPriceHeader";
 import {
-  EstateAgentRep,
   EstateAgentRepAssistingText,
+  EstateAgentRepDiv,
   EstateAgentRepIcon,
   EstateAgentRepMainNameTitle,
   PropertyCanvas,
@@ -16,24 +16,23 @@ import {
   PropertyRightMenu,
   PropertyStarOfTheShowDiv,
   PropertyTitleType,
-  PropertyVirtualBooking,
-  PropertyVirtualBookingCharCallVideo
+  PropertyVirtualBooking
 } from "./Property.styled";
 import {
-  AvatarRound, BadgeGroupVertical,
+  AvatarRound,
+  BadgeGroupVertical,
   Div,
   DivInlineFlex,
   DivRightBorder,
   Flex,
-  FlexVertical,
   HR,
   Img100,
-  InfoTextSpan,
-  InfoTextSpanBold, LightColorTextSpan,
+  InfoTextSpanBold,
+  LightColorTextSpan,
   LightColorTextSpanBold,
-  My075,
   My1,
-  My2, SecondaryAltColorTextSpanBold, Text,
+  My2,
+  Text,
   ULUnstyled
 } from "../../futuremodules/reactComponentStyles/reactCommon.styled";
 import WasmCanvas from "../../futuremodules/reactwasmcanvas/localreacwasmcanvas";
@@ -90,7 +89,9 @@ const PropertyGeneralInformation = ({property}) => {
         General information:
       </PHeader>
       <PropertyDescriptionDiv>
-        <DivRightBorder variant={"info"} padding={"20px"}>
+        <DivRightBorder variant={"info"} padding={"5px 20px"}>
+          <Text color={"var(--warning)"}><h3>In a nutshell</h3></Text>
+          <My1/>
           <ULUnstyled>
             {property.keyFeatures.map(elem => {
               return (
@@ -100,15 +101,18 @@ const PropertyGeneralInformation = ({property}) => {
                     {elem}
                   </strong>
                   </li>
-                  <My075/>
+                  <My1/>
                 </>
               )
             })}
           </ULUnstyled>
         </DivRightBorder>
-
-        <Div padding={"20px"} fontSize={"var(--font-size-onemedium)"}
-             dangerouslySetInnerHTML={{__html: property.description}}/>
+        <Div padding={"5px 20px"} margin={"10px 0"}>
+          <Text color={"var(--warning)"}><h3>A few words...</h3></Text>
+          <My1/>
+          <Div fontSize={"var(--font-size-onemedium)"}
+               dangerouslySetInnerHTML={{__html: property.description}}/>
+        </Div>
       </PropertyDescriptionDiv>
     </>
   )
@@ -139,6 +143,27 @@ const PropertyPhotographs = ({property}) => {
       </PropertyCarouselDiv>
     </>
   )
+}
+
+export const EstateAgentRep = ({property}) => {
+  return (
+    <EstateAgentRepDiv>
+      <EstateAgentRepIcon>
+        <AvatarRound src={"/dado3.png"}/>
+      </EstateAgentRepIcon>
+      <EstateAgentRepMainNameTitle>
+        <LightColorTextSpanBold>
+          Dado,
+        </LightColorTextSpanBold>
+        <InfoTextSpanBold fontSize={"smaller"}>
+          {" "}the big cheese
+        </InfoTextSpanBold>
+      </EstateAgentRepMainNameTitle>
+      <EstateAgentRepAssistingText fontSize={"0.75rem"}>
+        is looking after this property
+      </EstateAgentRepAssistingText>
+    </EstateAgentRepDiv>
+    )
 }
 
 const PropertyStartOfTheShow = ({property}) => {
@@ -176,25 +201,8 @@ const PropertyStartOfTheShow = ({property}) => {
           <Text color={"var(--warning)"} fontSize={"var(--font-size-small)"}>{property.estateAgent.address}</Text>
         </BadgeGroupVertical>
         <PropertyVirtualBooking>
-          <EstateAgentRep>
-            <EstateAgentRepIcon>
-              <AvatarRound src={"/dado3.png"}/>
-            </EstateAgentRepIcon>
-            <EstateAgentRepMainNameTitle>
-              <LightColorTextSpanBold>
-                Dado,
-              </LightColorTextSpanBold>
-              <InfoTextSpanBold fontSize={"smaller"}>
-                {" "}the big cheese
-              </InfoTextSpanBold>
-            </EstateAgentRepMainNameTitle>
-            <EstateAgentRepAssistingText fontSize={"0.75rem"}>
-              is looking after this property
-            </EstateAgentRepAssistingText>
-          </EstateAgentRep>
-          <PropertyVirtualBookingCharCallVideo>
+          {/*<EstateAgentRep/>*/}
             <VideoPhoneChat/>
-          </PropertyVirtualBookingCharCallVideo>
         </PropertyVirtualBooking>
       </PropertyRightMenu>
     </PropertyStarOfTheShowDiv>
