@@ -29,7 +29,7 @@ router.get("/:group/:tags", async (req, res, next) => {
       const fileData = await db.fsDownloadWithId(db.bucketEntities, entity.fsid);
       // If no deps it's a base resouce, just save the file as it is
       if (entity.deps === null || entity.deps.length == 0) {
-        fsController.writeFile(res, entity, fileData);
+        fsController.writeResFile(res, entity, fileData);
       } else {
         let tarPack = tar.pack();
         let tarDict = [];
