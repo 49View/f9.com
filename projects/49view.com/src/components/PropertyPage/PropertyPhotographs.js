@@ -16,7 +16,7 @@ const ControlledCarousel = ({property}) =>{
     <Carousel activeIndex={index} onSelect={handleSelect} fade interval={20000}>
       {property.images.map(elem => {
           return (
-            <Carousel.Item>
+            <Carousel.Item key={elem}>
               <img
                 className="d-block w-100 rounded border border-dark"
                 src={`https://localhost/media/${elem}`}
@@ -41,7 +41,7 @@ export const PropertyPhotographs = ({property}) => {
         <Div justifyContent={"flex-start"} overflowY={"scroll"} overflowX={"hide"} className={"shadow"}>
           {property.thumbs.map(thumb => {
               return (
-                <DivInlineFlex width={"48%"} margin={"1%"}>
+                <DivInlineFlex key={thumb} width={"48%"} margin={"1%"}>
                   <Img100
                     className="d-block w-100 rounded border border-dark"
                     src={`https://localhost/media/${thumb}`}

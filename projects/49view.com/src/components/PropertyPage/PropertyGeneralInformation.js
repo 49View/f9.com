@@ -9,6 +9,7 @@ import {
 } from "../../futuremodules/reactComponentStyles/reactCommon.styled";
 import {FAIcon} from "../../futuremodules/reactComponentStyles/reactCommon";
 import React from "reactn";
+import {Fragment} from "react";
 
 export const PropertyGeneralInformation = ({property}) => {
   return (
@@ -23,14 +24,14 @@ export const PropertyGeneralInformation = ({property}) => {
           <ULUnstyled>
             {property.keyFeatures.map(elem => {
               return (
-                <>
-                  <li key={elem}><strong>
+                <Fragment key={elem}>
+                  <li><strong>
                     <FAIcon icon={"dot-circle"} variant={"logo-color-1"}/>{" "}
                     {elem}
                   </strong>
                   </li>
                   <My1/>
-                </>
+                </Fragment>
               )
             })}
           </ULUnstyled>

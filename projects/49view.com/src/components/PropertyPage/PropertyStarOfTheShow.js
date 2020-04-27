@@ -26,6 +26,7 @@ import {
 import VideoPhoneChat from "../../futuremodules/webrtc/components/VideoPhoneChat";
 import {MapContainer, Marker, Popup, TileLayer} from 'react-leaflet'
 import {getPropertyLngLat} from "./PropertyLogic";
+import {useState} from "react";
 
 export const EstateAgentRep = ({property}) => {
   return (
@@ -50,7 +51,7 @@ export const EstateAgentRep = ({property}) => {
 
 export const PropertyStarOfTheShow = ({property}) => {
   let canvasContainer = React.useRef(null);
-  const wasmDispatcher = null;//useGlobal(ReactWasm);
+  const [, setWasmState] = useState(null);
   const wwwPrefixToAvoidSSLMadness = process.env.REACT_APP_EH_CLOUD_HOST === 'localhost' ? "" : "www.";
   let wasmArgumentList = [`hostname=${wwwPrefixToAvoidSSLMadness}${process.env.REACT_APP_EH_CLOUD_HOST}`];
 
@@ -59,7 +60,7 @@ export const PropertyStarOfTheShow = ({property}) => {
       <PropertyCanvas ref={canvasContainer}>
         <WasmCanvas
           wasmName='../editor'
-          dispatcher={wasmDispatcher}
+          dispatcher={setWasmState}
           canvasContainer={canvasContainer.current}
           initialRect={{top: 0, left: 0, width: 0, height: 0}}
           initialVisibility={false}
