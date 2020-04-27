@@ -8,6 +8,7 @@ import {SpinnerTopMiddle} from "../../futuremodules/spinner/Spinner";
 import {PropertyStarOfTheShow} from "./PropertyStarOfTheShow";
 import {PropertyGeneralInformation} from "./PropertyGeneralInformation";
 import {PropertyPhotographs} from "./PropertyPhotographs";
+import {PropertyMaps} from "./PropertyMaps";
 
 export const Property = (props) => {
   const {match: {params}} = props;
@@ -24,6 +25,7 @@ export const Property = (props) => {
         <PropertyStarOfTheShow property={property}/>
         <PropertyGeneralInformation property={property}/>
         <PropertyPhotographs property={property}/>
+        <PropertyMaps property={property}/>
       </PropertyContainer>
       <My2/>
     </>

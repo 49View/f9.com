@@ -200,11 +200,20 @@ export const PropertyDescriptionDiv = styled.div`{
   display: grid;
   height:auto;
   grid-gap: 10px;
-  //grid-template-columns: calc( var(--body-width) - ${mainPadding}*2 - ${wasmCanvasSize.x} - 10px ) ${wasmCanvasSize.x} ;
   grid-template-columns: 30% calc(70% - 10px);
   grid-template-rows: 100%;
   border-radius: 5px;
   background-image: linear-gradient(var(--logo-color-2), var(--dark-color-transparent-text-readable) );
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.9), 0 4px 10px 0 rgba(0, 0, 0, 0.99);
+  overflow-y: hidden;
+  overflow-x: hidden;
+}`;
+
+export const PropertyMapDiv = styled.div`{
+  display: block;
+  height:auto;
+  width: 100%;
+  border-radius: 5px;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.9), 0 4px 10px 0 rgba(0, 0, 0, 0.99);
   overflow-y: hidden;
   overflow-x: hidden;

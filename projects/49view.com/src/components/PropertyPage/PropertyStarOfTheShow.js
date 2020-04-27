@@ -89,14 +89,14 @@ export const PropertyStarOfTheShow = ({property}) => {
         </PropertyVirtualBooking>
         <HR margin={"10px"}/>
         <PropertySmallMapContainer>
-          <MapContainer id={"smallMapID"} center={getPropertyLngLat(property)} zoom={13} scrollWheelZoom={true}>
+          <MapContainer id={"smallMapID"} center={getPropertyLngLat(property)} zoom={14} scrollWheelZoom={true}>
             <TileLayer
               attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             <Marker position={getPropertyLngLat(property)}>
               <Popup>
-                A pretty CSS3 popup. <br/> Easily customizable.
+                Property Location
               </Popup>
             </Marker>
           </MapContainer>
