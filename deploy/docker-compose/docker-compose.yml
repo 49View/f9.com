@@ -17,6 +17,8 @@ services:
   portal:
     image: "eventhorizonprojects/${EH_CLOUD_HOST}"
     container_name: "portal"
+    volumes:
+      - ${MTN_DB_PATH}/media:/media
   graphql-api:
     image: "eventhorizonprojects/${EH_CLOUD_HOST}-graphql-api"
     container_name: "graphql-api"
