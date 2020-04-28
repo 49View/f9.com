@@ -13,12 +13,12 @@ services:
     volumes:
       - /sslcerts/fullchain.pem:/etc/nginx/dns-cert.pem
       - /sslcerts/privkey.pem:/etc/nginx/dns-cert-key.pem
-      - ${MTN_DB_PATH}/media:/media
+      - ${MTN_DB_PATH}:/media
   portal:
     image: "eventhorizonprojects/${EH_CLOUD_HOST}"
     container_name: "portal"
     volumes:
-      - ${MTN_DB_PATH}/media:/media
+      - ${MTN_DB_PATH}:/media
   graphql-api:
     image: "eventhorizonprojects/${EH_CLOUD_HOST}-graphql-api"
     container_name: "graphql-api"
@@ -38,7 +38,7 @@ services:
       - mongo2
       - mongo3
     volumes:
-      - ${MTN_DB_PATH}/media:/media
+      - ${MTN_DB_PATH}:/media
   asset_daemon:
     image: "ateventhorizon/asset_daemon"
     container_name: "asset-daemon"
