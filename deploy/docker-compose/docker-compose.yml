@@ -30,7 +30,7 @@ services:
       - EH_TOKEN_COOKIE=${EH_TOKEN_COOKIE}
       - EH_ANTIFORGERYTOKEN_COOKIE=${EH_ANTIFORGERYTOKEN_COOKIE}
       - EH_JWT_EXPIRES_SECONDS=${EH_JWT_EXPIRES_SECONDS}
-      - EH_FILE_ROOT=${MTN_DB_PATH}
+      - EH_FILE_ROOT="/"
     depends_on:
       - mongo1
       - mongo2
