@@ -42,6 +42,7 @@ jobs:
         ssh -oStrictHostKeyChecking=no -v ${{ secrets.DROPLET_USER}}@${{ secrets.DROPLET_IP }} 
         'cd / && 
         export MTN_DB_PATH=${{ secrets.MTN_DB_PATH }} && 
+        export EH_FILE_ROOT=${{ secrets.MTN_DB_PATH }} && 
         export EH_MONGO_DEFAULT_DB=${{ secrets.EH_MONGO_DEFAULT_DB }} && 
         export EH_MONGO_PATH=${{ secrets.EH_MONGO_PATH }} && 
         export EH_MONGO_REPLICA_SET_NAME=${{ secrets.EH_MONGO_REPLICA_SET_NAME }} && 

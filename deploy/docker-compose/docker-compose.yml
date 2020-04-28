@@ -13,9 +13,13 @@ services:
     volumes:
       - /sslcerts/fullchain.pem:/etc/nginx/dns-cert.pem
       - /sslcerts/privkey.pem:/etc/nginx/dns-cert-key.pem
+    volumes:
+      - ${MTN_DB_PATH}/media:/data/media
   portal:
     image: "eventhorizonprojects/${EH_CLOUD_HOST}"
     container_name: "portal"
+    volumes:
+      - ${MTN_DB_PATH}/media:/data/media
   graphql-api:
     image: "eventhorizonprojects/${EH_CLOUD_HOST}-graphql-api"
     container_name: "graphql-api"
@@ -29,10 +33,13 @@ services:
       - EH_TOKEN_COOKIE=${EH_TOKEN_COOKIE}
       - EH_ANTIFORGERYTOKEN_COOKIE=${EH_ANTIFORGERYTOKEN_COOKIE}
       - EH_JWT_EXPIRES_SECONDS=${EH_JWT_EXPIRES_SECONDS}
+      - EH_FILE_ROOT=${MTN_DB_PATH}
     depends_on:
       - mongo1
       - mongo2
       - mongo3
+    volumes:
+      - ${MTN_DB_PATH}/media:/data/media
   asset_daemon:
     image: "ateventhorizon/asset_daemon"
     container_name: "asset-daemon"

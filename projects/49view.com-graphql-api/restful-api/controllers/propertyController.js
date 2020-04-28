@@ -109,7 +109,7 @@ export const propertyForSaleOrToRent = (name) => {
   return forSale;
 }
 
-const saveImageFromUrl = async (sourceUrl, mainPath, fileNameRule) => {
+export const saveImageFromUrl = async (sourceUrl, mainPath, fileNameRule) => {
   const fext = getFileNameExt(sourceUrl);
   const fres = await fetch(sourceUrl);
   const data = await fres.buffer();
