@@ -43,9 +43,10 @@ void EditorBackEnd::activatePostLoad() {
     rsg.DC()->setFoV(60.0f);
 }
 
-void EditorBackEnd::showHouse() {
+void EditorBackEnd::showHouse(const std::string& deseeializedBim) {
 
-    auto houseJson = std::make_shared<HouseBSData>(FM::readLocalFileC("ucarca"));
+    auto houseJson = std::make_shared<HouseBSData>(deseeializedBim);
+//    auto houseJson = std::make_shared<HouseBSData>(FM::readLocalFileC("ucarca"));
     houseJson->defaultSkybox = "barcelona";
 //    HouseRender::make2dGeometry( rsg.RR(), sg, houseJson.get(), Use2dDebugRendering::True );
 //    rsg.setRigCameraController<CameraControl2d>();
@@ -66,7 +67,11 @@ void EditorBackEnd::showHouse() {
 
 void EditorBackEnd::activateImpl() {
     loadSceneEntities();
-    showHouse();
+
+    Http::get(Url{"/propertybim/5ea45ffeb06b0cfc7488ec45"}, [this](HttpResponeParams params) {
+        showHouse(params.bufferString);
+    });
+
 }
 
 void EditorBackEnd::updateImpl( const AggregatedInputData& _aid ) {

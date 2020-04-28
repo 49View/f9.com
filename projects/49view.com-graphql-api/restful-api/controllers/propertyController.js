@@ -1,7 +1,6 @@
 "use strict";
 
 import {propertyModel} from "../../models/property";
-import {propertyBinaryModel} from "../../models/property_binary";
 import {estateAgentModel} from "../../models/estate_agent";
 import {trimLeft} from "csvtojson/v2/util";
 import {testHtml} from "../routes/excaliburCachedExample";

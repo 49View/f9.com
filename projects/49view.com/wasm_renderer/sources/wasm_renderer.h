@@ -44,7 +44,7 @@ public:
 
 protected:
     void activatePostLoad() override;
-    void showHouse();
+    void showHouse(const std::string& deseeializedBim);
 
 protected:
     std::unique_ptr<FrontEnd> backEnd;
