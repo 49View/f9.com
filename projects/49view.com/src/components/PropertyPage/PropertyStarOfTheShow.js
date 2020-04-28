@@ -59,7 +59,7 @@ export const PropertyStarOfTheShow = ({property}) => {
     <PropertyStarOfTheShowDiv>
       <PropertyCanvas ref={canvasContainer}>
         <WasmCanvas
-          wasmName='../editor'
+          wasmName='../wasm_renderer'
           dispatcher={setWasmState}
           canvasContainer={canvasContainer.current}
           initialRect={{top: 0, left: 0, width: 0, height: 0}}
