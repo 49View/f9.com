@@ -1,5 +1,5 @@
 #include <render_scene_graph/event_horizon.h>
-#include "editor/full_editor_layout.h"
+#include "sources/wasm_renderer.h"
 
 int main( int argc, char *argv[] ) {
 
