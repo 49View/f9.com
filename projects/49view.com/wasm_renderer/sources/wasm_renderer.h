@@ -30,7 +30,7 @@ using FrontEnd = sm<EditorStateMachineSML>;
 // Back End
 class EditorBackEnd : public RunLoopBackEndBase, public LoginActivation<LoginFieldsPrecached>, public ScenePreLoader {
 public:
-    EditorBackEnd( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchSceneGraph &_asg, ArchService& _as ) : RunLoopBackEndBase(_sg, _rsg), ScenePreLoader( _sg, _rsg ),asg( _asg ), as(_as) {
+    EditorBackEnd( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchSceneGraph &_asg, ArchService& _as ) : RunLoopBackEndBase(_sg, _rsg), ScenePreLoader( _sg, _rsg ), asg( _asg ), as(_as) {
         backEnd = std::make_unique<FrontEnd>( *this, _sg, _rsg );
     }
     ~EditorBackEnd() override = default;
@@ -44,10 +44,13 @@ public:
 
 protected:
     void activatePostLoad() override;
+    void luaFunctionsSetup() override;
     void showHouse(const std::string& deseeializedBim);
+    void loadHouse( const std::string& _pid );
 
 protected:
     std::unique_ptr<FrontEnd> backEnd;
     ArchSceneGraph& asg;
     ArchService& as;
+    std::shared_ptr<HouseBSData> houseJson;
 };

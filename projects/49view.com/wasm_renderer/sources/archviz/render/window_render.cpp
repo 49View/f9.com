@@ -305,7 +305,8 @@ namespace WindowRender {
 //    LOGRS("VAngle " << vwangle << " DirWidth " << mData->dirWidth );
 //    LOGRS("DAngle " << vdangle << " DirDepth " << mData->dirDepth );
 //    LOGRS("InAngle " << inangle << " InsideAngle " << mData->insideRoomPointingNormal );
-        mRootH->updateTransform( XZY::C( mData->center, 0.0f ), V4f{ 0.0f, 1.0f, 0.0f, M_PI_2 + inangle } );
+        Quaternion rot(M_PI_2 + inangle, V3f::UP_AXIS);
+        mRootH->updateTransform( XZY::C( mData->center, 0.0f ), rot, V3f::ONE);
 
         float windowsSillDepth = 0.04f;
         float currBaseOffset = mData->baseOffset < mData->ceilingHeight ? mData->baseOffset : mData->ceilingHeight;

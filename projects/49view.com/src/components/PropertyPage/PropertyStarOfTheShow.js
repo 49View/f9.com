@@ -53,7 +53,9 @@ export const PropertyStarOfTheShow = ({property}) => {
   let canvasContainer = React.useRef(null);
   const [, setWasmState] = useState(null);
   const wwwPrefixToAvoidSSLMadness = process.env.REACT_APP_EH_CLOUD_HOST === 'localhost' ? "" : "www.";
-  let wasmArgumentList = [`hostname=${wwwPrefixToAvoidSSLMadness}${process.env.REACT_APP_EH_CLOUD_HOST}`];
+  let wasmArgumentList = [
+    `hostname=${wwwPrefixToAvoidSSLMadness}${process.env.REACT_APP_EH_CLOUD_HOST}`,
+    `pid=${property._id}`];
 
   return (
     <PropertyStarOfTheShowDiv>

@@ -10,6 +10,7 @@ import gql from "graphql-tag";
 
 const propertyQuery = (id) => gql`{
     property(_id:"${id}") {
+        _id
         name
         origin
         addressLine1

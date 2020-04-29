@@ -322,7 +322,6 @@ GeomSPContainer make3dGeometry( SceneGraph& sg, const DoorBSData *mData ) {
 //        // This is the actual door
     V3f doorPivot = Vector3f( -mData->width * 0.5f, doorTrim,
                                    doorGeomPivot * 0.5f + mData->doorGeomThickness * -0.5f );
-//        auto doorShape = mRootH->addChildren( doorPivot );
     addDoorGeom( sg, mRootH, mData, doorPivot );
 
 //

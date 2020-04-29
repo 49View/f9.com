@@ -32,22 +32,61 @@ void EditorBackEnd::activatePostLoad() {
 
     rsg.createSkybox( SkyBoxInitParams{ SkyBoxMode::CubeProcedural } );
 
-    Renderer::clearColor(C4f::WHITE);
+    Renderer::clearColor( C4f::WHITE );
     rsg.useSkybox( true );
     rsg.useSunLighting( false );
-    rsg.useSSAO(true);
-    rsg.RR().LM()->setShadowZFightCofficient(0.02f);
-    rsg.RR().LM()->setIndoorSceneCoeff(1.0f);
+    rsg.useSSAO( true );
+    rsg.RR().LM()->setShadowZFightCofficient( 0.02f );
+    rsg.RR().LM()->setIndoorSceneCoeff( 1.0f );
     rsg.changeTime( "summer 13:50" );
     rsg.setRigCameraController<CameraControlOrbit3d>();
-    rsg.DC()->setFoV(60.0f);
+    rsg.DC()->setFoV( 60.0f );
+
+    // Load default property if passed trough command line
+    LOGRS( "CLI params:" << cliParams.printAll());
+    if ( auto pid = cliParams.getParam("pid"); pid ) {
+        loadHouse(*pid);
+    }
 }
 
-void EditorBackEnd::showHouse(const std::string& deseeializedBim) {
+void EditorBackEnd::luaFunctionsSetup() {
+    const std::string nsKey = "f9";
+    rsg.addLuaFunction( nsKey, "floorPlanView", [&]() {
+        uint64_t frameSkipper = 2;
+        Timeline::play( rsg.DC()->PosAnim(), frameSkipper, KeyFramePair{ 2.0f, V3f{ 0.0f, 6.5f, 0.0f }} );
+        Timeline::play( rsg.DC()->QAngleAnim(), frameSkipper,
+                        KeyFramePair{ 2.0f, quatCompose( V3f{ M_PI_2, 0.0f, 0.0f } ) } );
+        rsg.setRigCameraController<CameraControl2d>();
+        rsg.useSkybox( false );
+        rsg.RR().changeMaterialAlphaOnTags( ArchType::CeilingT, 0.0f );
+    } );
 
-    auto houseJson = std::make_shared<HouseBSData>(deseeializedBim);
-//    auto houseJson = std::make_shared<HouseBSData>(FM::readLocalFileC("ucarca"));
-    houseJson->defaultSkybox = "barcelona";
+    rsg.addLuaFunction( nsKey, "walkingView", [&]() {
+        uint64_t frameSkipper = 2;
+        Timeline::play( rsg.DC()->PosAnim(), frameSkipper, KeyFramePair{ 2.0f, V3f{ 0.0f, 1.5f, 0.0f }} );
+        Timeline::play( rsg.DC()->QAngleAnim(), frameSkipper,
+                        KeyFramePair{ 2.0f, quatCompose( V3f{ 0.0f, 0.0f, 0.0f } ) } );
+        rsg.setRigCameraController<CameraControlWalk>();
+        rsg.useSkybox( true );
+        rsg.RR().changeMaterialAlphaOnTags( ArchType::CeilingT, 1.0 );
+    } );
+
+    rsg.addLuaFunction( nsKey, "loadHouse", [&](const std::string _pid) {
+        loadHouse(_pid);
+    } );
+}
+
+void EditorBackEnd::loadHouse( const std::string& _pid ) {
+    Http::get( Url{ "/propertybim/" + _pid }, [this]( HttpResponeParams params ) {
+        showHouse( params.bufferString );
+    } );
+}
+
+void EditorBackEnd::showHouse( const std::string &deseeializedBim ) {
+
+    houseJson = std::make_shared<HouseBSData>( deseeializedBim );
+
+//    houseJson->defaultSkybox = "barcelona";
 //    HouseRender::make2dGeometry( rsg.RR(), sg, houseJson.get(), Use2dDebugRendering::True );
 //    rsg.setRigCameraController<CameraControl2d>();
 //    Timeline::play( rsg.DC()->QAngleAnim(), 0,
@@ -67,14 +106,9 @@ void EditorBackEnd::showHouse(const std::string& deseeializedBim) {
 
 void EditorBackEnd::activateImpl() {
     loadSceneEntities();
-
-    Http::get(Url{"/propertybim/5ea45ffeb06b0cfc7488ec45"}, [this](HttpResponeParams params) {
-        showHouse(params.bufferString);
-    });
-
 }
 
-void EditorBackEnd::updateImpl( const AggregatedInputData& _aid ) {
+void EditorBackEnd::updateImpl( const AggregatedInputData &_aid ) {
 
     if ( _aid.TI().checkKeyToggleOn( GMK_Z )) {
         sg.chartMeshes2( scene );
