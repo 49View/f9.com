@@ -5,11 +5,10 @@ const express = require("express");
 const router = express.Router();
 const logger = require('eh_logger');
 
-
 router.post("/fetch/floorplan/excalibur", async (req, res, next) => {
 
   try {
-    const result = await scrapeExcaliburFloorplan(req.body.url);
+    const result = await scrapeExcaliburFloorplan(req.body.url, req.user._id, req.body.upsert);
     if ( !result ) {
       res.sendStatus(204);
     } else {

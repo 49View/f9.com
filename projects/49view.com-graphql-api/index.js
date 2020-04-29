@@ -22,9 +22,9 @@ const use = () => {
   app.use("/", tokenRoute);
   app.use("/user", usersRoute);
   app.use("/entities", entitiesRoute);
-  app.use("/property", propertyRoute);
   app.use("/propertyBim", propertyBimRoute);
   app.use(authController.authenticate);
+  app.use("/property", propertyRoute);
 };
 
 init();

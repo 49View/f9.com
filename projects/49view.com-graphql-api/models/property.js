@@ -17,6 +17,7 @@ export const propertyModel = mongoose.model("properties", new mongoose.Schema({
   thumbs: [{type: String}],
   images: [{type: String}],
 
+  userId: {type: mongoose.Schema.Types.ObjectId, ref: "users", index: true, unique: true},
   estateAgentId: {type: mongoose.Schema.Types.ObjectId, ref: "properties", index: true, unique: true},
   propertyBinariesId: {type: mongoose.Schema.Types.ObjectId, ref: "property_binaries", index: true, unique: true},
 

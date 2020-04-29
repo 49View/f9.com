@@ -17,6 +17,7 @@ type Property {
     price: [Int],
     priceReadable: String
     priceUnity: String
+    user: User
     estateAgent: EstateAgent
     floorplanUrl: String
     thumbs: [String]

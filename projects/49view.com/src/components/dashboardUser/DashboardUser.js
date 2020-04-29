@@ -17,7 +17,7 @@ const DashboardUser = (props) => {
 
   return (
     <DashboardUserFragment>
-      <WelcomeToTheJungle/>
+      <WelcomeToTheJungle username={props.auth.user.name}/>
       <UserAssets/>
       <Logoff tagline={"Great Scott, get me out of here"}/>
     </DashboardUserFragment>

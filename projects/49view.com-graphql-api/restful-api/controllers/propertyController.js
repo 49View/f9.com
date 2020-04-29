@@ -165,11 +165,11 @@ const updateEstateAgentFromExcalibur = async (result) => {
   return checkExist;
 }
 
-export const scrapeExcaliburFloorplan = async (htmlUrl) => {
+export const scrapeExcaliburFloorplan = async (htmlUrl, userId, upsert) => {
 
   const origin = Buffer.from(htmlUrl).toString('base64');
 
-  if ( await propertyModel.findOne({origin}) ) {
+  if ( !(upsert === true) && await propertyModel.findOne({origin}) ) {
     return null;
   }
   const response = await fetch(htmlUrl);
@@ -184,6 +184,7 @@ export const scrapeExcaliburFloorplan = async (htmlUrl) => {
   let regex;
   let latitude, longitude;
   const result = {
+    userId,
     origin: origin,
     estateAgentId: null,
     name: null,
