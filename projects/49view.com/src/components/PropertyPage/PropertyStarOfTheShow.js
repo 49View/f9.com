@@ -76,7 +76,7 @@ export const PropertyStarOfTheShow = ({property}) => {
         <PropertyMarketedBy>
           <Flex justifyContent={"center"}>
             <div>
-              <PropertyManagingEstateAgent src={`https://localhost/media/${property.estateAgent.logo}`}/>
+              <PropertyManagingEstateAgent src={`https://${process.env.REACT_APP_EH_CLOUD_HOST}/media/${property.estateAgent.logo}`}/>
             </div>
           </Flex>
         </PropertyMarketedBy>

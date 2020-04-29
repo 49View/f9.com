@@ -19,7 +19,7 @@ const ControlledCarousel = ({property}) =>{
             <Carousel.Item key={elem}>
               <img
                 className="d-block w-100 rounded border border-dark"
-                src={`https://localhost/media/${elem}`}
+                src={`https://${process.env.REACT_APP_EH_CLOUD_HOST}/media/${elem}`}
                 alt={elem}
               />
             </Carousel.Item>
@@ -44,7 +44,7 @@ export const PropertyPhotographs = ({property}) => {
                 <DivInlineFlex key={thumb} width={"48%"} margin={"1%"}>
                   <Img100
                     className="d-block w-100 rounded border border-dark"
-                    src={`https://localhost/media/${thumb}`}
+                    src={`https://${process.env.REACT_APP_EH_CLOUD_HOST}/media/${thumb}`}
                     alt={thumb}
                   />
                 </DivInlineFlex>
