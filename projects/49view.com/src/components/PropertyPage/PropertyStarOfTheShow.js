@@ -52,9 +52,8 @@ export const EstateAgentRep = ({property}) => {
 export const PropertyStarOfTheShow = ({property}) => {
   let canvasContainer = React.useRef(null);
   const [, setWasmState] = useState(null);
-  const wwwPrefixToAvoidSSLMadness = process.env.REACT_APP_EH_CLOUD_HOST === 'localhost' ? "" : "www.";
   let wasmArgumentList = [
-    `hostname=${wwwPrefixToAvoidSSLMadness}${process.env.REACT_APP_EH_CLOUD_HOST}`,
+    `hostname=${process.env.REACT_APP_EH_CLOUD_HOST}`,
     `pid=${property._id}`];
 
   return (

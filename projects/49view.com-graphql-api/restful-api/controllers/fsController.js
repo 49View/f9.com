@@ -14,12 +14,12 @@ exports.writeResFile = (res, entity, data) => {
 };
 
 export const writeFile = (filename, data) => {
-  fs.writeFile(`${globalConfig.FileRoot}media/${filename}`, data, (err) => {
+  fs.writeFile(`${globalConfig.FileRoot}media/media/${filename}`, data, (err) => {
     if (err) return console.log(err);
   });
 }
 
 export const mkdir = (dirpath) => {
-  fs.mkdirSync(`${globalConfig.FileRoot}media/${dirpath}`, {recursive:true});
+  fs.mkdirSync(`${globalConfig.FileRoot}media/media/${dirpath}`, {recursive:true});
 }
 
