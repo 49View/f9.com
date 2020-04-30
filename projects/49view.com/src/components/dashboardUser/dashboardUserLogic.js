@@ -16,12 +16,30 @@ const userPropertiesQuery = (name) => gql`{
         properties {
             _id
             name
+            description
+            addressLine1
+            addressLine2
+            addressLine3
+            images
+            estateAgent {
+                name
+                address
+                branch
+                logo
+            }
+            location {
+                type
+                coordinates
+            }
+            price
+            priceReadable
+            priceUnity
         }
     }
 }`;
 
 export const useQLUserPropertiesQuery = (id) => {
-  const [userProperties, setUserProperties] = useState(null);
+  const [userProperties, setUserProperties] = useState(undefined);
   const queryRes = useQuery(userPropertiesQuery(id));
 
   useEffect(() => {

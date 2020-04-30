@@ -35,12 +35,12 @@ export const PropertyHCaption = styled.div`{
 
 export const PropertyTitleType = styled.div`{
   font-weight: bold;
-  font-size: var(--font-size-lead);
+  font-size: ${props => props.small ? "var(--font-size-onemedium)" : "var(--font-size-lead)"};
 }`;
 
 export const PropertyTitlePrice = styled.div`{
   font-weight: bold;
-  font-size: var(--font-size-lead);
+  font-size: ${props => props.small ? "var(--font-size-big)" : "var(--font-size-lead)"};
   color: var(--logo-color-1);
   text-shadow: 0 0 3px #000000, 0 0 5px #202020;
 }`;
@@ -66,7 +66,7 @@ export const PropertyTitleInfoSecondLine = styled.div`{
 }`;
 
 export const PropertyTitleAddress = styled.div`{
-  font-size: var(--font-size-one);
+  font-size: ${props => props.small ? "var(--font-size-normal)" : "var(--font-size-one)"} ;
   color: var(--light);
 }`;
 
@@ -196,6 +196,33 @@ export const EstateAgentRepAssistingText = styled.div`{
   font-size: ${props => props.fontSize};  
 }`;
 
+export const SmallPropertyBoxContainer = styled.div`{
+  width: ${props => props.width || "auto"} ;
+  height: ${props => props.height || "auto"} ;
+  margin: ${props => props.margin || "0"};
+  padding: ${props => props.padding || "0"};
+  font-size: ${props => props.fontSize || "inherit"};
+  max-height: ${props => props.maxHeight || "auto"} ;
+  overflow-y: ${props => props.overflowY || "inherit"} ;
+  overflow-x: ${props => props.overflowX || "inherit"} ;
+  border-radius: 4px;
+  border: 1px solid var(--dark);
+  background-image: linear-gradient(var(--logo-color-2), var(--dark-color-transparent-text-readable) );
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.9), 0 4px 10px 0 rgba(0, 0, 0, 0.99);
+  cursor: pointer;
+    :hover {
+    border: 1px solid var(--primary-color);
+    box-shadow: 0 0 1px 1px var(--info);
+  }
+  
+  :active {
+    border: 1px solid var(--primary-color);
+    border-radius: 8px;
+    box-shadow: 0 0 2px 2px var(--info);
+    background-color: var(--dark-color);
+  }
+}`;
+
 export const PropertyDescriptionDiv = styled.div`{
   display: grid;
   height:auto;
@@ -232,3 +259,13 @@ export const PHeader = (props) => {
     </>
   )
 }
+
+export const PropertyAddress = ({addrSplit, size}) => {
+  return (
+    <PropertyTitleAddress small={size === "small"}>
+      {addrSplit[0] && <PropertyTitleAddressRoad>{addrSplit[0]},{" "}</PropertyTitleAddressRoad>}
+      {addrSplit[1] && <PropertyTitleAddressTown>{addrSplit[1]},{" "}</PropertyTitleAddressTown>}
+      {addrSplit[2] && <PropertyTitleAddressPostcode>{addrSplit[2]}</PropertyTitleAddressPostcode>}
+    </PropertyTitleAddress>
+  );
+};

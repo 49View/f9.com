@@ -1,10 +1,7 @@
 import React, {Fragment} from "react";
 import "./CustomReactTabs.css";
 import {
-  PropertyTitleAddress,
-  PropertyTitleAddressPostcode,
-  PropertyTitleAddressRoad,
-  PropertyTitleAddressTown,
+  PropertyAddress,
   PropertyTitleInfo,
   PropertyTitleInfoSecondLine,
   PropertyTitlePrice,
@@ -12,17 +9,6 @@ import {
   PropertyTitleType
 } from "./Property.styled";
 import {getLocalePropertyPrice} from "./PropertyLogic";
-
-const PropertyAddress = ({addrSplit}) => {
-
-  return (
-    <PropertyTitleAddress>
-      {addrSplit[0] && <PropertyTitleAddressRoad>{addrSplit[0]},{" "}</PropertyTitleAddressRoad>}
-      {addrSplit[1] && <PropertyTitleAddressTown>{addrSplit[1]},{" "}</PropertyTitleAddressTown>}
-      {addrSplit[2] && <PropertyTitleAddressPostcode>{addrSplit[2]}</PropertyTitleAddressPostcode>}
-    </PropertyTitleAddress>
-  );
-};
 
 export const PropertyNameAndPriceHeader = ({property}) => {
 

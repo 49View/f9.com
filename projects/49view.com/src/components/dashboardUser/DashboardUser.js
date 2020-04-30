@@ -23,7 +23,7 @@ export const DashboardUser = () => {
     <DashboardUserFragment>
       <WelcomeToTheJungle username={auth.user.name}/>
       <UserAssets user={auth.user}/>
-      <Logoff tagline={"Great Scott, get me out of here"}/>
+      <Logoff/>
     </DashboardUserFragment>
   );
 };
