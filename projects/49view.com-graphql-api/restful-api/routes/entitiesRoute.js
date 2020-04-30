@@ -28,7 +28,7 @@ router.get("/:group/:tags", async (req, res, next) => {
       let entity = foundEntities[0];
       const fileData = await db.fsDownloadWithId(db.bucketEntities, entity.fsid);
       // If no deps it's a base resouce, just save the file as it is
-      if (entity.deps === null || entity.deps.length == 0) {
+      if (entity.deps === null || entity.deps.length === 0) {
         fsController.writeResFile(res, entity, fileData);
       } else {
         let tarPack = tar.pack();
@@ -75,5 +75,67 @@ router.get("/:group/:tags", async (req, res, next) => {
     res.status(400).send(ex);
   }
 });
+
+router.post(
+  "/:filename/:filenameFSID/:project/:group/:username/:useremail",
+  async (req, res, next) => {
+    try {
+      logger.info("Post from daemon...");
+
+      const entity = await entityController.createEntity(
+        req.params.filenameFSID,
+        req.params.filename,
+        decodeURIComponent(req.params.project),
+        req.params.group,
+        decodeURIComponent(req.params.username),
+        decodeURIComponent(req.params.useremail)
+      );
+
+      if (entity !== null) {
+        res
+          .status(201)
+          .json(entity)
+          .end();
+      } else {
+        throw "[post.entity] Entity created is null";
+      }
+    } catch (ex) {
+      console.log("[POST] Entity error: ", ex);
+      res.sendStatus(400);
+    }
+  }
+);
+
+// // Data is going to be in body
+// router.post(
+//   "/:filename/:group",
+//   async (req, res, next) => {
+//     try {
+//       logger.info("Post from daemon...");
+//
+//       db.fsUpsert( db.bucketEntities, req.params.filename, req.body, )
+//       const entity = await entityController.createEntity(
+//         req.params.filenameFSID,
+//         req.params.filename,
+//         decodeURIComponent(req.params.project),
+//         req.params.group,
+//         decodeURIComponent(req.params.username),
+//         decodeURIComponent(req.params.useremail)
+//       );
+//
+//       if (entity !== null) {
+//         res
+//           .status(201)
+//           .json(entity)
+//           .end();
+//       } else {
+//         throw "[post.entity] Entity created is null";
+//       }
+//     } catch (ex) {
+//       console.log("[POST] Entity error: ", ex);
+//       res.sendStatus(400);
+//     }
+//   }
+// );
 
 module.exports = router;

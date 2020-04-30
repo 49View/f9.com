@@ -77,14 +77,13 @@ void EditorBackEnd::luaFunctionsSetup() {
 }
 
 void EditorBackEnd::loadHouse( const std::string& _pid ) {
-    Http::get( Url{ "/propertybim/" + _pid }, [this]( HttpResponeParams params ) {
-        showHouse( params.bufferString );
+    Http::get( Url{"/propertybim/" + _pid}, [this]( HttpResponeParams params ) {
+        auto house = std::make_shared<HouseBSData>( params.bufferString );
+        callbackStream = std::make_pair(house, true);
     } );
 }
 
-void EditorBackEnd::showHouse( const std::string &deseeializedBim ) {
-
-    houseJson = std::make_shared<HouseBSData>( deseeializedBim );
+void EditorBackEnd::showHouse( std::shared_ptr<HouseBSData> houseJson ) {
 
 //    houseJson->defaultSkybox = "barcelona";
 //    HouseRender::make2dGeometry( rsg.RR(), sg, houseJson.get(), Use2dDebugRendering::True );
@@ -108,12 +107,21 @@ void EditorBackEnd::activateImpl() {
     loadSceneEntities();
 }
 
+void EditorBackEnd::consumeCallbacks() {
+    if ( callbackStream.second ) {
+        showHouse(callbackStream.first);
+        callbackStream.second = false;
+    }
+}
+
 void EditorBackEnd::updateImpl( const AggregatedInputData &_aid ) {
 
-    if ( _aid.TI().checkKeyToggleOn( GMK_Z )) {
-        sg.chartMeshes2( scene );
-        LightmapManager::initScene( &scene, rsg.RR());
-        LightmapManager::bake( &scene, rsg.RR());
-        LightmapManager::apply( scene, rsg.RR());
-    }
+//    if ( _aid.TI().checkKeyToggleOn( GMK_Z )) {
+//        sg.chartMeshes2( scene );
+//        LightmapManager::initScene( &scene, rsg.RR());
+//        LightmapManager::bake( &scene, rsg.RR());
+//        LightmapManager::apply( scene, rsg.RR());
+//    }
+
+    consumeCallbacks();
 }

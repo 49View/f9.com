@@ -45,12 +45,13 @@ public:
 protected:
     void activatePostLoad() override;
     void luaFunctionsSetup() override;
-    void showHouse(const std::string& deseeializedBim);
+    void showHouse(std::shared_ptr<HouseBSData> houseJson);
     void loadHouse( const std::string& _pid );
+    void consumeCallbacks();
 
 protected:
     std::unique_ptr<FrontEnd> backEnd;
     ArchSceneGraph& asg;
     ArchService& as;
-    std::shared_ptr<HouseBSData> houseJson;
+    std::pair<std::shared_ptr<HouseBSData>, bool> callbackStream;
 };
