@@ -3,11 +3,10 @@ type User {
     name: String!
     email: String!
     properties: [Property]
-    property(id: ID!): Property
 }
-
 
 type Query {
     users: [User]
     user(name: String!): User
+    properties: [Property]
 }

@@ -1,31 +1,29 @@
-import React, {withGlobal} from "reactn";
+import React, {useContext} from "react";
 import {DashboardUserFragment} from "./DashboardUser.styled";
 import {WelcomeToTheJungle} from "../../futuremodules/auth/components/WelcomeToTheJungle"
 import {Logoff} from "../../futuremodules/auth/components/Logoff";
-import UserAssets from "./subcomponents/UserAssets";
+import {UserAssets} from "./subcomponents/UserAssets";
+import {AuthContext} from "../../futuremodules/auth/authContext";
+import {SpinnerTopMiddle} from "../../futuremodules/spinner/Spinner";
 import {Redirect} from "react-router-dom";
-import {Fragment} from "react";
 
-const DashboardUser = (props) => {
+export const DashboardUser = () => {
 
-  if ( props.auth === null ) {
-    return (<Redirect to={"/"}/>);
+  const auth = useContext(AuthContext);
+
+  if ( auth.user === null ) {
+    return (<Redirect to={"/"}/>)
   }
-  if ( props.auth === undefined ) {
-    return (<Fragment/>)
+
+  if ( auth.user === undefined ) {
+    return (<SpinnerTopMiddle/>)
   }
 
   return (
     <DashboardUserFragment>
-      <WelcomeToTheJungle username={props.auth.user.name}/>
-      <UserAssets/>
+      <WelcomeToTheJungle username={auth.user.name}/>
+      <UserAssets user={auth.user}/>
       <Logoff tagline={"Great Scott, get me out of here"}/>
     </DashboardUserFragment>
   );
 };
-
-export default withGlobal(
-  global => ({
-    auth: global.auth,
-  }),
-)(DashboardUser);
