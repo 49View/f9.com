@@ -4,7 +4,7 @@ import {propertyModel} from "../../models/property";
 import {estateAgentModel} from "../../models/estate_agent";
 import {trimLeft} from "csvtojson/v2/util";
 import {testHtml} from "../routes/excaliburCachedExample";
-import {mkdir, writeFile} from "./fsController";
+import {mkdir, saveImageFromUrl, writeFile} from "./fsController";
 import {getFileNameExt} from "eh_helpers";
 
 const fetch = require('node-fetch');
@@ -106,16 +106,6 @@ export const propertyForSaleOrToRent = (name) => {
   }
 
   return forSale;
-}
-
-export const saveImageFromUrl = async (sourceUrl, mainPath, fileNameRule) => {
-  const fext = getFileNameExt(sourceUrl);
-  const fres = await fetch(sourceUrl);
-  const data = await fres.buffer();
-  const filename = `${mainPath}/${fileNameRule()}.${fext}`;
-  mkdir(mainPath);
-  writeFile(filename, data);
-  return filename;
 }
 
 const updatePropertyBinaries = async (result, propertyId) => {

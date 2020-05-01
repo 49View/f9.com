@@ -1,5 +1,6 @@
-import {scrapeExcaliburFloorplan, saveImageFromUrl} from "../controllers/propertyController";
+import {scrapeExcaliburFloorplan} from "../controllers/propertyController";
 import {getFileName} from "eh_helpers";
+import {saveImageFromUrl} from "../controllers/fsController";
 
 const express = require("express");
 const router = express.Router();
