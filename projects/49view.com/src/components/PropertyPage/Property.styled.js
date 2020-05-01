@@ -58,6 +58,25 @@ export const PropertyTitleRentOrBuy = styled.div`{
   );
 }`;
 
+export const PropertyTitleRentOrBuyTag = styled.div`{
+  position: relative;
+  top: -93%;
+  left: 84%;
+  transform: rotate(45deg);
+  font-weight: bold;
+  font-size: var(--font-size-medium);
+  color: var(--primary-color-light);
+  border-radius: 4px;
+  border: solid 1px var(--info);
+  background-image: linear-gradient(
+    rgba(23, 22, 24, 0.4),
+    rgba(23, 22, 24, 0.2)
+  );
+  padding: 5px 50px;
+  margin: 0;
+  width: 200px;  
+}`;
+
 export const PropertyTitleInfoSecondLine = styled.div`{
   display: flex;
   justify-content: space-between;

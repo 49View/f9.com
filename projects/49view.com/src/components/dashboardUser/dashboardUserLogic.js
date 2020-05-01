@@ -16,6 +16,7 @@ const userPropertiesQuery = (name) => gql`{
         properties {
             _id
             name
+            buyOrLet
             description
             addressLine1
             addressLine2

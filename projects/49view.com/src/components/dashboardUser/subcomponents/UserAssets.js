@@ -8,16 +8,19 @@ import {
   FlexVertical,
   Img100C,
   Mx1,
-  My05
+  My05,
+  My2
 } from "../../../futuremodules/reactComponentStyles/reactCommon.styled";
 import {getLocalePropertyPrice} from "../../PropertyPage/PropertyLogic";
 import {
   PropertyAddress,
   PropertyManagingEstateAgent,
   PropertyTitlePrice,
+  PropertyTitleRentOrBuyTag,
   PropertyTitleType,
   SmallPropertyBoxContainer
 } from "../../PropertyPage/Property.styled";
+import {CustomTitle2} from "../../../futuremodules/reactComponentStyles/reactCommon";
 
 const SmallPropertyBox = ({property, gotoProperty}) => {
   return (
@@ -55,6 +58,7 @@ const SmallPropertyBox = ({property, gotoProperty}) => {
           </Div>
         </FlexVertical>
       </Flex>
+      <PropertyTitleRentOrBuyTag>{property.buyOrLet}</PropertyTitleRentOrBuyTag>
     </SmallPropertyBoxContainer>
     // <Button key={property._id} variant={"info"} onClick={ () => gotoProperty(property._id) }>{property.name}</Button>
   )
@@ -63,17 +67,15 @@ const SmallPropertyBox = ({property, gotoProperty}) => {
 export const UserAssets = ({user}) => {
 
   const {userProperties} = useQLUserPropertiesQuery(user.name);
-
   const [propertyId, gotoProperty] = useState(null);
-
-  if (propertyId) {
-    return (
-      <Redirect to={`/property/${propertyId}`}/>
-    )
-  }
 
   return (
     <Fragment>
+      <Div fontSize={"var(--font-size-medium)"}>
+        <CustomTitle2 icon={"home"}>My saved properties:</CustomTitle2>
+      </Div>
+      <My2/>
+      {propertyId && <Redirect to={`/property/${propertyId}`}/>}
       {userProperties === undefined && <SpinnerTopMiddle/>}
       {userProperties && userProperties.properties.map(elem => <SmallPropertyBox key={elem._id} property={elem}
                                                                                  gotoProperty={gotoProperty}/>)}

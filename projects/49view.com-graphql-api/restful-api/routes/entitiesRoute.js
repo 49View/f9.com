@@ -29,62 +29,6 @@ router.get("/:group/:tags", async (req, res, next) => {
     if (foundEntities !== null && foundEntities.length > 0) {
       let entity = foundEntities[0];
       fsController.writeResFile(res, entity, fsController.readFile(mainPath, entity.hash));
-
-      // const fileData = await db.fsDownloadWithId(db.bucketEntities, entity.fsid);
-      // // If no deps it's a base resouce, just save the file as it is
-      // if (entity.deps === null || entity.deps.length === 0) {
-      //   await writeFileComplete(fileData, mainPath, entity.hash);
-      //
-      //   fsController.writeResFile(res, entity, fileData);
-      // } else {
-      //   let tarPack = tar.pack();
-      //   let tarDict = [];
-      //   // tarDict.push( { group: entity.group, filename: entity.name } );
-      //   tarPack.entry({name: entity.name}, fileData);
-      //   tarDict.push({
-      //     group: entity.group,
-      //     filename: entity.name,
-      //     hash: entity.hash
-      //   });
-      //   for (const elementGroup of entity.deps) {
-      //     for (const element of elementGroup.value) {
-      //       const depData = await db.fsDownloadWithId(db.bucketEntities, db.objectId(element));
-      //       await tarPack.entry(
-      //         {name: element, size: depData.length},
-      //         depData
-      //       );
-      //       tarDict.push({
-      //         group: elementGroup.key,
-      //         filename: element,
-      //         hash: element
-      //       });
-      //     }
-      //   }
-      //   await tarPack.entry({name: "catalog"}, JSON.stringify(tarDict));
-      //
-      //   await tarPack.finalize();
-      //
-      //   var writer = new streams.WritableStream();
-      //   tarPack.pipe(writer);
-      //
-      //   // let buff = writer.toBuffer();
-      //   // res
-      //   //   .status(200)
-      //   //   .set({"Content-Length": Buffer.byteLength(buff)})
-      //   //   .send(buff);
-      //   // console.log(req.params.tags + " status: 200, length: "+ Buffer.byteLength(buff))
-      //
-      //   tarPack.on("end", async () => {
-      //     let buff = writer.toBuffer();
-      //     const ffn = writeFileComplete(buff, mainPath, entity.hash);
-      //     // res
-      //     //   .status(200)
-      //     //   .set({"Content-Length": Buffer.byteLength(buff)})
-      //     //   .send(buff);
-      //     res.send(ffn);
-      //     console.log(req.params.tags + " status: 200, length: "+ Buffer.byteLength(buff))
-      //   });
-      // }
     } else {
       res.sendStatus(204);
     }
