@@ -1,58 +1,28 @@
-import React, {Fragment, useEffect, useRef, useState} from "react";
+import React, {Fragment, useState} from "react";
 import {
   LandingInner,
   LandingSearchBar,
   LandingSection,
-  SearchBarResultContainer,
-  SearchBarResultTrendId,
-  SearchBarResultUser,
   SearchText,
   SearchTextAlt,
   SearchTitleText
 } from "./Landing.styled";
 import {Redirect} from "react-router-dom";
+import {useRefWithFocusOnMount} from "../../futuremodules/reactComponentStyles/reactCommon";
+import {useQLPartialPropertySearch} from "./LandingLogic";
+import {PropertySmallBox} from "../PropertyPage/PropertySmallBox";
 
-const SearchResults = ({trendIdPartial}) => {
-  const {data, loading} = {data: null, loading: null};   // useQuery(getSimilarTrends(trendIdPartial));
-  const [results, setResults] = useState([]);
-  const [finalized, setfinalized] = useState({
-    clicked: false,
-    username: "",
-    trendId: ""
-  });
+const SearchResults = ({partialString}) => {
 
-  if (data && data.trend_similar && loading === false) {
-    if (results !== data.trend_similar) {
-      setResults(data.trend_similar);
-    }
-  }
-
-  if (finalized.clicked) {
-    return <Redirect push={true} to={`/${finalized.username}/${finalized.trendId}`}/>
-  }
+  const {partialPropertySearch} = useQLPartialPropertySearch(partialString);
+  const [finalized, setFinalized] = useState(null);
 
   return (
     <Fragment>
-      {results.map(e => {
-        const key = e.trendId + e.user.name;
-        return (
-          <SearchBarResultContainer
-            key={key}
-            onClick={() => setfinalized({
-              clicked: true,
-              username: e.user.name,
-              trendId: e.trendId
-            })}
-          >
-            <SearchBarResultTrendId>
-              {e.trendId}
-            </SearchBarResultTrendId>
-            <SearchBarResultUser>
-              <i className="fas fa-user"/>{" "}{e.user.name}
-            </SearchBarResultUser>
-          </SearchBarResultContainer>
-        )
-      })
+      {finalized && <Redirect to={`/property/${finalized}`}/>}
+      {partialPropertySearch && partialPropertySearch.map(elem =>
+        <PropertySmallBox key={elem._id} property={elem}
+                          gotoProperty={() => setFinalized(elem._id)}/>)
       }
     </Fragment>
   )
@@ -60,15 +30,8 @@ const SearchResults = ({trendIdPartial}) => {
 };
 
 const Landing = () => {
-  const [trendIdPartial, setTrendIdPartial] = useState(null);
-  const searchBox = useRef(null);
-
-  useEffect(() => {
-    if (searchBox.current) {
-      searchBox.current.focus();
-      searchBox.current.select();
-    }
-  }, []);
+  const [partialString, setPartialString] = useState(null);
+  const searchBox = useRefWithFocusOnMount();
 
   return (
     <LandingSection>
@@ -82,9 +45,9 @@ const Landing = () => {
           type="text"
           id="search-bar"
           autoComplete={"off"}
-          onChange={e => setTrendIdPartial(e.target.value)}>
+          onChange={e => setPartialString(e.target.value)}>
         </LandingSearchBar>
-        <SearchResults trendIdPartial={trendIdPartial}/>
+        <SearchResults partialString={partialString}/>
       </LandingInner>
     </LandingSection>
   );

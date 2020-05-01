@@ -18,7 +18,6 @@ export const LandingContainer = styled.section` {
 }`;
 
 export const LandingSection = styled.section` {
-  position: relative;
 }`;
 
 export const LandingInner = styled.div` {
@@ -30,7 +29,7 @@ export const LandingInner = styled.div` {
   font-size: 3rem;
   font-family: Aileron-Thin,serif;
   font-weight: lighter;
-  margin: calc(var(--navbar-height) * 2) auto;
+  margin: calc(var(--navbar-height)) auto;
 }`;
 
 export const LandingSearchBar = styled.input` {

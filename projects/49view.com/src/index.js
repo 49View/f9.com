@@ -76,7 +76,7 @@ const cleanTypenameLink = new ApolloLink((operation, forward) => {
 
 const client = new ApolloClient({
   link: ApolloLink.from([cleanTypenameLink, authLink, errorLink, link]),
-  cache: new InMemoryCache({addTypename: false}),
+  cache: new InMemoryCache({addTypename: true}),
 });
 
 ReactDOM.render(

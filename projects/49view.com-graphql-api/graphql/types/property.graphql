@@ -24,6 +24,31 @@ type Property {
     images: [String]
 }
 
+fragment PropertyMin on Property {
+    _id
+    name
+    buyOrLet
+    description
+    addressLine1
+    addressLine2
+    addressLine3
+    images
+    estateAgent {
+        name
+        address
+        branch
+        logo
+    }
+    location {
+        type
+        coordinates
+    }
+    price
+    priceReadable
+    priceUnity
+}
+
 type Query {
     property(_id: ID!): Property
+    propertyPartial(partialName: String): [Property]
 }

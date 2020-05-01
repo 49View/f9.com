@@ -59,9 +59,10 @@ export const PropertyTitleRentOrBuy = styled.div`{
 }`;
 
 export const PropertyTitleRentOrBuyTag = styled.div`{
-  position: relative;
-  top: -93%;
-  left: 84%;
+  position: absolute;
+  top: 15px;
+  right: -50px;
+  text-align: center;
   transform: rotate(45deg);
   font-weight: bold;
   font-size: var(--font-size-medium);
@@ -74,7 +75,6 @@ export const PropertyTitleRentOrBuyTag = styled.div`{
   );
   padding: 5px 50px;
   margin: 0;
-  width: 200px;  
 }`;
 
 export const PropertyTitleInfoSecondLine = styled.div`{
@@ -216,14 +216,15 @@ export const EstateAgentRepAssistingText = styled.div`{
 }`;
 
 export const SmallPropertyBoxContainer = styled.div`{
+  position:relative;
   width: ${props => props.width || "auto"} ;
   height: ${props => props.height || "auto"} ;
   margin: ${props => props.margin || "0"};
   padding: ${props => props.padding || "0"};
-  font-size: ${props => props.fontSize || "inherit"};
-  max-height: ${props => props.maxHeight || "auto"} ;
-  overflow-y: ${props => props.overflowY || "inherit"} ;
-  overflow-x: ${props => props.overflowX || "inherit"} ;
+  text-align: left;
+  font-size: 1rem;
+  font-weight: bold;
+  overflow: hidden;
   border-radius: 4px;
   border: 1px solid var(--dark);
   background-image: linear-gradient(var(--logo-color-2), var(--dark-color-transparent-text-readable) );

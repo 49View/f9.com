@@ -5,6 +5,35 @@ import {useQuery} from "@apollo/react-hooks";
 import gql from "graphql-tag";
 
 // ------------------------------
+// GraphQL Fragments
+// ------------------------------
+
+export const PropertyMinFragment = gql`
+    fragment PropertyMin on Property {
+        _id
+        name
+        buyOrLet
+        description
+        addressLine1
+        addressLine2
+        addressLine3
+        images
+        estateAgent {
+            name
+            address
+            branch
+            logo
+        }
+        location {
+            type
+            coordinates
+        }
+        price
+        priceReadable
+        priceUnity
+    }`;
+
+// ------------------------------
 // GraphQL Queries
 // ------------------------------
 
@@ -74,5 +103,5 @@ export const getLocalePropertyPrice = (property) => {
 }
 
 export const getPropertyLngLat = (property) => {
-  return [property.location.coordinates[1],property.location.coordinates[0]];
+  return [property.location.coordinates[1], property.location.coordinates[0]];
 }
