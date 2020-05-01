@@ -230,8 +230,8 @@ export const SmallPropertyBoxContainer = styled.div`{
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.9), 0 4px 10px 0 rgba(0, 0, 0, 0.99);
   cursor: pointer;
     :hover {
-    border: 1px solid var(--primary-color);
-    box-shadow: 0 0 1px 1px var(--info);
+    border: 1px solid var(--warning);
+    box-shadow: 0 0 1px 1px var(--dark);
   }
   
   :active {

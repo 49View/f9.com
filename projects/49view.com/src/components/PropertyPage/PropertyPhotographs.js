@@ -4,16 +4,12 @@ import {Div, DivInlineFlex, Img100} from "../../futuremodules/reactComponentStyl
 import React from "reactn";
 import {useState} from "react";
 import {Carousel} from "react-bootstrap";
+import {mapEntries} from "../../futuremodules/utils/utils";
 
-const ControlledCarousel = ({property}) =>{
-  const [index, setIndex] = useState(0);
-
-  const handleSelect = (selectedIndex, e) => {
-    setIndex(selectedIndex);
-  };
+const ControlledCarousel = ({property, index, setIndex}) =>{
 
   return (
-    <Carousel activeIndex={index} onSelect={handleSelect} fade interval={20000}>
+    <Carousel activeIndex={index} onSelect={(e) => setIndex(e)} fade interval={20000}>
       {property.images.map(elem => {
           return (
             <Carousel.Item key={elem}>
@@ -31,17 +27,20 @@ const ControlledCarousel = ({property}) =>{
 }
 
 export const PropertyPhotographs = ({property}) => {
+  const [index, setIndex] = useState(0);
+
   return (
     <>
       <PHeader>
         Photographs: (<SpanV variant={"logo-color-1"} text={property.thumbs.length}/>)
       </PHeader>
       <PropertyCarouselDiv>
-        <ControlledCarousel property={property}/>
+        <ControlledCarousel property={property} index={index} setIndex={setIndex}/>
         <Div justifyContent={"flex-start"} overflowY={"scroll"} overflowX={"hide"} className={"shadow"}>
-          {property.thumbs.map(thumb => {
+          {mapEntries(property.thumbs, (k, thumb) => {
               return (
-                <DivInlineFlex key={thumb} width={"48%"} margin={"1%"}>
+                <DivInlineFlex key={thumb} width={"48%"} margin={"1%"} cursor={"pointer"}
+                onClick={() => setIndex(parseInt(k))}>
                   <Img100
                     className="d-block w-100 rounded border border-dark"
                     src={`https://${process.env.REACT_APP_EH_CLOUD_HOST}/media/${thumb}`}
