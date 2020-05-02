@@ -16,6 +16,7 @@
     "axios": "^0.19.2",
     "base64-arraybuffer": "^0.2.0",
     "bootstrap": "^4.4.1",
+    "framer-motion": "^1.10.3",
     "graphql": "^14.6.0",
     "graphql-tag": "latest",
     "js-base64": "^2.5.2",

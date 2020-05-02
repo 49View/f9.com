@@ -6,24 +6,27 @@ import {UserAssets} from "./subcomponents/UserAssets";
 import {AuthContext} from "../../futuremodules/auth/authContext";
 import {SpinnerTopMiddle} from "../../futuremodules/spinner/Spinner";
 import {Redirect} from "react-router-dom";
+import {AnimFadeSection} from "../../futuremodules/reactComponentStyles/reactCommon.animations";
 
 export const DashboardUser = () => {
 
   const auth = useContext(AuthContext);
 
-  if ( auth.user === null ) {
+  if (auth.user === null) {
     return (<Redirect to={"/"}/>)
   }
 
-  if ( auth.user === undefined ) {
+  if (auth.user === undefined) {
     return (<SpinnerTopMiddle/>)
   }
 
   return (
-    <DashboardUserFragment>
-      <WelcomeToTheJungle username={auth.user.name}/>
-      <UserAssets user={auth.user}/>
-      <Logoff/>
-    </DashboardUserFragment>
+    <AnimFadeSection>
+      <DashboardUserFragment>
+        <WelcomeToTheJungle username={auth.user.name}/>
+        <UserAssets user={auth.user}/>
+        <Logoff/>
+      </DashboardUserFragment>
+    </AnimFadeSection>
   );
 };

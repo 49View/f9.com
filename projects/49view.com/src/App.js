@@ -10,6 +10,7 @@ import {EHAlert} from "./futuremodules/alerts/alerts";
 import {Property} from "./components/PropertyPage/Property";
 import {Body, FakeNavBar} from "./futuremodules/reactComponentStyles/reactCommon.styled";
 import {Content} from "./App.styled";
+// import {AnimatePresence} from "framer-motion";
 
 const App = () => {
 
@@ -18,13 +19,15 @@ const App = () => {
       <Navbar/>
       <FakeNavBar/>
       <Body>
-        <Switch>
-          <Route exact path="/" component={Landing}/>
-          <Route exact path="/register" component={Register}/>
-          <Route exact path="/login" component={Login}/>
-          <Route exact path="/dashboarduser" component={DashboardUser}/>
-          <Route path="/property/:pid" component={Property}/>
-        </Switch>
+        {/*<AnimatePresence key={"app.js"} exitBeforeEnter initial={false}>*/}
+          <Switch>
+            <Route exact path="/" component={Landing}/>
+            <Route exact path="/register" component={Register}/>
+            <Route exact path="/login" component={Login}/>
+            <Route exact path="/dashboarduser" component={DashboardUser}/>
+            <Route path="/property/:pid" component={Property}/>
+          </Switch>
+        {/*</AnimatePresence>*/}
       </Body>
       <EHAlert/>
     </Content>

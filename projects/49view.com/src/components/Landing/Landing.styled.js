@@ -17,9 +17,6 @@ export const LandingContainer = styled.section` {
   overflow: hidden;
 }`;
 
-export const LandingSection = styled.section` {
-}`;
-
 export const LandingInner = styled.div` {
   width: 60%;
   display: flex;
