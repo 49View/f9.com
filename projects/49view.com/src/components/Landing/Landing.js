@@ -1,6 +1,6 @@
 import React, {Fragment, useState} from "react";
 import {LandingInner, LandingSearchBar, SearchText, SearchTextAlt, SearchTitleText} from "./Landing.styled";
-import {Redirect} from "react-router-dom";
+import {Link} from "react-router-dom";
 import {useRefWithFocusOnMount} from "../../futuremodules/reactComponentStyles/reactCommon";
 import {useQLPartialPropertySearch} from "./LandingLogic";
 import {PropertySmallBox} from "../PropertyPage/PropertySmallBox";
@@ -10,11 +10,9 @@ import {AnimFadeSection} from "../../futuremodules/reactComponentStyles/reactCom
 const SearchResults = ({partialString}) => {
 
   const {partialPropertySearch} = useQLPartialPropertySearch(partialString);
-  const [finalized, setFinalized] = useState(null);
 
   return (
     <Fragment>
-      {finalized && <Redirect to={`/property/${finalized}`}/>}
       <AnimatePresence>
         {partialPropertySearch && partialPropertySearch.map(elem => (
             <motion.div
@@ -23,8 +21,10 @@ const SearchResults = ({partialString}) => {
               whileHover={{scale: 1.015}}
               exit={{opacity: 0, translateX: -1000}}
               transition={{type: 'spring', damping: 15, stiffness: 120}}>
-              <PropertySmallBox key={elem._id} property={elem}
-                                gotoProperty={() => setFinalized(elem._id)}/>
+              <Link to={`/property/${elem._id}`}>
+                <PropertySmallBox key={elem._id} property={elem}
+                                  gotoProperty={() => {}}/>
+              </Link>
             </motion.div>
           )
         )}
@@ -40,22 +40,22 @@ const Landing = () => {
 
   return (
     // <AnimatePresence key={"landing"}>
-      <AnimFadeSection>
-        <LandingInner>
-          <SearchTitleText>
-            <SearchText>Search </SearchText>
-            <SearchTextAlt>Home</SearchTextAlt>
-          </SearchTitleText>
-          <LandingSearchBar
-            ref={searchBox}
-            type="text"
-            id="search-bar"
-            autoComplete={"off"}
-            onChange={e => setPartialString(e.target.value)}>
-          </LandingSearchBar>
-          <SearchResults partialString={partialString}/>
-        </LandingInner>
-      </AnimFadeSection>
+    <AnimFadeSection>
+      <LandingInner>
+        <SearchTitleText>
+          <SearchText>Search </SearchText>
+          <SearchTextAlt>Home</SearchTextAlt>
+        </SearchTitleText>
+        <LandingSearchBar
+          ref={searchBox}
+          type="text"
+          id="search-bar"
+          autoComplete={"off"}
+          onChange={e => setPartialString(e.target.value)}>
+        </LandingSearchBar>
+        <SearchResults partialString={partialString}/>
+      </LandingInner>
+    </AnimFadeSection>
     // </AnimatePresence>
   );
 };

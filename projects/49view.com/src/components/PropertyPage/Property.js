@@ -9,6 +9,7 @@ import {PropertyStarOfTheShow} from "./PropertyStarOfTheShow";
 import {PropertyGeneralInformation} from "./PropertyGeneralInformation";
 import {PropertyPhotographs} from "./PropertyPhotographs";
 import {PropertyMaps} from "./PropertyMaps";
+import {AnimFadeSection} from "../../futuremodules/reactComponentStyles/reactCommon.animations";
 
 export const Property = (props) => {
   const {match: {params}} = props;
@@ -19,8 +20,8 @@ export const Property = (props) => {
   }
 
   return (
-    <>
-      <PropertyContainer>
+    <AnimFadeSection>
+    <PropertyContainer>
         <PropertyNameAndPriceHeader property={property}/>
         <PropertyStarOfTheShow property={property}/>
         <PropertyGeneralInformation property={property}/>
@@ -28,6 +29,6 @@ export const Property = (props) => {
         <PropertyMaps property={property}/>
       </PropertyContainer>
       <My2/>
-    </>
+    </AnimFadeSection>
   );
 };
