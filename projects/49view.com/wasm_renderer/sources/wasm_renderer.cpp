@@ -86,15 +86,15 @@ void EditorBackEnd::loadHouse( const std::string& _pid ) {
 void EditorBackEnd::showHouse( std::shared_ptr<HouseBSData> houseJson ) {
 
 //    houseJson->defaultSkybox = "barcelona";
-//    HouseRender::make2dGeometry( rsg.RR(), sg, houseJson.get(), Use2dDebugRendering::True );
+//    HouseRender::make2dGeometry( rsg.RR(), sg, houseJson.get(), Use2dDebugRendering::False );
 //    rsg.setRigCameraController<CameraControl2d>();
 //    Timeline::play( rsg.DC()->QAngleAnim(), 0,
-//                    KeyFramePair{ 0.1f, quatCompose( V3f{ M_PI_2, 0.0f, 0.0f } ) } );
+//                    KeyFramePair{ 0.1f, quatCompose( V3f{ M_PI, 0.0f, 0.0f } ) } );
 //    Timeline::play( rsg.DC()->PosAnim(), 0,
 //                    KeyFramePair{ 0.1f, V3f{ houseJson->center.x(), 5.0f, houseJson->center.y() }} );
 
     as.loadHouse( *houseJson );
-    rsg.RR().showBucket( CommandBufferLimits::UnsortedStart, false );
+//    rsg.RR().showBucket( CommandBufferLimits::UnsortedStart, false );
     rsg.setRigCameraController<CameraControlWalk>();
     Timeline::play( rsg.DC()->QAngleAnim(), 0,
                     KeyFramePair{ 0.1f, quatCompose( V3f{ 0.0f, 0.0f, 0.0f } ) } );

@@ -181,18 +181,25 @@ namespace WindowRender {
         return Vector3f::Z_AXIS * (( mData->depth * 0.5f ) - _off );
     }
 
-    void addPlastersAroundEdges( SceneGraph& sg, GeomSP mRootH, WindowBSData *mData, const Rect2f& _windowRect ) {
+    void addPlastersAroundEdges( SceneGraph& sg, GeomSP mRootH, WindowBSData *mData, float currBaseOffset ) {
+
+        auto fverts2 = utilGenerateFlatRect( Vector2f( mData->width, mData->height ),
+                                             WindingOrder::CCW,
+                                             PivotPointPosition::BottomCenter );
+        for ( auto& v : fverts2 ) {
+            v += V2f::Y_AXIS * currBaseOffset;
+        }
 
         for ( int t = 0; t < 2; t++ ) {
             std::array<Vector2f, 2> vline{};
             vline[1] = Vector2f( 0.0f, mData->depth * 0.25f );
             vline[0] = Vector2f( 0.0f, -mData->depth * 0.25f );
 
-            Rect2f wrt = _windowRect;
+            auto profile = Profile::fromPoints( "WindowPlasterAround", { vline[0], vline[1] } );
+
             float off = mData->depth * 0.25f * (( t == 0 ) ? 1.0f : -1.0f );
-//        wrt.translate(V2f::Y_AXIS*0.04f);
-            sg.GB<GT::Follower>( Profile::fromPoints( "WindowPlasterAround", { vline[0], vline[1] } ), wrt.pointscw(),
-                                 V3f::Z_AXIS * off, mRootH );
+
+            sg.GB<GT::Follower>( profile, fverts2, V3f::Z_AXIS * off, mRootH );
         }
     }
 
@@ -299,12 +306,7 @@ namespace WindowRender {
     GeomSPContainer make3dGeometry( SceneGraph& sg, WindowBSData *mData ) {
 
         auto mRootH = EF::create<Geom>( "Window" );
-//    float vwangle = -atan2( -mData->dirWidth.y(), mData->dirWidth.x()) + M_PI;
-//    float vdangle = -atan2( -mData->dirDepth.y(), mData->dirDepth.x());
-        float inangle = atan2( mData->insideRoomPointingNormal.y(), mData->insideRoomPointingNormal.x());
-//    LOGRS("VAngle " << vwangle << " DirWidth " << mData->dirWidth );
-//    LOGRS("DAngle " << vdangle << " DirDepth " << mData->dirDepth );
-//    LOGRS("InAngle " << inangle << " InsideAngle " << mData->insideRoomPointingNormal );
+        float inangle = -atan2( mData->insideRoomPointingNormal.y(), mData->insideRoomPointingNormal.x());
         Quaternion rot(M_PI_2 + inangle, V3f::UP_AXIS);
         mRootH->updateTransform( XZY::C( mData->center, 0.0f ), rot, V3f::ONE);
 
@@ -318,9 +320,9 @@ namespace WindowRender {
         Rect2f windowRectInclusive( Vector2f( mData->width, mData->height ));
         windowRectInclusive.translate( { mData->width * -0.5f, currBaseOffset } );
 
-        addPlastersAroundEdges( sg, mRootH, mData, windowRectInclusive );
+        addPlastersAroundEdges( sg, mRootH, mData, currBaseOffset );
         addTopBottomWallPieces( sg, mRootH, mData );
-//    addBlinds( sg, mRootH, mData, windowRect );
+//        addBlinds( sg, mRootH, mData, windowRect );
         addWindowMeshes( sg, mRootH, mData, windowRect, windowsSillDepth );
 
         addCurtains( sg, mRootH, mData, windowRect, currBaseOffset + windowsSillDepth );
