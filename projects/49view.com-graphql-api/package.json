@@ -49,6 +49,7 @@
     "query-string": "^6.11.1",
     "sha256": "^0.2.0",
     "streamifier": "^0.1.1",
+    "stripe": "^8.49.0",
     "subscriptions-transport-ws": "^0.9.16",
     "tar-stream": "^2.1.2",
     "uniqid": "^5.2.0",

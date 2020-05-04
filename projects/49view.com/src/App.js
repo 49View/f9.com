@@ -11,6 +11,7 @@ import {Property} from "./components/PropertyPage/Property";
 import {Body, FakeNavBar} from "./futuremodules/reactComponentStyles/reactCommon.styled";
 import {Content} from "./App.styled";
 import {AnimatePresence} from "framer-motion";
+import {Buy} from "./components/dashboardUser/subcomponents/UserSubscriptions";
 
 const App = () => {
 
@@ -29,6 +30,7 @@ const App = () => {
             <Route exact path="/" component={Landing}/>
             <Route exact path="/register" component={Register}/>
             <Route exact path="/login" component={Login}/>
+            <Route exact path="/buy" component={Buy}/>
             <Route exact path="/dashboarduser" component={DashboardUser}/>
             <Route exact path="/property/:pid" component={Property}/>
           </Switch>
