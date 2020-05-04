@@ -8,7 +8,7 @@ export const Buy = () => {
   useEffect(() => {
     async function fetchData() {
       const session = await axios.post(
-        `/stripe/getsession/${process.env.REACT_APP_EH_STELLE_E_STRISCE_SK}`
+        `/gapi/stripe/getsession/${process.env.REACT_APP_EH_STELLE_E_STRISCE_SK}`
       );
       stripe
         .redirectToCheckout({
