@@ -35,11 +35,13 @@ namespace DoorRender {
     Vector3f doorHandlePlateDoorSidePivot = Vector3f::ZERO;
     Vector3f doorHandlePlateFrameSidePivot = Vector3f::ZERO;
 
-    void drawSingleDoor2d( Renderer &rr, const V2f &_p1, const V2f &_p2, float _lineWidth, const C4f &_color ) {
+    void drawSingleDoor2d( Renderer &rr, const V2f &_p1, const V2f &_p2, float _lineWidth, const C4f &_color,
+                           const RDSPreMult &_pm ) {
         float windowLineWidth = _lineWidth * 0.2f;
         float halfWindowLineWidth = windowLineWidth * 0.5f;
         float halfLineWidth = _lineWidth * 0.5f;
         float windowLineWidthOffset = halfLineWidth - halfWindowLineWidth;
+        float lineWidth = 0.0025f;
 
         float dist = distance( _p1, _p2 ) + windowLineWidth;
         V2f vn = normalize( _p1 - _p2 );
@@ -62,14 +64,15 @@ namespace DoorRender {
         }
 
         vLists.emplace_back( p1 );
-        rr.draw<DLine>( vLists, _color, windowLineWidth, false );
+        rr.draw<DLine2d>( vLists, _color, lineWidth, false, _pm );
     }
 
     void drawDoubleDoor2d();
 
-    void make2dGeometry( Renderer &rr, SceneGraph &sg, const DoorBSData *data, Use2dDebugRendering bDrawDebug ) {
+    void make2dGeometry( Renderer &rr, SceneGraph &sg, const DoorBSData *data, Use2dDebugRendering bDrawDebug,
+                         const RDSPreMult &_pm ) {
         auto color = bDrawDebug == Use2dDebugRendering::True ? C4f::PASTEL_GREEN : C4f::BLACK;
-        drawSingleDoor2d( rr, data->us2.middle, data->us1.middle, data->us2.width, color );
+        drawSingleDoor2d( rr, data->us2.middle, data->us1.middle, data->us2.width, color, _pm );
     }
 
 

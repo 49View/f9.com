@@ -21,33 +21,47 @@ namespace HouseRender {
 //        for ( const auto& seg : FloorServiceIntermediateData::RCUnconnectedSegments() ) {
 //            rr.draw<DLine>( seg.first, seg.second, 0.015f, true, Color4f::RANDA1() );
 //        }
+        Matrix4f m{Matrix4f::IDENTITY};
+        float vmax = max(mData->bbox.bottomRight().x(), mData->bbox.bottomRight().y());
+        float padding = vmax*0.03f;
+        float screenFloorplanRatio = (1.0f/5.0f);
+        float screenPadding = 0.03f;
+        float vmaxScale = vmax / screenFloorplanRatio;
+        auto vr = 1.0f/ vmaxScale;
+        m.scale( V3f{vr, -vr, -vr});
+        m.translate( V3f{getScreenAspectRatio-screenFloorplanRatio-screenPadding, screenFloorplanRatio, screenFloorplanRatio});
+        auto pm = RDSPreMult(m);
+
         bool drawDebug = bDrawDebug == Use2dDebugRendering::True;
 
-        if ( mData->sourceData.floorPlanSize != V2f::ZERO ) {
-            auto floorPlanRect = Rect2f{ 0.0f, 0.0f, mData->sourceData.floorPlanSize.x(),
-                                         mData->sourceData.floorPlanSize.y() };
-            rr.draw<DPoly>( floorPlanRect.pointscw(), RDSImage{ std::string( "urca" ) }, C4f::WHITE.A( 0.25f ));
-        }
+        auto houseRect = Rect2f{ 0.0f, 0.0f, mData->bbox.bottomRight().x()+padding, mData->bbox.bottomRight().y()+padding };
+        rr.draw<DPoly2d>( houseRect.pointscw(), C4f::WHITE.A( .75f ), pm);
+
+//        if ( mData->sourceData.floorPlanSize != V2f::ZERO ) {
+//            auto floorPlanRect = Rect2f{ 0.0f, 0.0f, mData->sourceData.floorPlanSize.x(),
+//                                         mData->sourceData.floorPlanSize.y() };
+//            rr.draw<DPoly2d>( floorPlanRect.pointscw(), C4f::WHITE.A( 0.25f ), pm);
+//        }
 
         for ( const auto& f : mData->mFloors ) {
             if ( drawDebug ) {
                 for ( const auto& seg : f->orphanedUShapes ) {
-                    rr.draw<DCircle>( XZY::C( seg.middle ), Color4f::WHITE, 0.1f );
+                    rr.draw<DCircle2d>( XZY::C( seg.middle ), Color4f::WHITE, 0.1f );
                 }
             }
 
             auto lFloorPath = FloorService::calcPlainPath( f.get());
             for ( const auto& w : f->walls ) {
-                WallRender::make2dGeometry( rr, sg, w.get(), bDrawDebug);
+                WallRender::make2dGeometry( rr, sg, w.get(), bDrawDebug, pm);
             }
             for ( const auto& w : f->rooms ) {
-                RoomRender::make2dGeometry( rr, sg, w.get(), bDrawDebug);
+                RoomRender::make2dGeometry( rr, sg, w.get(), bDrawDebug, pm);
             }
             for ( const auto& w : f->windows ) {
-                WindowRender::make2dGeometry( rr, sg, w.get(), bDrawDebug);
+                WindowRender::make2dGeometry( rr, sg, w.get(), bDrawDebug, pm);
             }
             for ( const auto& w : f->doors ) {
-                DoorRender::make2dGeometry( rr, sg, w.get(), bDrawDebug);
+                DoorRender::make2dGeometry( rr, sg, w.get(), bDrawDebug, pm);
             }
         }
 

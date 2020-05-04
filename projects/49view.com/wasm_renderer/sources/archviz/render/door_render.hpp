@@ -13,9 +13,11 @@
 class SceneGraph;
 class Renderer;
 struct DoorBSData;
+struct RDSPreMult;
 enum class Use2dDebugRendering;
 
 namespace DoorRender {
-    void make2dGeometry( Renderer& rr, SceneGraph& sg, const DoorBSData *data, Use2dDebugRendering bDrawDebug );
+    void make2dGeometry( Renderer& rr, SceneGraph& sg, const DoorBSData *data, Use2dDebugRendering bDrawDebug,
+                         const RDSPreMult &_pm );
     GeomSPContainer make3dGeometry( SceneGraph& sg, const DoorBSData* mData );
 }

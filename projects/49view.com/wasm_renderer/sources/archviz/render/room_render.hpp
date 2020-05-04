@@ -14,10 +14,12 @@ class SceneGraph;
 struct RoomBSData;
 class Renderer;
 struct RoomBSData;
+struct RDSPreMult;
 enum class Use2dDebugRendering;
 
 namespace RoomRender {
-    void make2dGeometry( Renderer& rr, SceneGraph& sg, const RoomBSData *data, Use2dDebugRendering bDrawDebug );
+    void make2dGeometry( Renderer& rr, SceneGraph& sg, const RoomBSData *data, Use2dDebugRendering bDrawDebug,
+                         const RDSPreMult &_pm );
     void make3dGeometry( SceneGraph& sg, RoomBSData* mData );
     GeomSPContainer createCovingSegments( SceneGraph& sg, RoomBSData* mData );
     GeomSPContainer createSkirtingSegments( SceneGraph& sg, RoomBSData* mData );

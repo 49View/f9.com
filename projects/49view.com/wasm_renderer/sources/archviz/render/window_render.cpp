@@ -18,26 +18,29 @@
 
 namespace WindowRender {
 
-    void drawWindow( Renderer& rr, const V2f& _p1, const V2f& _p2, float _lineWidth, const C4f& _color ) {
+    void drawWindow( Renderer& rr, const V2f& _p1, const V2f& _p2, float _lineWidth, const C4f& _color,
+                     const RDSPreMult &_pm ) {
         float windowLineWidth = _lineWidth * 0.2f;
         float halfWindowLineWidth = windowLineWidth * 0.5f;
         float halfLineWidth = _lineWidth * 0.5f;
         float windowLineWidthOffset = halfLineWidth - halfWindowLineWidth;
-        rr.draw<DLine>( _p1, _p2, _color, windowLineWidth, false );
+        float lineWidth = 0.0025f;
+        rr.draw<DLine2d>( _p1, _p2, _color, lineWidth, false, _pm );
 
         V2f vn = normalize( _p1 - _p2);
         auto slope = rotate90( vn );
         auto p1 = _p1 + ( slope * windowLineWidthOffset );
         auto p2 = _p2 + ( slope * windowLineWidthOffset );
-        rr.draw<DLine>( p1, p2, _color, windowLineWidth, false );
+        rr.draw<DLine2d>( p1, p2, _color, lineWidth, false, _pm );
         auto p3 = _p1 + ( slope * -windowLineWidthOffset );
         auto p4 = _p2 + ( slope * -windowLineWidthOffset );
-        rr.draw<DLine>( p3, p4, _color, windowLineWidth, false );
+        rr.draw<DLine2d>( p3, p4, _color, lineWidth, false, _pm );
     }
 
-    void make2dGeometry( Renderer& rr, SceneGraph& sg, const WindowBSData *data, Use2dDebugRendering bDrawDebug ) {
+    void make2dGeometry( Renderer& rr, SceneGraph& sg, const WindowBSData *data, Use2dDebugRendering bDrawDebug,
+                         const RDSPreMult &_pm ) {
         auto color = bDrawDebug == Use2dDebugRendering::True ? C4f::PASTEL_GREEN : C4f::BLACK;
-        drawWindow( rr, data->us2.middle, data->us1.middle, data->us2.width*0.66f, color );
+        drawWindow( rr, data->us2.middle, data->us1.middle, data->us2.width*0.66f, color, _pm );
     }
 
     // [END] 2D

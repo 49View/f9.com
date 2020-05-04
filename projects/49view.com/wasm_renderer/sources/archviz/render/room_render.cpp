@@ -19,7 +19,8 @@
 
 namespace RoomRender {
 
-    void make2dGeometry( Renderer& rr, SceneGraph& sg, const RoomBSData *data, Use2dDebugRendering bDrawDebug ) {
+    void make2dGeometry( Renderer& rr, SceneGraph& sg, const RoomBSData *data, Use2dDebugRendering bDrawDebug,
+                         const RDSPreMult &_pm ) {
 //        bool drawDebug = bDrawDebug == Use2dDebugRendering::True;
 //        auto color = drawDebug ? Color4f::RANDA1().A(0.5f) : C4f::WHITE.A(0.5f);
 
@@ -28,7 +29,7 @@ namespace RoomRender {
 //            rr.draw<DLine>( data->mPerimeterSegments, 0.03f, C4f::RED, false );
 //        }
         if ( !RoomService::isGeneric(data) ) {
-            rr.draw<DText>( FDS{ RoomService::roomName(data), sg.FM().get(S::DEFAULT_FONT).get(), XZY::C(data->bbox.centreLeft()), .4f } );
+            rr.draw<DText2d>( FDS{ RoomService::roomName(data), sg.FM().get(S::DEFAULT_FONT).get(), XZY::C(data->bbox.centreLeft()), .4f*0.1f }, _pm );
         }
     }
 
