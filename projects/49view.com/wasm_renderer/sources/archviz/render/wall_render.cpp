@@ -67,7 +67,7 @@ namespace WallRender {
     void make2dGeometry( Renderer &rr, SceneGraph &sg, const WallBSData *wall, Use2dDebugRendering bDrawDebug,
                          const RDSPreMult &_pm ) {
         float width = 0.015f;
-        float lineWidth = 0.0025f;
+        float lineWidth = 0.0015f;
         drawWalls2d( rr, wall, lineWidth, bDrawDebug, _pm );
         bool drawDebug = bDrawDebug == Use2dDebugRendering::True;
         if ( drawDebug ) {

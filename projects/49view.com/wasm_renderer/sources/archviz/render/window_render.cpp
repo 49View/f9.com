@@ -24,7 +24,7 @@ namespace WindowRender {
         float halfWindowLineWidth = windowLineWidth * 0.5f;
         float halfLineWidth = _lineWidth * 0.5f;
         float windowLineWidthOffset = halfLineWidth - halfWindowLineWidth;
-        float lineWidth = 0.0025f;
+        float lineWidth = 0.001f;
         rr.draw<DLine2d>( _p1, _p2, _color, lineWidth, false, _pm );
 
         V2f vn = normalize( _p1 - _p2);
@@ -40,7 +40,7 @@ namespace WindowRender {
     void make2dGeometry( Renderer& rr, SceneGraph& sg, const WindowBSData *data, Use2dDebugRendering bDrawDebug,
                          const RDSPreMult &_pm ) {
         auto color = bDrawDebug == Use2dDebugRendering::True ? C4f::PASTEL_GREEN : C4f::BLACK;
-        drawWindow( rr, data->us2.middle, data->us1.middle, data->us2.width*0.66f, color, _pm );
+        drawWindow( rr, data->us2.middle, data->us1.middle, data->us2.width, color, _pm );
     }
 
     // [END] 2D

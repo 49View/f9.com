@@ -8,9 +8,13 @@
 #include <graphics/ghtypes.hpp>
 
 class SceneGraph;
+
 class HouseRenderContainer;
+
 class Renderer;
+
 struct HouseBSData;
+struct RDSPreMult;
 
 class HouseRenderContainer {
 public:
@@ -25,8 +29,10 @@ public:
 };
 
 namespace HouseRender {
-    void make2dGeometry( Renderer& rr, SceneGraph& sg, const HouseBSData *mData, Use2dDebugRendering bDrawDebug = Use2dDebugRendering::False );
-    HouseRenderContainer make3dGeometry( SceneGraph& sg, const HouseBSData* mData );
+    void make2dGeometry( Renderer &rr, SceneGraph &sg, const HouseBSData *mData, const RDSPreMult &_pm,
+                         Use2dDebugRendering bDrawDebug = Use2dDebugRendering::False );
+
+    HouseRenderContainer make3dGeometry( SceneGraph &sg, const HouseBSData *mData );
 }
 
 

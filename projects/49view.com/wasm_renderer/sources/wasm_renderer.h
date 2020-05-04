@@ -48,10 +48,11 @@ protected:
     void showHouse(std::shared_ptr<HouseBSData> houseJson);
     void loadHouse( const std::string& _pid );
     void consumeCallbacks();
-
+    void calcFloorplanNavigationTransform( std::shared_ptr<HouseBSData> houseJson );
 protected:
     std::unique_ptr<FrontEnd> backEnd;
     ArchSceneGraph& asg;
     ArchService& as;
+    std::shared_ptr<Matrix4f> floorplanNavigationMatrix;
     std::pair<std::shared_ptr<HouseBSData>, bool> callbackStream;
 };

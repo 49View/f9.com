@@ -83,10 +83,25 @@ void EditorBackEnd::loadHouse( const std::string& _pid ) {
     } );
 }
 
+void EditorBackEnd::calcFloorplanNavigationTransform( std::shared_ptr<HouseBSData> houseJson ) {
+    auto m = std::make_shared<Matrix4f>(Matrix4f::IDENTITY);
+    float vmax = max(houseJson->bbox.bottomRight().x(), houseJson->bbox.bottomRight().y());
+//    float padding = vmax*0.03f;
+    float screenFloorplanRatio = (1.0f/4.0f);
+    float screenPadding = 0.03f;
+    float vmaxScale = vmax / screenFloorplanRatio;
+    auto vr = 1.0f/ vmaxScale;
+    m->scale( V3f{vr, -vr, -vr});
+    m->translate( V3f{getScreenAspectRatio-screenFloorplanRatio-screenPadding, screenFloorplanRatio, screenFloorplanRatio});
+    floorplanNavigationMatrix = m;
+}
+
 void EditorBackEnd::showHouse( std::shared_ptr<HouseBSData> houseJson ) {
 
 //    houseJson->defaultSkybox = "barcelona";
-    HouseRender::make2dGeometry( rsg.RR(), sg, houseJson.get(), Use2dDebugRendering::False );
+
+    calcFloorplanNavigationTransform(houseJson);
+    HouseRender::make2dGeometry( rsg.RR(), sg, houseJson.get(), RDSPreMult(*floorplanNavigationMatrix.get()), Use2dDebugRendering::False );
 
 //    Matrix4f m{Matrix4f::IDENTITY};
 //    m.scale(1.0f/11.0f);
@@ -138,6 +153,10 @@ void EditorBackEnd::updateImpl( const AggregatedInputData &_aid ) {
 //        LightmapManager::bake( &scene, rsg.RR());
 //        LightmapManager::apply( scene, rsg.RR());
 //    }
+
+    if ( floorplanNavigationMatrix ) {
+        rsg.drawCameraLocator( *floorplanNavigationMatrix.get() );
+    }
 
     consumeCallbacks();
 }
