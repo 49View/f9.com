@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect } from "react";
 import axios from "axios";
 
-const stripe = window.Stripe(process.env.REACT_APP_EH_STELLE_E_STRISCE_PK);
+const stripe = window.Stripe(`${process.env.REACT_APP_EH_STELLE_E_STRISCE_PK}`);
 
 export const Buy = () => {
 
