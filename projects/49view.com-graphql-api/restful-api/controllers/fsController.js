@@ -1,6 +1,6 @@
 import globalConfig  from "eh_config";
 import fs from "fs";
-import {getFileNameExt} from "eh_helpers";
+import {getFileNameExt, getFileNameOnlyNoExt} from "eh_helpers";
 
 exports.writeResFile = (res, entity, data) => {
   res
@@ -26,6 +26,10 @@ export const mkdir = (dirpath) => {
   fs.mkdirSync(`${globalConfig.FileRoot}media/media/${dirpath}`, {recursive:true});
 }
 
+export const existsFile = (filename) => {
+  return fs.existsSync(`${globalConfig.FileRoot}media/media/${filename}`);
+}
+
 export const saveImageFromUrl = async (sourceUrl, mainPath, fileNameRule) => {
   const fext = getFileNameExt(sourceUrl);
   const fres = await fetch(sourceUrl);
@@ -39,6 +43,22 @@ export const saveImageFromUrl = async (sourceUrl, mainPath, fileNameRule) => {
 export const writeFileComplete = async (data, mainPath, filename) => {
   const filenamepath = `${mainPath}/${filename}`;
   mkdir(mainPath);
+  writeFile(filenamepath, data);
+  return filenamepath;
+}
+
+export const writeFileCompleteInsertNewNameIfExists = async (data, mainPath, filename) => {
+  let filenamepath = `${mainPath}/${filename}`;
+  const fnameOnly = getFileNameOnlyNoExt(filename);
+  let fext = getFileNameExt(filename);
+  if ( fext ) fext = "."+fext;
+  mkdir(mainPath);
+  let numCopies = 0;
+  while ( existsFile(filenamepath) ) {
+    numCopies++;
+    const appends="_copy"+numCopies.toString();
+    filenamepath = `${mainPath}/${fnameOnly}${appends}${fext}`;
+  }
   writeFile(filenamepath, data);
   return filenamepath;
 }

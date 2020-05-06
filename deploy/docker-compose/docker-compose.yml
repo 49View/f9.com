@@ -49,8 +49,11 @@ services:
       - EH_MONGO_PATH=${EH_MONGO_PATH}
       - EH_MONGO_DEFAULT_DB=${EH_MONGO_DEFAULT_DB}
       - EH_MONGO_REPLICA_SET_NAME=${EH_MONGO_REPLICA_SET_NAME}
+      - EH_FILE_ROOT=/
     depends_on:
       - rsinitiate
+    volumes:
+      - ${MTN_DB_PATH}:/media
   mongo1:
     image: "mongo"
     container_name: "mongodb_container1"

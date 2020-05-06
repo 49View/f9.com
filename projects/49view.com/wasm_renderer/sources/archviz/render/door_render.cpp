@@ -238,7 +238,7 @@ namespace DoorRender {
                             V3f{ 0.0f, doorPivot.yz() } );
     }
 
-    void addDoorGeom( SceneGraph &sg, GeomSP mRootH, const DoorBSData *mData, const V3f &doorPivot ) {
+    auto addDoorGeom( SceneGraph &sg, GeomSP mRootH, const DoorBSData *mData, const V3f &doorPivot ) {
         auto child = mRootH->addChildren("ActualDoor");
         // This 2.5f here is to leave space for the frame trim, the inner frame trim, and the 0.5 is a bit of air between it.
         V2f doorSize{ mData->width, mData->height - doorTrim*2.5f };
@@ -246,6 +246,7 @@ namespace DoorRender {
         Quaternion rot( -0.79f, V3f::UP_AXIS );
         child->updateTransform( doorPivot, rot, V3f::ONE );
 
+        return child;
 //    flatUglyDoor( sg, mRootH, mData, doorPivot );
     }
 
@@ -271,7 +272,7 @@ namespace DoorRender {
         // This is the actual door
         V3f doorPivot = Vector3f( -mData->width * 0.5f, doorTrim,
                                   doorGeomPivot * 0.5f + mData->doorGeomThickness * -0.5f );
-        addDoorGeom( sg, mRootH, mData, doorPivot );
+        auto actualDoor = addDoorGeom( sg, mRootH, mData, doorPivot );
 
         // Add a bit of the missing floor between the rooms connecting this door
         sg.GB<GT::Extrude>( V2nff{ V2f{ mData->width, mData->depth }, V3f::UP_AXIS, 0.001f }, mRootH,
@@ -301,12 +302,16 @@ namespace DoorRender {
 //    GeomBuilder{ GeomBuilderType::file, { "hinges", "35", "doorside" } }.
 //            at( frameHingesOffs[1], Vector3f::Z_AXIS * hingesHangle ).inj(mRootH->addChildren()).build(mPrefs.sg);
 //
-//////    // Door Handle
+        // Door Handle
 //        float doorHandleOrientationAngle = ( mData->orientation == DoorOrientation::W2_CW ||
 //                                             mData->orientation == DoorOrientation::W2_CCW ) ? M_PI : 0.0f;
-//
+
+        sg.GB<GT::Asset>( "doorhandle,dx", actualDoor, doorHandlePivot, GT::Rotate(Quaternion(M_PI, V3f::UP_AXIS)) );
+        sg.GB<GT::Asset>( "doorhandle,sx", actualDoor, doorHandlePivot * Vector3f::Z_AXIS_NEG_MASK, GT::Rotate(Quaternion(M_PI, V3f::UP_AXIS)) );
+
+
 //        GeomBuilder{ mPrefs.sg, GeomBuilderType::file, "doorhandle,long,dx" }.
-//                at( doorHandlePivot ).r( Vector3f{ 0.0f, M_PI, doorHandleOrientationAngle } ).
+//                at( doorHandlePivot ).r(  ).
 //                inj( doorShape->addChildren()).build();
 //
 //        GeomBuilder{ mPrefs.sg, GeomBuilderType::file, "doorhandle,long,sx" }.

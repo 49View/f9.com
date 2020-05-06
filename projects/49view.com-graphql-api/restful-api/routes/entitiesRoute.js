@@ -38,35 +38,35 @@ router.get("/:group/:tags", async (req, res, next) => {
   }
 });
 
-router.post(
-  "/:filename/:filenameFSID/:project/:group/:username/:useremail",
-  async (req, res, next) => {
-    try {
-      logger.info("Post from daemon...");
-
-      const entity = await entityController.createEntity(
-        req.params.filenameFSID,
-        req.params.filename,
-        decodeURIComponent(req.params.project),
-        req.params.group,
-        decodeURIComponent(req.params.username),
-        decodeURIComponent(req.params.useremail)
-      );
-
-      if (entity !== null) {
-        res
-          .status(201)
-          .json(entity)
-          .end();
-      } else {
-        throw "[post.entity] Entity created is null";
-      }
-    } catch (ex) {
-      console.log("[POST] Entity error: ", ex);
-      res.sendStatus(400);
-    }
-  }
-);
+// router.post(
+//   "/:filename/:filenameFSID/:project/:group/:username/:useremail",
+//   async (req, res, next) => {
+//     try {
+//       logger.info("Post from daemon...");
+//
+//       const entity = await entityController.createEntity(
+//         req.params.filenameFSID,
+//         req.params.filename,
+//         decodeURIComponent(req.params.project),
+//         req.params.group,
+//         decodeURIComponent(req.params.username),
+//         decodeURIComponent(req.params.useremail)
+//       );
+//
+//       if (entity !== null) {
+//         res
+//           .status(201)
+//           .json(entity)
+//           .end();
+//       } else {
+//         throw "[post.entity] Entity created is null";
+//       }
+//     } catch (ex) {
+//       console.log("[POST] Entity error: ", ex);
+//       res.sendStatus(400);
+//     }
+//   }
+// );
 
 // // Data is going to be in body
 // router.post(

@@ -852,14 +852,7 @@ module.exports = {
 
   checkFileExists: checkFileExists,
 
-  createEntity: async (
-    fsid,
-    filename,
-    project,
-    group,
-    username,
-    useremail
-  ) => {
+  createEntity: async (data) => {
     try {
       const newEntityDB = createEntityModel(
         fsid,

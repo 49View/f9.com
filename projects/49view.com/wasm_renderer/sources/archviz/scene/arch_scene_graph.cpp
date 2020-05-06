@@ -41,6 +41,8 @@ namespace HOD { // HighOrderDependency
             }
             for ( const auto& door : floor->doors ) {
                 ret.addDep( ResourceGroup::Profile, door->architraveProfile );
+                ret.addDep( ResourceGroup::Geom, "doorhandle,sx" );
+                ret.addDep( ResourceGroup::Geom, "doorhandle,dx" );
             }
             for ( const auto& window : floor->windows ) {
                 ret.addDep( ResourceGroup::Geom, window->curtainGeom );
