@@ -17,8 +17,8 @@
 #include <graphics/lightmap_manager.hpp>
 #include <graphics/render_light_manager.h>
 #include <graphics/shader_manager.h>
-#include <wasm_renderer/sources/archviz/models/house_bsdata.hpp>
-#include <wasm_renderer/sources/archviz/render/house_render.hpp>
+#include <eh_arch/models/house_bsdata.hpp>
+#include <eh_arch/render/house_render.hpp>
 
 scene_t scene{ 0 };
 

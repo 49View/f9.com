@@ -7,3 +7,6 @@
 [submodule "projects/49view.com/src/futuremodules"]
 	path = projects/49view.com/src/futuremodules
 	url = git@github.com:ziocleto/futuremodules.git
+[submodule "eh_arch"]
+	path = eh_arch
+	url = git@github.com:49View/eh_arch.git

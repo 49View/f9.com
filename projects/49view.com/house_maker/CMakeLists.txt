@@ -1,12 +1,15 @@
 cmake_minimum_required (VERSION 2.6)
 include(../../../event_horizon/native/CMakeLists.txt NO_POLICY_SCOPE)
-project(wasm_renderer)
+project(house_maker)
 
 set(BUILD_FROM_SOURCE TRUE)
-compile( core lua graphics poly render_scene_graph converters )
-compile_submodule( eh_arch/scene )
-compile_submodule( eh_arch/render )
-compile_submodule( eh_arch/models )
+set(_USE_IMGUI_ TRUE)
+compile( core lua graphics poly render_scene_graph opencvutils machine_learning ocr )
+
+compile_submodule( "eh_arch/scene" )
+compile_submodule( "eh_arch/models" )
+compile_submodule( "eh_arch/render" )
+compile_submodule( "eh_arch/makers" )
 compile_local( sources )
 
 add_executable(${PROJECT_NAME} ${BUILD_FILES})
