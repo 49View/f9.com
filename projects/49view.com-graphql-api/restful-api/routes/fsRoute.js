@@ -8,15 +8,15 @@ const logger = require('eh_logger');
 
 router.post("/:group/:id", async (req, res, next) => {
   try {
-    const fname = await writeFileCompleteInsertNewNameIfExists(req.body, `uploads/${req.params.group}`,  req.params.id);
-    const uploadNotification = new uploadModel( {
+    const fname = await writeFileCompleteInsertNewNameIfExists(req.body, `uploads/${req.params.group}`, req.params.id);
+    const asset = new uploadModel({
       filename: fname,
       group: req.params.group,
       project: req.user.project || "",
-      userId: req.user._id
+      userId: req.user._id,
     });
-    await uploadNotification.save();
-    res.send(uploadNotification);
+    await asset.save();
+    res.send(asset);
   } catch (ex) {
     logger.error("Error fetching excalibur: ", ex);
     res.status(400).send(ex);

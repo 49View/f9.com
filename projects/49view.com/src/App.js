@@ -12,12 +12,11 @@ import {Body, FakeNavBar} from "./futuremodules/reactComponentStyles/reactCommon
 import {Content} from "./App.styled";
 import {AnimatePresence} from "framer-motion";
 import {Buy} from "./components/dashboardUser/subcomponents/UserSubscriptions";
+import {Excalibur} from "./components/excalibur/Excalibur";
 
 const App = () => {
 
   let location = useLocation();
-
-  console.log("Location pathname: ", location.pathname);
 
   return (
       <Content>
@@ -25,29 +24,16 @@ const App = () => {
         <FakeNavBar/>
         <Body>
           <AnimatePresence exitBeforeEnter initial={false}>
-
           <Switch location={location} key={location.pathname}>
             <Route exact path="/" component={Landing}/>
             <Route exact path="/register" component={Register}/>
             <Route exact path="/login" component={Login}/>
             <Route exact path="/buy" component={Buy}/>
+            <Route exact path="/excalibur" component={Excalibur}/>
             <Route exact path="/dashboarduser" component={DashboardUser}/>
             <Route exact path="/property/:pid" component={Property}/>
           </Switch>
           </AnimatePresence>
-
-          {/*<Route*/}
-          {/*  render={({location}) => (*/}
-          {/*  <AnimatePresence exitBeforeEnter initial={false}>*/}
-          {/*    <Switch location={location} key={location.pathname}>*/}
-          {/*      <Route exact path="/" component={Landing}/>*/}
-          {/*      <Route path="/register" component={Register}/>*/}
-          {/*      <Route path="/login" component={Login}/>*/}
-          {/*      <Route path="/dashboarduser" component={DashboardUser}/>*/}
-          {/*      <Route path="/property/:pid" component={Property}/>*/}
-          {/*    </Switch>*/}
-          {/*  </AnimatePresence>*/}
-          {/*)}/>*/}
         </Body>
         <EHAlert/>
       </Content>

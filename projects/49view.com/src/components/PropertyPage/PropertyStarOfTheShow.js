@@ -12,7 +12,7 @@ import {
   PropertyStarOfTheShowDiv,
   PropertyVirtualBooking
 } from "./Property.styled";
-import WasmCanvas from "../../futuremodules/reactwasmcanvas/localreacwasmcanvas";
+import WasmCanvas, {ReactWasmCanvasContext} from "../../futuremodules/reactwasmcanvas/localreacwasmcanvas";
 import {
   AvatarRound,
   BadgeGroupVertical,
@@ -26,7 +26,7 @@ import {
 import VideoPhoneChat from "../../futuremodules/webrtc/components/VideoPhoneChat";
 import {MapContainer, Marker, Popup, TileLayer} from 'react-leaflet'
 import {getPropertyLngLat} from "./PropertyLogic";
-import {useState} from "react";
+import {useContext, useState} from "react";
 
 export const EstateAgentRep = ({property}) => {
   return (
@@ -50,7 +50,8 @@ export const EstateAgentRep = ({property}) => {
 }
 
 export const PropertyStarOfTheShow = ({property}) => {
-  let canvasContainer = React.useRef(null);
+  const reactWasmCanvasContext = useContext(ReactWasmCanvasContext);
+
   const [, setWasmState] = useState(null);
   let wasmArgumentList = [
     `hostname=${process.env.REACT_APP_EH_CLOUD_HOST}`,
@@ -58,17 +59,19 @@ export const PropertyStarOfTheShow = ({property}) => {
 
   return (
     <PropertyStarOfTheShowDiv>
-      <PropertyCanvas ref={canvasContainer}>
+      <PropertyCanvas ref={reactWasmCanvasContext.canvasContainer}>
         <WasmCanvas
           wasmName='../wasm_renderer'
           dispatcher={setWasmState}
-          canvasContainer={canvasContainer.current}
+          canvasContainer={reactWasmCanvasContext.canvasContainer.current}
           initialRect={{top: 0, left: 0, width: 0, height: 0}}
           initialVisibility={false}
           borderRadius={"5px"}
           border={"1px solid var(--middle-grey-color)"}
           argumentList={wasmArgumentList}
           mandatoryWebGLVersionSupporNumber="webgl2"
+          visibility={"visible"}
+          initialize={true}
         />
       </PropertyCanvas>
       <PropertyRightMenu>

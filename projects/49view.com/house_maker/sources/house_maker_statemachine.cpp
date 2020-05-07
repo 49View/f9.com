@@ -50,10 +50,10 @@ void ArchVizBackEnd::luaFunctionsSetup() {
     } );
 }
 
-void ArchVizBackEnd::loadHouseFromRemote( const std::string& _pid ) {
-    Http::get( Url{"/propertybim/" + _pid}, [this]( HttpResponeParams params ) {
+void ArchVizBackEnd::loadHouseFromRemote( const std::string &_pid ) {
+    Http::get( Url{ "/propertybim/" + _pid }, [this]( HttpResponeParams params ) {
         auto house = std::make_shared<HouseBSData>( params.bufferString );
-        callbackStream = std::make_pair(house, true);
+        callbackStream = std::make_pair( house, true );
     } );
 }
 
@@ -67,10 +67,6 @@ void ArchVizBackEnd::loadHouse( const std::string &_filename ) {
     hmbBSData = HMBBSData{};
     houseJson = HouseMakerBitmap::make( houseImage, hmbBSData, resImageName );
 
-//    Http::post(Url{"/propertybim/5ea45ffeb06b0cfc7488ec45"}, houseJson->serialize(), [this](HttpResponeParams params) {
-//        LOGRS("Published");
-//    });
-
 //    FM::writeLocalFile("ucarca", houseJson->serialize());
 }
 
@@ -78,8 +74,8 @@ void ArchVizBackEnd::showHouse() {
 
 //    houseJson->defaultSkybox = "barcelona";
     auto mat = Matrix4f::IDENTITY;
-    mat.scale(1.0f/15.0f);
-    HouseRender::make2dGeometry( rsg.RR(), sg, houseJson.get(), RDSPreMult(mat), Use2dDebugRendering::True );
+    mat.scale( 1.0f / 25.0f );
+    HouseRender::make2dGeometry( rsg.RR(), sg, houseJson.get(), RDSPreMult( mat ), Use2dDebugRendering::False );
     rsg.setRigCameraController<CameraControl2d>();
     Timeline::play( rsg.DC()->QAngleAnim(), 0,
                     KeyFramePair{ 0.1f, quatCompose( V3f{ M_PI_2, 0.0f, 0.0f } ) } );
@@ -89,7 +85,7 @@ void ArchVizBackEnd::showHouse() {
     as.loadHouse( *houseJson );
     rsg.setRigCameraController<CameraControlWalk>();
     Timeline::play( rsg.DC()->PosAnim(), 0,
-                    KeyFramePair{ 0.1f, V3f{ houseJson->center.x(), 1.6f, houseJson->center.y() } });
+                    KeyFramePair{ 0.1f, V3f{ houseJson->center.x(), 1.6f, houseJson->center.y() }} );
 }
 
 void ArchVizBackEnd::loadHouseCallback( std::vector<std::string> &_paths ) {
@@ -193,6 +189,12 @@ void ArchVizBackEnd::updateImpl( const AggregatedInputData &_aid ) {
                         KeyFramePair{ 0.1f, quatCompose( V3f{ 0.0f, 0.0f, 0.0f } ) } );
         Timeline::play( rsg.DC()->PosAnim(), 0,
                         KeyFramePair{ 0.1f, V3f{ houseJson->center.x(), 1.6f, houseJson->center.y() }} );
+    }
+    if ( ImGui::Button( "Publish" )) {
+        Http::post( Url{ "/propertybim/5ea45ffeb06b0cfc7488ec45" }, houseJson->serialize(),
+                    [this]( HttpResponeParams params ) {
+                        LOGRS( "Published" );
+                    } );
     }
 
 ////    ImGui::InputScalar("minWallPixelWidth", ImGuiDataType_U64, &hmbBSData.minWallPixelWidth);

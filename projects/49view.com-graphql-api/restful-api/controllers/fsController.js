@@ -1,5 +1,6 @@
 import globalConfig  from "eh_config";
 import fs from "fs";
+import md5 from "md5"
 import {getFileNameExt, getFileNameOnlyNoExt} from "eh_helpers";
 
 exports.writeResFile = (res, entity, data) => {
@@ -53,8 +54,19 @@ export const writeFileCompleteInsertNewNameIfExists = async (data, mainPath, fil
   let fext = getFileNameExt(filename);
   if ( fext ) fext = "."+fext;
   mkdir(mainPath);
+
+  // Check if file exists _and_ it's the same file (hash)
+  if ( existsFile(filenamepath) ) {
+    const filedata = await readFile(mainPath, filename);
+    if ( md5(data) === md5(filedata) ) {
+      console.log("Files are exactly the same, proceeded with passthrough");
+      return filenamepath;
+    }
+  }
+
   let numCopies = 0;
   while ( existsFile(filenamepath) ) {
+
     numCopies++;
     const appends="_copy"+numCopies.toString();
     filenamepath = `${mainPath}/${fnameOnly}${appends}${fext}`;

@@ -12,9 +12,10 @@ import {BrowserRouter} from "react-router-dom";
 import {WebSocketLink} from 'apollo-link-ws';
 import {getMainDefinition} from "apollo-utilities";
 import addReactNDevTools from 'reactn-devtools';
-import {createAntiForgeryTokenHeaders} from './futuremodules/auth/authApiCalls';
 import {AuthContextProvider} from "./futuremodules/auth/authContext";
 import {initEH} from "./init";
+import {ReactWasmCanvasContextProvider} from "./futuremodules/reactwasmcanvas/localreacwasmcanvas";
+import {insertAntiForgeryTokenHeaders} from "./futuremodules/auth/authAccessors";
 
 const omitDeep = require("omit-deep-lodash");
 
@@ -44,9 +45,8 @@ const httpLink = createHttpLink({
 })
 
 const authLink = new ApolloLink((operation, forward) => {
-  const headers = createAntiForgeryTokenHeaders();
   // console.log("AUTH:",headers);
-  operation.setContext(headers);
+  operation.setContext( insertAntiForgeryTokenHeaders());
   // Call the next link in the middleware chain.
   return forward(operation);
 });
@@ -82,9 +82,11 @@ const client = new ApolloClient({
 ReactDOM.render(
   <AuthContextProvider>
     <ApolloProvider client={client}>
-      <BrowserRouter>
-        <App/>
-      </BrowserRouter>
+      <ReactWasmCanvasContextProvider>
+        <BrowserRouter>
+          <App/>
+        </BrowserRouter>
+      </ReactWasmCanvasContextProvider>
     </ApolloProvider>
   </AuthContextProvider>,
   document.getElementById("root")
