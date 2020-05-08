@@ -13,6 +13,7 @@ router.post("/:group/:id", async (req, res, next) => {
       filename: fname,
       group: req.params.group,
       project: req.user.project || "",
+      username: req.user.name,
       userId: req.user._id,
     });
     await asset.save();

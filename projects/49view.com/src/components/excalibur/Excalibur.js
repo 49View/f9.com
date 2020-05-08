@@ -16,6 +16,7 @@ import {Badge, Spinner} from "react-bootstrap";
 import {getFileNameOnlyNoExt} from "../../futuremodules/utils/utils";
 import {useEffect} from "reactn";
 import {connect} from "../../futuremodules/webrtc/client";
+import {useAlertDangerNoMovie, useAlertWarning} from "../../futuremodules/alerts/alerts";
 
 const WasmGridCell = () => {
   const {canvasContainer} = useWasmContext(true);
@@ -29,11 +30,18 @@ export const Excalibur = () => {
   const onDrop = useExcaliburDragAndDropCallback(dispatch);
   const {getRootProps, getInputProps} = useDropzone({onDrop});
   const [wsconnection, setWSConnection] = useState(null);
+  const alertDanger = useAlertDangerNoMovie();
 
   useEffect(() => {
     const messageCallback = (msg) => {
       if (msg.data && msg.data.operationType === "update") {
         dispatch(['completed']);
+      }
+      if (msg.data && msg.data.operationType === "insert") {
+        if ( msg.data.ns.coll === "daemon_crashes" ) {
+          alertDanger(msg.data.fullDocument.crash);
+          dispatch(['reset']);
+        }
       }
     }
 
