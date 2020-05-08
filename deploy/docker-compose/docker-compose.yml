@@ -49,7 +49,7 @@ services:
       - EH_MONGO_PATH=${EH_MONGO_PATH}
       - EH_MONGO_DEFAULT_DB=${EH_MONGO_DEFAULT_DB}
       - EH_MONGO_REPLICA_SET_NAME=${EH_MONGO_REPLICA_SET_NAME}
-      - EH_FILE_ROOT=/
+      - EH_FILE_ROOT=/media/media/
     depends_on:
       - rsinitiate
     volumes:
