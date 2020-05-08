@@ -21,7 +21,7 @@ export const Property = (props) => {
 
   return (
     <AnimFadeSection>
-    <PropertyContainer>
+      <PropertyContainer>
         <PropertyNameAndPriceHeader property={property}/>
         <PropertyStarOfTheShow property={property}/>
         <PropertyGeneralInformation property={property}/>

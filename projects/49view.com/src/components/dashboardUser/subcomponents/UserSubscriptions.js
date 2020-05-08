@@ -1,9 +1,12 @@
 import React, { Fragment, useEffect } from "react";
 import axios from "axios";
+import {useWasmContext} from "../../../futuremodules/reactwasmcanvas/localreacwasmcanvas";
 
 const stripe = window.Stripe(`${process.env.REACT_APP_EH_STELLE_E_STRISCE_PK}`);
 
 export const Buy = () => {
+
+  useWasmContext(false);
 
   useEffect(() => {
     async function fetchData() {

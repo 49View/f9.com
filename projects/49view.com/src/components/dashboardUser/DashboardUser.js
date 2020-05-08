@@ -7,10 +7,12 @@ import {SpinnerTopMiddle} from "../../futuremodules/spinner/Spinner";
 import {Redirect} from "react-router-dom";
 import {AnimSlideIn} from "../../futuremodules/reactComponentStyles/reactCommon.animations";
 import {ContainerSectionShadowed} from "../../futuremodules/reactComponentStyles/reactCommon.styled";
+import {useWasmContext} from "../../futuremodules/reactwasmcanvas/localreacwasmcanvas";
 
 export const DashboardUser = () => {
 
   const auth = useContext(AuthContext);
+  useWasmContext(false);
 
   return (
     <AnimSlideIn>

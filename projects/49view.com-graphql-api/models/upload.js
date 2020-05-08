@@ -5,4 +5,5 @@ export const uploadModel = mongoose.model("uploads", new mongoose.Schema({
   group: {type: String},
   project: {type: String},
   useremail: {type: String},
+  completed: {type: String}
 }, {timestamps: true, strict: false}));

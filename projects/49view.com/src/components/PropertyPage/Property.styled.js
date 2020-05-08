@@ -118,7 +118,7 @@ export const PropertyCarouselDiv = styled.div`{
 }`;
 
 export const PropertyCanvas = styled.div`{
-  min-width: 640px;
+  min-width: 720px;
   height: 480px;
   //border-radius: 5px;
   //border: 1px solid var(--middle-grey-color);

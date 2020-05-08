@@ -76,7 +76,7 @@ function isUsernameUnique(name) {
 // Sends a message (which is already stringified JSON) to a single
 // user, given their username. We use this for the WebRTC signaling,
 // and we could use it for private text messaging.
-function sendToOneUser(target, msgString) {
+export function sendToOneUser(target, msgString) {
   var isUnique = true;
   var i;
 

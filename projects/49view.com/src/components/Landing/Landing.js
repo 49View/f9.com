@@ -6,6 +6,7 @@ import {useQLPartialPropertySearch} from "./LandingLogic";
 import {PropertySmallBox} from "../PropertyPage/PropertySmallBox";
 import {AnimatePresence, motion} from "framer-motion"
 import {AnimFadeSection} from "../../futuremodules/reactComponentStyles/reactCommon.animations";
+import {useWasmContext} from "../../futuremodules/reactwasmcanvas/localreacwasmcanvas";
 
 const SearchResults = ({partialString}) => {
 
@@ -37,6 +38,7 @@ const SearchResults = ({partialString}) => {
 const Landing = () => {
   const [partialString, setPartialString] = useState(null);
   const searchBox = useRefWithFocusOnMount();
+  useWasmContext(false);
 
   return (
     // <AnimatePresence key={"landing"}>
