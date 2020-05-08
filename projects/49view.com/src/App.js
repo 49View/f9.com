@@ -1,5 +1,5 @@
 import "./App.css";
-import React, {useState} from "react";
+import React from "react";
 import {Route, Switch, useLocation} from 'react-router-dom';
 import Landing from "./components/Landing/Landing";
 import Navbar from "./components/Navbar/Navbar";
@@ -18,21 +18,17 @@ import {AnimFadeSection} from "./futuremodules/reactComponentStyles/reactCommon.
 const App = () => {
 
   let location = useLocation();
-  const [, setWasmState] = useState(null);
-  let wasmArgumentList = [
-    `hostname=${window.location.hostname}`,
-    // `pid=${property._id}`
-  ];
 
   return (
       <Content>
         <AnimFadeSection>
         <WasmCanvas
           wasmName='../wasm_renderer'
-          dispatcher={setWasmState}
           borderRadius={"5px"}
           border={"1px solid var(--middle-grey-color)"}
-          argumentList={wasmArgumentList}
+          argumentList={[
+            `hostname=${window.location.hostname}`,
+          ]}
           mandatoryWebGLVersionSupporNumber="webgl2"
         />
         </AnimFadeSection>

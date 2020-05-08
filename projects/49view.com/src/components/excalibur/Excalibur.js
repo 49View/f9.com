@@ -12,13 +12,13 @@ import {
 import {excaliburInitialState, excaliburStateReducer, useExcaliburDragAndDropCallback} from "./ExcaliburLogic";
 import {useWasmContext} from "../../futuremodules/reactwasmcanvas/localreacwasmcanvas";
 import {DivDropZone, DivReports, DivWasm, ExcaliburGrid} from "./Excalibur.styled";
-import {Button, Spinner} from "react-bootstrap";
-import {alphaBool, getFileNameOnlyNoExt} from "../../futuremodules/utils/utils";
+import {Badge, Spinner} from "react-bootstrap";
+import {getFileNameOnlyNoExt} from "../../futuremodules/utils/utils";
 import {useEffect} from "reactn";
 import {connect} from "../../futuremodules/webrtc/client";
 
 const WasmGridCell = () => {
-  const canvasContainer = useWasmContext(true);
+  const {canvasContainer} = useWasmContext(true);
   return <DivWasm ref={canvasContainer}/>;
 }
 
@@ -28,23 +28,19 @@ export const Excalibur = () => {
   const [state, dispatch] = useReducer(excaliburStateReducer, excaliburInitialState);
   const onDrop = useExcaliburDragAndDropCallback(dispatch);
   const {getRootProps, getInputProps} = useDropzone({onDrop});
-  // const entitiesApi = useApi('entities');
   const [wsconnection, setWSConnection] = useState(null);
-  // const inChat = false;
-
-  // console.log(state);
 
   useEffect(() => {
     const messageCallback = (msg) => {
-      if ( msg.data && msg.data.operationType === "update") {
-        dispatch(['completed', true]);
+      if (msg.data && msg.data.operationType === "update") {
+        dispatch(['completed']);
       }
     }
 
-    if ( state.completed === true ) {
+    if (state.stage === 0) {
       const fname = getFileNameOnlyNoExt(state.fileDragged);
-      window.Module.addScriptLine(`rr.load("${fname}")`)
-      dispatch(['reset', true]);
+      window.Module.addScriptLine(`rr.addSceneObject("${fname}", "${state.group}", "1")`)
+      dispatch(['reset']);
     }
 
     if (!wsconnection && auth.user) {
@@ -52,29 +48,52 @@ export const Excalibur = () => {
     }
   }, [auth, wsconnection, state]);
 
+  const AssetLoadingStage = ({state}) => {
+
+    const variantStages = (state, stage) => {
+      if ( state.stage < stage ) return "secondary";
+      if ( state.stage === stage ) return "warning";
+      return "success";
+    }
+
+    return (
+      <div>
+        <p>{state.fileDragged}</p>
+        <h3><Badge variant={variantStages(state, 1)}>Read </Badge>
+          {state.stage === 1 && <Spinner animation={"grow"}
+                                         variant={"warning"}/>}
+        </h3>
+        <h3><Badge variant={variantStages(state, 2)}>Upload </Badge>
+          {state.stage === 2 && <Spinner animation={"grow"}
+                                         variant={"warning"}/>}
+        </h3>
+        <h3><Badge variant={variantStages(state, 3)}>Elaborate </Badge>
+          {state.stage === 3 && <Spinner animation={"grow"}
+                                         variant={"warning"}/>}
+        </h3>
+      </div>
+    );
+  };
+
   return (
     <AnimFadeSection>
       {auth.user === null && <Redirect to={"/"}/>}
       {auth.user === undefined && <SpinnerTopMiddle/>}
-      {auth.user && auth.user.name === "Dado" &&
+      {auth.user &&
       <ContainerSectionShadowed>
         <ExcaliburGrid>
           <WasmGridCell/>
           <DivDropZone>
-          <FlexDragAndDrop alignItems={"center"} justifyContent={"center"} width={"100%"} height={"100%"}
-                           padding={"5px"} {...getRootProps()} cursor={"pointer"}>
-            <Div>
-              <input {...getInputProps()} />
-              <h4>Drop your files here</h4>
-            </Div>
-          </FlexDragAndDrop>
+            <FlexDragAndDrop alignItems={"center"} justifyContent={"center"} width={"100%"} height={"100%"}
+                             padding={"5px"} {...getRootProps()} cursor={"pointer"}>
+              <Div>
+                <input {...getInputProps()} />
+                <h4>Drop your files here</h4>
+                {state.stage > 0 && <AssetLoadingStage state={state}/>}
+              </Div>
+            </FlexDragAndDrop>
           </DivDropZone>
           <DivReports>
-            {state.fileDragged && !state.completed && <div><Spinner animation={"grow"} variant={"warning"}></Spinner></div>}
-            {state.fileDragged}
-            {state.fileDragged && (state.fileDraggedReadStatus ? <p>read: {alphaBool(state.fileDraggedReadStatus)}</p> : <p>reading...</p>)}
-            {state.fileDragged && state.fileDraggedReadStatus && (state.fileDraggedUploaded ? <p>uploaded: {alphaBool(state.fileDraggedReadStatus)}</p> : <p>uploading...</p>)}
-            <Button onClick={ () => { window.Module.addScriptLine(`rr.load("spotlight_basic")`)}}>Load Object</Button>
           </DivReports>
         </ExcaliburGrid>
       </ContainerSectionShadowed>

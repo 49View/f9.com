@@ -12,7 +12,7 @@ import {
   PropertyStarOfTheShowDiv,
   PropertyVirtualBooking
 } from "./Property.styled";
-import {useWasmContext} from "../../futuremodules/reactwasmcanvas/localreacwasmcanvas";
+import {useWasmContext, wasmAddScriptLine} from "../../futuremodules/reactwasmcanvas/localreacwasmcanvas";
 import {
   AvatarRound,
   BadgeGroupVertical,
@@ -26,6 +26,7 @@ import {
 import VideoPhoneChat from "../../futuremodules/webrtc/components/VideoPhoneChat";
 import {MapContainer, Marker, Popup, TileLayer} from 'react-leaflet'
 import {getPropertyLngLat} from "./PropertyLogic";
+import {useEffect} from "react";
 
 export const EstateAgentRep = ({property}) => {
   return (
@@ -49,7 +50,10 @@ export const EstateAgentRep = ({property}) => {
 }
 
 export const PropertyStarOfTheShow = ({property}) => {
-  let canvasContainer = useWasmContext(true);
+  let {canvasContainer, dispatch} = useWasmContext(true);
+  useEffect(() => {
+      dispatch([wasmAddScriptLine, `f9.loadHouse("5ea45ffeb06b0cfc7488ec45")`]);
+  }, [dispatch]);
 
   return (
     <PropertyStarOfTheShowDiv>
