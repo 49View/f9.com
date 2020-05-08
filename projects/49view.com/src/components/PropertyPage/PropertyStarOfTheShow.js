@@ -52,8 +52,8 @@ export const EstateAgentRep = ({property}) => {
 export const PropertyStarOfTheShow = ({property}) => {
   let {canvasContainer, dispatch} = useWasmContext(true);
   useEffect(() => {
-      dispatch([wasmAddScriptLine, `f9.loadHouse("5ea45ffeb06b0cfc7488ec45")`]);
-  }, [dispatch]);
+      dispatch([wasmAddScriptLine, `f9.loadHouse("${property._id}")`]);
+  }, [dispatch, property]);
 
   return (
     <PropertyStarOfTheShowDiv>
