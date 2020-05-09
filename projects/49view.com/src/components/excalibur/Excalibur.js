@@ -16,7 +16,7 @@ import {Badge, Spinner} from "react-bootstrap";
 import {getFileNameOnlyNoExt} from "../../futuremodules/utils/utils";
 import {useEffect} from "reactn";
 import {connect} from "../../futuremodules/webrtc/client";
-import {useAlertDangerNoMovie, useAlertWarning} from "../../futuremodules/alerts/alerts";
+import {useAlertDangerNoMovie} from "../../futuremodules/alerts/alerts";
 
 const WasmGridCell = () => {
   const {canvasContainer} = useWasmContext(true);
@@ -34,13 +34,16 @@ export const Excalibur = () => {
 
   useEffect(() => {
     const messageCallback = (msg) => {
-      if (msg.data && msg.data.operationType === "update") {
-        dispatch(['completed']);
+      console.log(msg.data);
+      if (msg.data && msg.data.operationType === "update" && msg.data.ns.coll === "uploads") {
+          dispatch(['completed']);
       }
       if (msg.data && msg.data.operationType === "insert") {
         if ( msg.data.ns.coll === "daemon_crashes" ) {
           alertDanger(msg.data.fullDocument.crash);
           dispatch(['reset']);
+        } else if (msg.data.ns.coll === "uploads") {
+            dispatch(['fileDraggedUploaded', true]);
         }
       }
     }
@@ -54,7 +57,7 @@ export const Excalibur = () => {
     if (!wsconnection && auth.user) {
       setWSConnection(connect(auth.user.name, null, messageCallback));
     }
-  }, [auth, wsconnection, state]);
+  }, [auth, wsconnection, state, alertDanger]);
 
   const AssetLoadingStage = ({state}) => {
 

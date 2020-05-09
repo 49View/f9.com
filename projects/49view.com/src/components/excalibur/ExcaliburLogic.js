@@ -30,9 +30,7 @@ export const useExcaliburDragAndDropCallback = (dispatch) => {
 
       const singleFileRead = async (acceptedFile, group) => {
         const fileContent = await readFileAsync(acceptedFile);
-        api(entitiesApi, addEntity, group, acceptedFile.name, fileContent).then(() => {
-          dispatch(['fileDraggedUploaded', true]);
-        });
+        api(entitiesApi, addEntity, group, acceptedFile.name, fileContent).then();
       }
 
       try {

@@ -27,14 +27,12 @@ export const initServer = () => {
   // Listens to following stream changes in mongodb
   uploadModel.watch().on('change', async data => {
     console.log("Uploads have changes", data);
-    if ( data.operationType === 'update' ) {
-      const updateDoc = await uploadModel.findById(data.documentKey._id);
-      const user = await usersModel.findById(updateDoc.toObject().userId);
-      sendToOneUser( user.toObject().name, JSON.stringify({
-        type: "watchmessage",
-        data
-      }));
-    }
+    const updateDoc = await uploadModel.findById(data.documentKey._id);
+    const user = await usersModel.findById(updateDoc.toObject().userId);
+    sendToOneUser( user.toObject().name, JSON.stringify({
+      type: "watchmessage",
+      data
+    }));
   });
   daemonCrashModel.watch().on('change', data => {
     console.log("Daemon crash", data);
