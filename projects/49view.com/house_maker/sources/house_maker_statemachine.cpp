@@ -19,11 +19,32 @@
 ArchVizBackEnd::ArchVizBackEnd( SceneGraph &_sg, RenderOrchestrator &_rsg, ArchSceneGraph &_asg, ArchService &_as ) :
         RunLoopBackEndBase( _sg, _rsg ),
         ScenePreLoader( _sg, _rsg ),
-        asg( _asg ), as( _as ) {
+        asg( _asg ), as( _as ),
+        furnitureMap( _sg ) {
     backEnd = std::make_unique<FrontEnd>( *this, _sg, _rsg );
 }
 
 void ArchVizBackEnd::activateImpl() {
+    appData.addProfile( coffeeTableIcon );
+    appData.addProfile( queenBedIcon );
+    appData.addProfile( bedSideIcon );
+    appData.addProfile( shelfIcon );
+    appData.addProfile( wardrobeIcon );
+    appData.addProfile( wardrobeIcon );
+    appData.addProfile( sofaIcon );
+    appData.addProfile( armchairIcon );
+
+    appData.addGeom( coffeeTable );
+    appData.addGeom( brimnes_bed );
+    appData.addGeom( lauter_selije );
+    appData.addGeom( hemnes_shelf );
+    appData.addGeom( hemnes_drawer );
+    appData.addGeom( hemnes_drawer );
+    appData.addGeom( soderhamn );
+    appData.addGeom( pictures_set_3 );
+    appData.addGeom( carpet_flottebo );
+    appData.addGeom( Strandmon );
+
     loadSceneEntities();
 }
 
@@ -65,7 +86,7 @@ void ArchVizBackEnd::loadHouse( const std::string &_filename ) {
     sg.addRawImageIM( "urca", houseImage );
 
     hmbBSData = HMBBSData{};
-    houseJson = HouseMakerBitmap::make( houseImage, hmbBSData, resImageName );
+    houseJson = HouseMakerBitmap::make( houseImage, hmbBSData, resImageName, furnitureMap );
 
 //    FM::writeLocalFile("ucarca", houseJson->serialize());
 }
@@ -76,16 +97,16 @@ void ArchVizBackEnd::showHouse() {
     auto mat = Matrix4f::IDENTITY;
     mat.scale( 1.0f / 25.0f );
     HouseRender::make2dGeometry( rsg.RR(), sg, houseJson.get(), RDSPreMult( mat ), Use2dDebugRendering::False );
-    rsg.setRigCameraController<CameraControl2d>();
-    Timeline::play( rsg.DC()->QAngleAnim(), 0,
-                    KeyFramePair{ 0.1f, quatCompose( V3f{ M_PI_2, 0.0f, 0.0f } ) } );
-    Timeline::play( rsg.DC()->PosAnim(), 0,
-                    KeyFramePair{ 0.1f, V3f{ houseJson->center.x(), 5.0f, houseJson->center.y() }} );
+//    rsg.setRigCameraController<CameraControl2d>();
+//    Timeline::play( rsg.DC()->QAngleAnim(), 0,
+//                    KeyFramePair{ 0.1f, quatCompose( V3f{ M_PI_2, 0.0f, 0.0f } ) } );
+//    Timeline::play( rsg.DC()->PosAnim(), 0,
+//                    KeyFramePair{ 0.1f, V3f{ houseJson->center.x(), 5.0f, houseJson->center.y() }} );
 
     as.loadHouse( *houseJson );
-    rsg.setRigCameraController<CameraControlWalk>();
-    Timeline::play( rsg.DC()->PosAnim(), 0,
-                    KeyFramePair{ 0.1f, V3f{ houseJson->center.x(), 1.6f, houseJson->center.y() }} );
+//    rsg.setRigCameraController<CameraControlWalk>();
+//    Timeline::play( rsg.DC()->PosAnim(), 0,
+//                    KeyFramePair{ 0.1f, V3f{ houseJson->center.x(), 1.6f, houseJson->center.y() }} );
 }
 
 void ArchVizBackEnd::loadHouseCallback( std::vector<std::string> &_paths ) {
@@ -99,6 +120,17 @@ void ArchVizBackEnd::loadHouseCallback( std::vector<std::string> &_paths ) {
 
 void ArchVizBackEnd::activatePostLoad() {
 
+    furnitureMap.addIndex( FTH::Bed(), brimnes_bed, queenBedIcon );
+    furnitureMap.addIndex( FTH::Bedside(), lauter_selije, bedSideIcon );
+    furnitureMap.addIndex( FTH::Shelf(), hemnes_shelf, shelfIcon );
+    furnitureMap.addIndex( FTH::Wardrobe(), hemnes_drawer, wardrobeIcon );
+    furnitureMap.addIndex( FTH::Drawer(), hemnes_drawer, wardrobeIcon );
+    furnitureMap.addIndex( FTH::Sofa(), soderhamn, sofaIcon );
+    furnitureMap.addIndex( FTH::Picture(), pictures_set_3, S::SQUARE );
+    furnitureMap.addIndex( FTH::Carpet(), carpet_flottebo, S::SQUARE );
+    furnitureMap.addIndex( FTH::Armchair(), Strandmon, armchairIcon );
+    furnitureMap.addIndex( FTH::CoffeeTable(), coffeeTable, coffeeTableIcon );
+
     rsg.RR().createGridV2( CommandBufferLimits::UnsortedStart, 1.0f, ( Color4f::PASTEL_GRAYLIGHT ).A( 0.35f ),
                            ( Color4f::PASTEL_GRAYLIGHT ).A( 0.25f ), V2f{ 15.0f }, 0.015f );
     rsg.createSkybox( SkyBoxInitParams{ SkyBoxMode::CubeProcedural } );
@@ -109,18 +141,20 @@ void ArchVizBackEnd::activatePostLoad() {
     rsg.RR().useFilmGrain( true );
     rsg.RR().useBloom( false );
     rsg.useSSAO( true );
-//    rsg.useMotionBlur(true);
+    rsg.useMotionBlur(true);
 
     luaFunctionsSetup();
 
     rsg.setRigCameraController<CameraControl2d>();
-    Timeline::play( rsg.DC()->QAngleAnim(), 0,
-                    KeyFramePair{ 0.1f, quatCompose( V3f{ M_PI_2, 0.0f, 0.0f } ) } );
-    Timeline::play( rsg.DC()->PosAnim(), 0,
-                    KeyFramePair{ 0.1f, V3f::UP_AXIS * 5.0f } );
+//    Timeline::play( rsg.DC()->QAngleAnim(), 0,
+//                    KeyFramePair{ 0.1f, quatCompose( V3f{ M_PI_2, 0.0f, 0.0f } ) } );
+//    Timeline::play( rsg.DC()->PosAnim(), 0,
+//                    KeyFramePair{ 0.1f, V3f::UP_AXIS * 5.0f } );
+
+    loadHouse( "/home/dado/Downloads/asr2bedroomflat.png" );
+    showHouse();
 
 //    loadHouseFromRemote("5ea45ffeb06b0cfc7488ec45");
-//    loadHouse();
 //    auto hj = FM::readLocalFileC("ucarca");
 //    houseJson = std::make_shared<HouseBSData>(hj);
 //    Http::post(Url{"/propertybim/5ea45ffeb06b0cfc7488ec45"}, hj);

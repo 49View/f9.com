@@ -51,6 +51,7 @@ protected:
 protected:
     ArchSceneGraph& asg;
     ArchService& as;
+    FurnitureMapStorage furnitureMap;
     std::unique_ptr<FrontEnd> backEnd;
     HMBBSData hmbBSData{};
     std::pair<std::shared_ptr<HouseBSData>, bool> callbackStream;
@@ -58,21 +59,21 @@ protected:
     std::shared_ptr<HouseBSData> houseJson;
     std::string skyboxImage         = "skybox,equirectangular,park,generic,001";
 
-    std::string curtain             = "curtain";
-    std::string brimnes_bed         = "brimnes_bed_double";
-    std::string lauter_selije       = "lauter_selije_bedside_table_lamp";
+    std::string brimnes_bed         = "Brimnes";
+    std::string lauter_selije       = "lauter_selije";
     std::string hemnes_shelf        = "hemnes_shelf";
     std::string hemnes_drawer       = "hemnes_drawer";
-    std::string soderhamn           = "soderhamn_double_sofa";
+    std::string soderhamn           = "soderhamn";
     std::string carpet_flottebo     = "carpet_flottebo";
-    std::string Strandmon           = "strandmon_armchair_single";
-    std::string pictures_set_3      = "pictures_set_classic";
-    std::string spotlight_basic     = "spotlight_basic";
+    std::string Strandmon           = "strandmon";
+    std::string pictures_set_3      = "pictures2";
+    std::string coffeeTable         = "noguchi";
 
-    std::string queenBedIcon        = "bed,queen,icon";
-    std::string bedSideIcon         = "fia,bedside,withlamp2";
+    std::string queenBedIcon        = "fia,queen,icon";
+    std::string bedSideIcon         = "fia,bedside";
     std::string sofaIcon            = "fia,sofa,3seaters";
-    std::string wardrobeIcon        = "fia,wardrobe,double";
+    std::string wardrobeIcon        = "fia,wardrobe";
     std::string shelfIcon           = "fia,shelf";
-    std::string armchairIcon        = "armchair";
+    std::string armchairIcon        = "fia,armchair";
+    std::string coffeeTableIcon     = "fia,coffee,table";
 };
