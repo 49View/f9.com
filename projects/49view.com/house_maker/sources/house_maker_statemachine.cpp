@@ -34,6 +34,7 @@ void ArchVizBackEnd::activateImpl() {
     appData.addProfile( sofaIcon );
     appData.addProfile( armchairIcon );
 
+    appData.addGeom( carpet_flottebo );
     appData.addGeom( coffeeTable );
     appData.addGeom( brimnes_bed );
     appData.addGeom( lauter_selije );
@@ -42,8 +43,10 @@ void ArchVizBackEnd::activateImpl() {
     appData.addGeom( hemnes_drawer );
     appData.addGeom( soderhamn );
     appData.addGeom( pictures_set_3 );
-    appData.addGeom( carpet_flottebo );
     appData.addGeom( Strandmon );
+    appData.addGeom( sideBoard );
+    appData.addGeom( plant1 );
+    appData.addGeom( tv );
 
     loadSceneEntities();
 }
@@ -130,6 +133,9 @@ void ArchVizBackEnd::activatePostLoad() {
     furnitureMap.addIndex( FTH::Carpet(), carpet_flottebo, S::SQUARE );
     furnitureMap.addIndex( FTH::Armchair(), Strandmon, armchairIcon );
     furnitureMap.addIndex( FTH::CoffeeTable(), coffeeTable, coffeeTableIcon );
+    furnitureMap.addIndex( FTH::SideBoard(), sideBoard, S::SQUARE );
+    furnitureMap.addIndex( FTH::TVWithStand(), tv, S::SQUARE );
+    furnitureMap.addIndex( FTH::Plant(), plant1, S::SQUARE );
 
     rsg.RR().createGridV2( CommandBufferLimits::UnsortedStart, 1.0f, ( Color4f::PASTEL_GRAYLIGHT ).A( 0.35f ),
                            ( Color4f::PASTEL_GRAYLIGHT ).A( 0.25f ), V2f{ 15.0f }, 0.015f );
@@ -141,7 +147,7 @@ void ArchVizBackEnd::activatePostLoad() {
     rsg.RR().useFilmGrain( true );
     rsg.RR().useBloom( false );
     rsg.useSSAO( true );
-    rsg.useMotionBlur(true);
+//    rsg.useMotionBlur(true);
 
     luaFunctionsSetup();
 

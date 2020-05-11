@@ -64,10 +64,13 @@ protected:
     std::string hemnes_shelf        = "hemnes_shelf";
     std::string hemnes_drawer       = "hemnes_drawer";
     std::string soderhamn           = "soderhamn";
-    std::string carpet_flottebo     = "carpet_flottebo";
+    std::string carpet_flottebo     = "carpet";
     std::string Strandmon           = "strandmon";
     std::string pictures_set_3      = "pictures2";
     std::string coffeeTable         = "noguchi";
+    std::string sideBoard           = "sideboard";
+    std::string tv                  = "sony,tv";
+    std::string plant1              = "plant,spider";
 
     std::string queenBedIcon        = "fia,queen,icon";
     std::string bedSideIcon         = "fia,bedside";
