@@ -36,6 +36,7 @@ void ArchVizBackEnd::activateImpl() {
 
     appData.addGeom( carpet_flottebo );
     appData.addGeom( coffeeTable );
+    appData.addGeom( diningTable );
     appData.addGeom( brimnes_bed );
     appData.addGeom( lauter_selije );
     appData.addGeom( hemnes_shelf );
@@ -133,6 +134,7 @@ void ArchVizBackEnd::activatePostLoad() {
     furnitureMap.addIndex( FTH::Carpet(), carpet_flottebo, S::SQUARE );
     furnitureMap.addIndex( FTH::Armchair(), Strandmon, armchairIcon );
     furnitureMap.addIndex( FTH::CoffeeTable(), coffeeTable, coffeeTableIcon );
+    furnitureMap.addIndex( FTH::DiningTable(), diningTable, coffeeTableIcon );
     furnitureMap.addIndex( FTH::SideBoard(), sideBoard, S::SQUARE );
     furnitureMap.addIndex( FTH::TVWithStand(), tv, S::SQUARE );
     furnitureMap.addIndex( FTH::Plant(), plant1, S::SQUARE );

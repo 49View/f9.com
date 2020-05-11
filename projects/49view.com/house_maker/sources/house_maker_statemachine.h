@@ -68,6 +68,7 @@ protected:
     std::string Strandmon           = "strandmon";
     std::string pictures_set_3      = "pictures2";
     std::string coffeeTable         = "noguchi";
+    std::string diningTable         = "ktc,table,round";
     std::string sideBoard           = "sideboard";
     std::string tv                  = "sony,tv";
     std::string plant1              = "plant,spider";
