@@ -899,7 +899,6 @@ module.exports = {
     group,
     tags,
     fullName,
-    fullData,
     randomElements
   ) => {
     const aggregationQueries = [
@@ -922,7 +921,7 @@ module.exports = {
                 {"name": fullName},
                 {
                   _id:
-                    tags[0].length == 12 || tags[0].length == 24
+                    tags[0].length === 12 || tags[0].length === 24
                       ? mongoose.Types.ObjectId(tags[0])
                       : "DDDDDDDDDDDD"
                 }
@@ -933,17 +932,7 @@ module.exports = {
       }
     ];
 
-    if (fullData !== true) {
-      aggregationQueries.push({
-        $project: {
-          project: 0,
-          isPublic: 0,
-          isRestricted: 0
-        }
-      });
-    }
-
-    if (randomElements !== null) {
+    if (randomElements) {
       aggregationQueries.push({
         $sample: {
           size: randomElements

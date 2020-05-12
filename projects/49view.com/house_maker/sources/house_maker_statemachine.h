@@ -58,26 +58,4 @@ protected:
 
     std::shared_ptr<HouseBSData> houseJson;
     std::string skyboxImage         = "skybox,equirectangular,park,generic,001";
-
-    std::string brimnes_bed         = "Brimnes";
-    std::string lauter_selije       = "lauter_selije";
-    std::string hemnes_shelf        = "hemnes_shelf";
-    std::string hemnes_drawer       = "hemnes_drawer";
-    std::string soderhamn           = "soderhamn";
-    std::string carpet_flottebo     = "carpet";
-    std::string Strandmon           = "strandmon";
-    std::string pictures_set_3      = "pictures2";
-    std::string coffeeTable         = "noguchi";
-    std::string diningTable         = "ktc,table,round";
-    std::string sideBoard           = "sideboard";
-    std::string tv                  = "sony,tv";
-    std::string plant1              = "plant,spider";
-
-    std::string queenBedIcon        = "fia,queen,icon";
-    std::string bedSideIcon         = "fia,bedside";
-    std::string sofaIcon            = "fia,sofa,3seaters";
-    std::string wardrobeIcon        = "fia,wardrobe";
-    std::string shelfIcon           = "fia,shelf";
-    std::string armchairIcon        = "fia,armchair";
-    std::string coffeeTableIcon     = "fia,coffee,table";
 };

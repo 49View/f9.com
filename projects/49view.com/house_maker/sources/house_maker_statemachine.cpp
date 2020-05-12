@@ -25,29 +25,29 @@ ArchVizBackEnd::ArchVizBackEnd( SceneGraph &_sg, RenderOrchestrator &_rsg, ArchS
 }
 
 void ArchVizBackEnd::activateImpl() {
-    appData.addProfile( coffeeTableIcon );
-    appData.addProfile( queenBedIcon );
-    appData.addProfile( bedSideIcon );
-    appData.addProfile( shelfIcon );
-    appData.addProfile( wardrobeIcon );
-    appData.addProfile( wardrobeIcon );
-    appData.addProfile( sofaIcon );
-    appData.addProfile( armchairIcon );
-
-    appData.addGeom( carpet_flottebo );
-    appData.addGeom( coffeeTable );
-    appData.addGeom( diningTable );
-    appData.addGeom( brimnes_bed );
-    appData.addGeom( lauter_selije );
-    appData.addGeom( hemnes_shelf );
-    appData.addGeom( hemnes_drawer );
-    appData.addGeom( hemnes_drawer );
-    appData.addGeom( soderhamn );
-    appData.addGeom( pictures_set_3 );
-    appData.addGeom( Strandmon );
-    appData.addGeom( sideBoard );
-    appData.addGeom( plant1 );
-    appData.addGeom( tv );
+//    appData.addProfile( coffeeTableIcon );
+//    appData.addProfile( queenBedIcon );
+//    appData.addProfile( bedSideIcon );
+//    appData.addProfile( shelfIcon );
+//    appData.addProfile( wardrobeIcon );
+//    appData.addProfile( wardrobeIcon );
+//    appData.addProfile( sofaIcon );
+//    appData.addProfile( armchairIcon );
+//
+//    appData.addGeom( carpet_flottebo );
+//    appData.addGeom( coffeeTable );
+//    appData.addGeom( diningTable );
+//    appData.addGeom( brimnes_bed );
+//    appData.addGeom( lauter_selije );
+//    appData.addGeom( hemnes_shelf );
+//    appData.addGeom( hemnes_drawer );
+//    appData.addGeom( hemnes_drawer );
+//    appData.addGeom( soderhamn );
+//    appData.addGeom( pictures_set_3 );
+//    appData.addGeom( Strandmon );
+//    appData.addGeom( sideBoard );
+//    appData.addGeom( plant1 );
+//    appData.addGeom( tv );
 
     loadSceneEntities();
 }
@@ -87,20 +87,15 @@ void ArchVizBackEnd::loadHouse( const std::string &_filename ) {
     auto data = FM::readLocalFileC( _filename );
     RawImage houseImage{ data };
     auto resImageName = getFileNameOnly( _filename );
-    sg.addRawImageIM( "urca", houseImage );
+//    sg.addRawImageIM( _filename, houseImage );
 
     hmbBSData = HMBBSData{};
     houseJson = HouseMakerBitmap::make( houseImage, hmbBSData, resImageName, furnitureMap );
-
-//    FM::writeLocalFile("ucarca", houseJson->serialize());
 }
 
 void ArchVizBackEnd::showHouse() {
 
 //    houseJson->defaultSkybox = "barcelona";
-    auto mat = Matrix4f::IDENTITY;
-    mat.scale( 1.0f / 25.0f );
-    HouseRender::make2dGeometry( rsg.RR(), sg, houseJson.get(), RDSPreMult( mat ), Use2dDebugRendering::False );
 //    rsg.setRigCameraController<CameraControl2d>();
 //    Timeline::play( rsg.DC()->QAngleAnim(), 0,
 //                    KeyFramePair{ 0.1f, quatCompose( V3f{ M_PI_2, 0.0f, 0.0f } ) } );
@@ -111,6 +106,11 @@ void ArchVizBackEnd::showHouse() {
 //    rsg.setRigCameraController<CameraControlWalk>();
 //    Timeline::play( rsg.DC()->PosAnim(), 0,
 //                    KeyFramePair{ 0.1f, V3f{ houseJson->center.x(), 1.6f, houseJson->center.y() }} );
+
+//    auto mat = Matrix4f::IDENTITY;
+//    mat.scale( 1.0f / 25.0f );
+//    HouseRender::make2dGeometry( rsg.RR(), sg, houseJson.get(), RDSPreMult( mat ), Use2dDebugRendering::False );
+
 }
 
 void ArchVizBackEnd::loadHouseCallback( std::vector<std::string> &_paths ) {
@@ -124,20 +124,13 @@ void ArchVizBackEnd::loadHouseCallback( std::vector<std::string> &_paths ) {
 
 void ArchVizBackEnd::activatePostLoad() {
 
-    furnitureMap.addIndex( FTH::Bed(), brimnes_bed, queenBedIcon );
-    furnitureMap.addIndex( FTH::Bedside(), lauter_selije, bedSideIcon );
-    furnitureMap.addIndex( FTH::Shelf(), hemnes_shelf, shelfIcon );
-    furnitureMap.addIndex( FTH::Wardrobe(), hemnes_drawer, wardrobeIcon );
-    furnitureMap.addIndex( FTH::Drawer(), hemnes_drawer, wardrobeIcon );
-    furnitureMap.addIndex( FTH::Sofa(), soderhamn, sofaIcon );
-    furnitureMap.addIndex( FTH::Picture(), pictures_set_3, S::SQUARE );
-    furnitureMap.addIndex( FTH::Carpet(), carpet_flottebo, S::SQUARE );
-    furnitureMap.addIndex( FTH::Armchair(), Strandmon, armchairIcon );
-    furnitureMap.addIndex( FTH::CoffeeTable(), coffeeTable, coffeeTableIcon );
-    furnitureMap.addIndex( FTH::DiningTable(), diningTable, coffeeTableIcon );
-    furnitureMap.addIndex( FTH::SideBoard(), sideBoard, S::SQUARE );
-    furnitureMap.addIndex( FTH::TVWithStand(), tv, S::SQUARE );
-    furnitureMap.addIndex( FTH::Plant(), plant1, S::SQUARE );
+//    addFurnitureSet("uk_default");
+    Http::get( Url{ "/furnitureset/uk_default" }, [&]( HttpResponeParams &res ) {
+        FurnitureSetContainer fset{ res.bufferString };
+        for ( const auto &f : fset.set ) {
+            furnitureMap.addIndex(f);
+        }
+    } );
 
     rsg.RR().createGridV2( CommandBufferLimits::UnsortedStart, 1.0f, ( Color4f::PASTEL_GRAYLIGHT ).A( 0.35f ),
                            ( Color4f::PASTEL_GRAYLIGHT ).A( 0.25f ), V2f{ 15.0f }, 0.015f );
@@ -160,6 +153,8 @@ void ArchVizBackEnd::activatePostLoad() {
 //                    KeyFramePair{ 0.1f, V3f::UP_AXIS * 5.0f } );
 
     loadHouse( "/home/dado/Downloads/asr2bedroomflat.png" );
+    HouseService::guessFittings( houseJson.get(), furnitureMap );
+
     showHouse();
 
 //    loadHouseFromRemote("5ea45ffeb06b0cfc7488ec45");
