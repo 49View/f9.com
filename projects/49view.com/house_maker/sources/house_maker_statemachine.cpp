@@ -132,8 +132,8 @@ void ArchVizBackEnd::activatePostLoad() {
         }
     } );
 
-    rsg.RR().createGridV2( CommandBufferLimits::UnsortedStart, 1.0f, ( Color4f::PASTEL_GRAYLIGHT ).A( 0.35f ),
-                           ( Color4f::PASTEL_GRAYLIGHT ).A( 0.25f ), V2f{ 15.0f }, 0.015f );
+//    rsg.RR().createGridV2( CommandBufferLimits::UnsortedStart, 1.0f, ( Color4f::PASTEL_GRAYLIGHT ).A( 0.35f ),
+//                           ( Color4f::PASTEL_GRAYLIGHT ).A( 0.25f ), V2f{ 15.0f }, 0.015f );
     rsg.createSkybox( SkyBoxInitParams{ SkyBoxMode::CubeProcedural } );
     rsg.changeTime( "summer 14:00" );
 
@@ -153,9 +153,14 @@ void ArchVizBackEnd::activatePostLoad() {
 //                    KeyFramePair{ 0.1f, V3f::UP_AXIS * 5.0f } );
 
     loadHouse( "/home/dado/Downloads/asr2bedroomflat.png" );
-    HouseService::guessFittings( houseJson.get(), furnitureMap );
+//    HouseService::guessFittings( houseJson.get(), furnitureMap );
 
     showHouse();
+    rsg.setRigCameraController<CameraControlWalk>();
+    Timeline::play( rsg.DC()->QAngleAnim(), 0,
+                    KeyFramePair{ 0.1f, quatCompose( V3f{ 0.0f, 0.0f, 0.0f } ) } );
+    Timeline::play( rsg.DC()->PosAnim(), 0,
+                    KeyFramePair{ 0.1f, V3f{ houseJson->center.x(), 1.6f, houseJson->center.y() }} );
 
 //    loadHouseFromRemote("5ea45ffeb06b0cfc7488ec45");
 //    auto hj = FM::readLocalFileC("ucarca");
@@ -219,7 +224,7 @@ void ArchVizBackEnd::updateImpl( const AggregatedInputData &_aid ) {
                         KeyFramePair{ 0.1f, V3f{ houseJson->center.x(), 5.0f, houseJson->center.y() }} );
     }
     if ( ImGui::Button( "3d" )) {
-        as.loadHouse( *houseJson );
+//        as.loadHouse( *houseJson );
         rsg.RR().showBucket( CommandBufferLimits::UnsortedStart, false );
         rsg.setRigCameraController<CameraControlWalk>();
         Timeline::play( rsg.DC()->QAngleAnim(), 0,
