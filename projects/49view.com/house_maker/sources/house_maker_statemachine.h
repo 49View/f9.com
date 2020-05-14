@@ -51,7 +51,6 @@ protected:
 protected:
     ArchSceneGraph& asg;
     ArchService& as;
-    FurnitureMapStorage furnitureMap;
     std::unique_ptr<FrontEnd> backEnd;
     HMBBSData hmbBSData{};
     std::pair<std::shared_ptr<HouseBSData>, bool> callbackStream;

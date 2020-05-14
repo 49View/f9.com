@@ -100,23 +100,8 @@ void EditorBackEnd::showHouse( std::shared_ptr<HouseBSData> houseJson ) {
 
 //    houseJson->defaultSkybox = "barcelona";
 
-    calcFloorplanNavigationTransform(houseJson);
-    HouseRender::make2dGeometry( rsg.RR(), sg, houseJson.get(), RDSPreMult(*floorplanNavigationMatrix.get()), Use2dDebugRendering::False );
-
-//    Matrix4f m{Matrix4f::IDENTITY};
-//    m.scale(1.0f/11.0f);
-
-//    Rect2f ssBBox = Rect2f::IDENTITY*0.1f;
-//    rsg.RR().draw<DRect2d>( ssBBox, V4f::GREEN );
-//    rsg.RR().draw<DCircleFilled2d>( V3f::ONE*0.5f, V4f::BLACK, 0.05f );
-//    rsg.RR().draw<DCircle2d>( V3f::ONE*0.3f, V4f::RED, 0.06f );
-//    rsg.RR().draw<DText2d>( FDS{"Ciao a tutti", rsg.SG().FM().get(S::DEFAULT_FONT).get(), V3f::Y_AXIS*0.5f, 0.1f}, V4f::BLACK );
-//    auto floorPlanRect = Rect2f{ 0.0f, 0.0f, 0.5f,0.5f };
-//    rsg.RR().draw<DPoly>( floorPlanRect.pointscw(), C4f::WHITE.A( 0.75f ));
-//    rsg.RR().draw<DPoly2d>( floorPlanRect.pointscw(), C4f::WHITE.A( 0.75f ));
-
-//    rsg.RR().draw<DLine2d>( V3fVector{V3f::ZERO, V3f::MASK_Y_OUT}, V4f::BLACK, 0.005f, RDSPreMult(m) );
-
+//    calcFloorplanNavigationTransform(houseJson);
+//    HouseRender::make2dGeometry( rsg.RR(), sg, houseJson.get(), RDSPreMult(*floorplanNavigationMatrix.get()), Use2dDebugRendering::False );
 
 //    rsg.setRigCameraController<CameraControl2d>();
 //    Timeline::play( rsg.DC()->QAngleAnim(), 0,

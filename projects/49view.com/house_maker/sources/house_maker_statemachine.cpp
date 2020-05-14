@@ -19,8 +19,7 @@
 ArchVizBackEnd::ArchVizBackEnd( SceneGraph &_sg, RenderOrchestrator &_rsg, ArchSceneGraph &_asg, ArchService &_as ) :
         RunLoopBackEndBase( _sg, _rsg ),
         ScenePreLoader( _sg, _rsg ),
-        asg( _asg ), as( _as ),
-        furnitureMap( _sg ) {
+        asg( _asg ), as( _as ) {
     backEnd = std::make_unique<FrontEnd>( *this, _sg, _rsg );
 }
 
@@ -66,7 +65,7 @@ void ArchVizBackEnd::loadHouse( const std::string &_filename ) {
 //    sg.addRawImageIM( _filename, houseImage );
 
     hmbBSData = HMBBSData{};
-    houseJson = HouseMakerBitmap::make( houseImage, hmbBSData, resImageName, furnitureMap );
+    houseJson = HouseMakerBitmap::make( houseImage, hmbBSData, resImageName );
 }
 
 void ArchVizBackEnd::showHouse() {
@@ -124,12 +123,13 @@ void ArchVizBackEnd::activatePostLoad() {
 
     loadHouse( "/home/dado/Downloads/asr2bedroomflat.png" );
     Http::get( Url{ "/furnitureset/uk_default" }, [&]( HttpResponeParams &res ) {
+        FurnitureMapStorage furnitureMap;
         FurnitureSetContainer fset{ res.bufferString };
         for ( const auto &f : fset.set ) {
             furnitureMap.addIndex(f);
         }
+        HouseService::guessFittings( houseJson.get(), furnitureMap );
     } );
-    HouseService::guessFittings( houseJson.get(), furnitureMap );
 
     showHouse();
     rsg.setRigCameraController<CameraControlWalk>();
