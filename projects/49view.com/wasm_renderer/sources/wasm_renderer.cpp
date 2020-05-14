@@ -31,6 +31,8 @@ void EditorBackEnd::activatePostLoad() {
     backEnd->process_event( OnActivate{} );
 
     rsg.createSkybox( SkyBoxInitParams{ SkyBoxMode::CubeProcedural } );
+//    rsg.RR().createGrid( CommandBufferLimits::UnsortedStart, 1.0f, ( Color4f::PASTEL_GRAYLIGHT ).A( 0.35f ),
+//                           ( Color4f::PASTEL_GRAYLIGHT ).A( 0.25f ), V2f{ 15.0f }, 0.015f );
 
     Renderer::clearColor( C4f::WHITE );
     rsg.useSkybox( true );
@@ -39,8 +41,13 @@ void EditorBackEnd::activatePostLoad() {
     rsg.RR().LM()->setShadowZFightCofficient( 0.02f );
     rsg.RR().LM()->setIndoorSceneCoeff( 1.0f );
     rsg.changeTime( "summer 13:50" );
-    rsg.setRigCameraController<CameraControlOrbit3d>();
+    rsg.setRigCameraController<CameraControlWalk>();
     rsg.DC()->setFoV( 60.0f );
+
+    sg.GB<GT::Shape>(ShapeType::Cube, GT::Tag(SHADOW_MAGIC_TAG), V3f::UP_AXIS_NEG * 0.15f,
+                  GT::Scale(500.0f, 0.1f, 500.0f));
+
+//    sg.addGeomScene("tv");
 
     // Load default property if passed trough command line
     LOGRS( "CLI params:" << cliParams.printAll());
@@ -103,14 +110,7 @@ void EditorBackEnd::showHouse( std::shared_ptr<HouseBSData> houseJson ) {
 //    calcFloorplanNavigationTransform(houseJson);
 //    HouseRender::make2dGeometry( rsg.RR(), sg, houseJson.get(), RDSPreMult(*floorplanNavigationMatrix.get()), Use2dDebugRendering::False );
 
-//    rsg.setRigCameraController<CameraControl2d>();
-//    Timeline::play( rsg.DC()->QAngleAnim(), 0,
-//                    KeyFramePair{ 0.1f, quatCompose( V3f{ M_PI, 0.0f, 0.0f } ) } );
-//    Timeline::play( rsg.DC()->PosAnim(), 0,
-//                    KeyFramePair{ 0.1f, V3f{ houseJson->center.x(), 5.0f, houseJson->center.y() }} );
-
     as.loadHouse( *houseJson );
-//    rsg.RR().showBucket( CommandBufferLimits::UnsortedStart, false );
     rsg.setRigCameraController<CameraControlWalk>();
     Timeline::play( rsg.DC()->QAngleAnim(), 0,
                     KeyFramePair{ 0.1f, quatCompose( V3f{ 0.0f, 0.0f, 0.0f } ) } );
