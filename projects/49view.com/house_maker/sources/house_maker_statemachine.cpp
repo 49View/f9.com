@@ -25,30 +25,6 @@ ArchVizBackEnd::ArchVizBackEnd( SceneGraph &_sg, RenderOrchestrator &_rsg, ArchS
 }
 
 void ArchVizBackEnd::activateImpl() {
-//    appData.addProfile( coffeeTableIcon );
-//    appData.addProfile( queenBedIcon );
-//    appData.addProfile( bedSideIcon );
-//    appData.addProfile( shelfIcon );
-//    appData.addProfile( wardrobeIcon );
-//    appData.addProfile( wardrobeIcon );
-//    appData.addProfile( sofaIcon );
-//    appData.addProfile( armchairIcon );
-//
-//    appData.addGeom( carpet_flottebo );
-//    appData.addGeom( coffeeTable );
-//    appData.addGeom( diningTable );
-//    appData.addGeom( brimnes_bed );
-//    appData.addGeom( lauter_selije );
-//    appData.addGeom( hemnes_shelf );
-//    appData.addGeom( hemnes_drawer );
-//    appData.addGeom( hemnes_drawer );
-//    appData.addGeom( soderhamn );
-//    appData.addGeom( pictures_set_3 );
-//    appData.addGeom( Strandmon );
-//    appData.addGeom( sideBoard );
-//    appData.addGeom( plant1 );
-//    appData.addGeom( tv );
-
     loadSceneEntities();
 }
 
@@ -124,13 +100,7 @@ void ArchVizBackEnd::loadHouseCallback( std::vector<std::string> &_paths ) {
 
 void ArchVizBackEnd::activatePostLoad() {
 
-//    addFurnitureSet("uk_default");
-    Http::get( Url{ "/furnitureset/uk_default" }, [&]( HttpResponeParams &res ) {
-        FurnitureSetContainer fset{ res.bufferString };
-        for ( const auto &f : fset.set ) {
-            furnitureMap.addIndex(f);
-        }
-    } );
+    RoomServiceFurniture::addDefaultFurnitureSet("uk_default");
 
 //    rsg.RR().createGridV2( CommandBufferLimits::UnsortedStart, 1.0f, ( Color4f::PASTEL_GRAYLIGHT ).A( 0.35f ),
 //                           ( Color4f::PASTEL_GRAYLIGHT ).A( 0.25f ), V2f{ 15.0f }, 0.015f );
@@ -146,14 +116,20 @@ void ArchVizBackEnd::activatePostLoad() {
 
     luaFunctionsSetup();
 
-    rsg.setRigCameraController<CameraControl2d>();
+//    rsg.setRigCameraController<CameraControl2d>();
 //    Timeline::play( rsg.DC()->QAngleAnim(), 0,
 //                    KeyFramePair{ 0.1f, quatCompose( V3f{ M_PI_2, 0.0f, 0.0f } ) } );
 //    Timeline::play( rsg.DC()->PosAnim(), 0,
 //                    KeyFramePair{ 0.1f, V3f::UP_AXIS * 5.0f } );
 
     loadHouse( "/home/dado/Downloads/asr2bedroomflat.png" );
-//    HouseService::guessFittings( houseJson.get(), furnitureMap );
+    Http::get( Url{ "/furnitureset/uk_default" }, [&]( HttpResponeParams &res ) {
+        FurnitureSetContainer fset{ res.bufferString };
+        for ( const auto &f : fset.set ) {
+            furnitureMap.addIndex(f);
+        }
+    } );
+    HouseService::guessFittings( houseJson.get(), furnitureMap );
 
     showHouse();
     rsg.setRigCameraController<CameraControlWalk>();
