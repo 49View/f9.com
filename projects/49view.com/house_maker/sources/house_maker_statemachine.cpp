@@ -14,6 +14,7 @@
 #include <eh_arch/render/window_render.hpp>
 #include <eh_arch/render/room_render.hpp>
 #include <eh_arch/render/house_render.hpp>
+#include <poly/follower.hpp>
 
 
 ArchVizBackEnd::ArchVizBackEnd( SceneGraph &_sg, RenderOrchestrator &_rsg, ArchSceneGraph &_asg, ArchService &_as ) :
@@ -130,24 +131,18 @@ void ArchVizBackEnd::activatePostLoad() {
         }
         HouseService::guessFittings( houseJson.get(), furnitureMap );
     } );
-
     showHouse();
+
+//    V2f a{1.0f, 1.0f};
+//    V2f b = V2f::ZERO;
+//    auto linex = FollowerService::createLinePath(a, b, 0.5f, 0.2f);
+//    sg.GB<GT::Extrude>(PolyOutLine{linex, V3f::UP_AXIS, 0.5f });
+
     rsg.setRigCameraController<CameraControlWalk>();
     Timeline::play( rsg.DC()->QAngleAnim(), 0,
                     KeyFramePair{ 0.1f, quatCompose( V3f{ 0.0f, 0.0f, 0.0f } ) } );
     Timeline::play( rsg.DC()->PosAnim(), 0,
-                    KeyFramePair{ 0.1f, V3f{ houseJson->center.x(), 1.6f, houseJson->center.y() }} );
-
-//    loadHouseFromRemote("5ea45ffeb06b0cfc7488ec45");
-//    auto hj = FM::readLocalFileC("ucarca");
-//    houseJson = std::make_shared<HouseBSData>(hj);
-//    Http::post(Url{"/propertybim/5ea45ffeb06b0cfc7488ec45"}, hj);
-//    showHouse();
-
-//    Http::get(Url{"/propertybim/5ea45ffeb06b0cfc7488ec45"}, [this](HttpResponeParams params) {
-//        houseJson = std::make_shared<HouseBSData>(params.bufferString);
-//        showHouse();
-//    });
+                    KeyFramePair{ 0.1f, V3f{ 2.0f, 1.6f, 8.0f }} );
 
     rsg.setDragAndDropFunction( std::bind( &ArchVizBackEnd::loadHouseCallback, this, std::placeholders::_1 ));
     backEnd->process_event( OnActivate{} );
