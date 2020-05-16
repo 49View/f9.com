@@ -139,10 +139,8 @@ void ArchVizBackEnd::activatePostLoad() {
 //    sg.GB<GT::Extrude>(PolyOutLine{linex, V3f::UP_AXIS, 0.5f });
 
     rsg.setRigCameraController<CameraControlWalk>();
-    Timeline::play( rsg.DC()->QAngleAnim(), 0,
-                    KeyFramePair{ 0.1f, quatCompose( V3f{ 0.0f, 0.0f, 0.0f } ) } );
-    Timeline::play( rsg.DC()->PosAnim(), 0,
-                    KeyFramePair{ 0.1f, V3f{ 2.0f, 1.6f, 8.0f }} );
+    rsg.DC()->setQuatAngles(V3f{ 0.0f, M_PI, 0.0f });
+    rsg.DC()->setPosition(V3f{ 2.0f, 1.6f, 6.0f });
 
     rsg.setDragAndDropFunction( std::bind( &ArchVizBackEnd::loadHouseCallback, this, std::placeholders::_1 ));
     backEnd->process_event( OnActivate{} );
