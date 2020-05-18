@@ -105,7 +105,7 @@ void ArchVizBackEnd::activatePostLoad() {
 //    rsg.RR().createGridV2( CommandBufferLimits::UnsortedStart, 1.0f, ( Color4f::PASTEL_GRAYLIGHT ).A( 0.35f ),
 //                           ( Color4f::PASTEL_GRAYLIGHT ).A( 0.25f ), V2f{ 15.0f }, 0.015f );
     rsg.createSkybox( SkyBoxInitParams{ SkyBoxMode::CubeProcedural } );
-    rsg.changeTime( "summer 14:00" );
+    rsg.changeTime( "summer 22:00" );
 
     rsg.useSkybox( true );
     rsg.RR().useVignette( true );
