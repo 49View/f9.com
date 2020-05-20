@@ -40,6 +40,7 @@ void EditorBackEnd::activatePostLoad() {
     rsg.RR().useFilmGrain( true );
 //    rsg.useSunLighting( false );
     rsg.useSSAO( true );
+//    rsg.useMotionBlur( true );
 //    rsg.RR().LM()->setShadowZFightCofficient( 0.02f );
 //    rsg.RR().LM()->setIndoorSceneCoeff( -1.0f );
     rsg.changeTime( "14:00" );
@@ -144,6 +145,7 @@ void EditorBackEnd::updateImpl( const AggregatedInputData &_aid ) {
     if ( floorplanNavigationMatrix ) {
         rsg.drawCameraLocator( *floorplanNavigationMatrix.get() );
     }
+//    usleep(100000);
 
     consumeCallbacks();
 }
