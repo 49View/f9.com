@@ -36,11 +36,13 @@ void EditorBackEnd::activatePostLoad() {
 
     Renderer::clearColor( C4f::WHITE );
     rsg.useSkybox( true );
-    rsg.useSunLighting( false );
+    rsg.RR().useVignette( true );
+    rsg.RR().useFilmGrain( true );
+//    rsg.useSunLighting( false );
     rsg.useSSAO( true );
-    rsg.RR().LM()->setShadowZFightCofficient( 0.02f );
-    rsg.RR().LM()->setIndoorSceneCoeff( 1.0f );
-    rsg.changeTime( "summer 13:50" );
+//    rsg.RR().LM()->setShadowZFightCofficient( 0.02f );
+//    rsg.RR().LM()->setIndoorSceneCoeff( -1.0f );
+    rsg.changeTime( "14:00" );
     rsg.setRigCameraController<CameraControlWalk>();
     rsg.DC()->setFoV( 60.0f );
 
