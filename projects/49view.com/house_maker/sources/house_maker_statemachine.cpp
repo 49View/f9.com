@@ -17,18 +17,18 @@
 #include <poly/follower.hpp>
 
 
-ArchVizBackEnd::ArchVizBackEnd( SceneGraph &_sg, RenderOrchestrator &_rsg, ArchSceneGraph &_asg, ArchService &_as ) :
+HouseMakerStateMachine::HouseMakerStateMachine( SceneGraph &_sg, RenderOrchestrator &_rsg, ArchSceneGraph &_asg ) :
         RunLoopBackEndBase( _sg, _rsg ),
         ScenePreLoader( _sg, _rsg ),
-        asg( _asg ), as( _as ) {
+        asg( _asg ) {
     backEnd = std::make_unique<FrontEnd>( *this, _sg, _rsg );
 }
 
-void ArchVizBackEnd::activateImpl() {
+void HouseMakerStateMachine::activateImpl() {
     loadSceneEntities();
 }
 
-void ArchVizBackEnd::luaFunctionsSetup() {
+void HouseMakerStateMachine::luaFunctionsSetup() {
     const std::string avKey = "av";
     rsg.addLuaFunction( avKey, "floorPlanView", [&]() {
         uint64_t frameSkipper = 2;
@@ -51,56 +51,34 @@ void ArchVizBackEnd::luaFunctionsSetup() {
     } );
 }
 
-void ArchVizBackEnd::loadHouseFromRemote( const std::string &_pid ) {
-    Http::get( Url{ "/propertybim/" + _pid }, [this]( HttpResponeParams params ) {
-        auto house = std::make_shared<HouseBSData>( params.bufferString );
-        callbackStream = std::make_pair( house, true );
-    } );
-}
-
-void ArchVizBackEnd::loadHouse( const std::string &_filename ) {
-
+void HouseMakerStateMachine::elaborateHouse( const std::string &_filename ) {
     auto data = FM::readLocalFileC( _filename );
     RawImage houseImage{ data };
     auto resImageName = getFileNameOnly( _filename );
-//    sg.addRawImageIM( _filename, houseImage );
 
     hmbBSData = HMBBSData{};
     houseJson = HouseMakerBitmap::make( houseImage, hmbBSData, resImageName );
+    HouseService::guessFittings( houseJson.get(), furnitureMap );
+    asg.showHouse( houseJson );
 }
 
-void ArchVizBackEnd::showHouse() {
-
-//    houseJson->defaultSkybox = "barcelona";
-//    rsg.setRigCameraController<CameraControl2d>();
-//    Timeline::play( rsg.DC()->QAngleAnim(), 0,
-//                    KeyFramePair{ 0.1f, quatCompose( V3f{ M_PI_2, 0.0f, 0.0f } ) } );
-//    Timeline::play( rsg.DC()->PosAnim(), 0,
-//                    KeyFramePair{ 0.1f, V3f{ houseJson->center.x(), 5.0f, houseJson->center.y() }} );
-
-    as.loadHouse( *houseJson );
-//    rsg.setRigCameraController<CameraControlWalk>();
-//    Timeline::play( rsg.DC()->PosAnim(), 0,
-//                    KeyFramePair{ 0.1f, V3f{ houseJson->center.x(), 1.6f, houseJson->center.y() }} );
-
-//    auto mat = Matrix4f::IDENTITY;
-//    mat.scale( 1.0f / 25.0f );
-//    HouseRender::make2dGeometry( rsg.RR(), sg, houseJson.get(), RDSPreMult( mat ), Use2dDebugRendering::False );
-
-}
-
-void ArchVizBackEnd::loadHouseCallback( std::vector<std::string> &_paths ) {
+void HouseMakerStateMachine::loadHouseCallback( std::vector<std::string> &_paths ) {
     if ( _paths.empty()) return;
     rsg.RR().clearTargets();
     rsg.RR().clearBucket( CommandBufferLimits::UnsortedStart );
-    loadHouse( _paths[0] );
-    showHouse();
+    elaborateHouse( _paths[0] );
     _paths.clear();
 }
 
-void ArchVizBackEnd::activatePostLoad() {
+void HouseMakerStateMachine::activatePostLoad() {
 
-    RoomServiceFurniture::addDefaultFurnitureSet("uk_default");
+//    RoomServiceFurniture::addDefaultFurnitureSet("uk_default");
+    Http::get( Url{ "/furnitureset/uk_default" }, [&, this]( HttpResponeParams &res ) {
+        FurnitureSetContainer fset{ res.bufferString };
+        for ( const auto &f : fset.set ) {
+            furnitureMap.addIndex(f);
+        }
+    } );
 
 //    rsg.RR().createGridV2( CommandBufferLimits::UnsortedStart, 1.0f, ( Color4f::PASTEL_GRAYLIGHT ).A( 0.35f ),
 //                           ( Color4f::PASTEL_GRAYLIGHT ).A( 0.25f ), V2f{ 15.0f }, 0.015f );
@@ -122,16 +100,7 @@ void ArchVizBackEnd::activatePostLoad() {
 //    Timeline::play( rsg.DC()->PosAnim(), 0,
 //                    KeyFramePair{ 0.1f, V3f::UP_AXIS * 5.0f } );
 
-    loadHouse( "/home/dado/Downloads/asr2bedroomflat.png" );
-    Http::get( Url{ "/furnitureset/uk_default" }, [&]( HttpResponeParams &res ) {
-        FurnitureMapStorage furnitureMap;
-        FurnitureSetContainer fset{ res.bufferString };
-        for ( const auto &f : fset.set ) {
-            furnitureMap.addIndex(f);
-        }
-        HouseService::guessFittings( houseJson.get(), furnitureMap );
-    } );
-    showHouse();
+    elaborateHouse( "/home/dado/Downloads/asr2bedroomflat.png" );
 
 //    V2f a{1.0f, 1.0f};
 //    V2f b = V2f::ZERO;
@@ -142,19 +111,11 @@ void ArchVizBackEnd::activatePostLoad() {
     rsg.DC()->setQuatAngles(V3f{ 0.0f, M_PI, 0.0f });
     rsg.DC()->setPosition(V3f{ 2.0f, 1.6f, 6.0f });
 
-    rsg.setDragAndDropFunction( std::bind( &ArchVizBackEnd::loadHouseCallback, this, std::placeholders::_1 ));
+    rsg.setDragAndDropFunction( std::bind(&HouseMakerStateMachine::loadHouseCallback, this, std::placeholders::_1 ));
     backEnd->process_event( OnActivate{} );
 }
 
-void ArchVizBackEnd::consumeCallbacks() {
-    if ( callbackStream.second ) {
-        houseJson = callbackStream.first;
-        showHouse();
-        callbackStream.second = false;
-    }
-}
-
-void ArchVizBackEnd::updateImpl( const AggregatedInputData &_aid ) {
+void HouseMakerStateMachine::updateImpl( const AggregatedInputData &_aid ) {
     // Debug control panel using imgui
 #ifdef _USE_IMGUI_
     ImGui::Begin( "Favourites" );
@@ -178,7 +139,7 @@ void ArchVizBackEnd::updateImpl( const AggregatedInputData &_aid ) {
         if ( ImGui::Button( getFileNameOnly( fn ).c_str())) {
             rsg.RR().clearTargets();
             rsg.RR().clearBucket( CommandBufferLimits::UnsortedStart );
-            loadHouse( fn );
+            elaborateHouse( fn );
         }
     }
     ImGui::End();
@@ -218,5 +179,4 @@ void ArchVizBackEnd::updateImpl( const AggregatedInputData &_aid ) {
 
     rsg.UI().updateAnim();
     asg.update();
-    consumeCallbacks();
 }

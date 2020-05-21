@@ -20,9 +20,8 @@
 #include <eh_arch/models/house_bsdata.hpp>
 #include <eh_arch/render/house_render.hpp>
 
-scene_t scene{ 0 };
-
-const std::string skyboxName = "tropical,beach";
+//scene_t scene{ 0 };
+//const std::string skyboxName = "tropical,beach";
 
 void EditorBackEnd::activatePostLoad() {
 
@@ -50,12 +49,10 @@ void EditorBackEnd::activatePostLoad() {
     sg.GB<GT::Shape>(ShapeType::Cube, GT::Tag(SHADOW_MAGIC_TAG), V3f::UP_AXIS_NEG * 0.15f,
                   GT::Scale(500.0f, 0.1f, 500.0f));
 
-//    sg.addGeomScene("tv");
-
     // Load default property if passed trough command line
     LOGRS( "CLI params:" << cliParams.printAll());
     if ( auto pid = cliParams.getParam("pid"); pid ) {
-        loadHouse(*pid);
+        asg.loadHouse(*pid);
     }
 }
 
@@ -82,55 +79,12 @@ void EditorBackEnd::luaFunctionsSetup() {
     } );
 
     rsg.addLuaFunction( nsKey, "loadHouse", [&](const std::string _pid) {
-        loadHouse(_pid);
+        asg.loadHouse(_pid);
     } );
-}
-
-void EditorBackEnd::loadHouse( const std::string& _pid ) {
-    Http::get( Url{"/propertybim/" + _pid}, [this]( HttpResponeParams params ) {
-        auto house = std::make_shared<HouseBSData>( params.bufferString );
-        callbackStream = std::make_pair(house, true);
-    } );
-}
-
-void EditorBackEnd::calcFloorplanNavigationTransform( std::shared_ptr<HouseBSData> houseJson ) {
-    auto m = std::make_shared<Matrix4f>(Matrix4f::IDENTITY);
-    float vmax = max(houseJson->bbox.bottomRight().x(), houseJson->bbox.bottomRight().y());
-//    float padding = vmax*0.03f;
-    float screenFloorplanRatio = (1.0f/4.0f);
-    float screenPadding = 0.03f;
-    float vmaxScale = vmax / screenFloorplanRatio;
-    auto vr = 1.0f/ vmaxScale;
-    m->scale( V3f{vr, -vr, -vr});
-    m->translate( V3f{getScreenAspectRatio-screenFloorplanRatio-screenPadding, screenFloorplanRatio, screenFloorplanRatio});
-    floorplanNavigationMatrix = m;
-}
-
-void EditorBackEnd::showHouse( std::shared_ptr<HouseBSData> houseJson ) {
-
-//    houseJson->defaultSkybox = "barcelona";
-
-//    calcFloorplanNavigationTransform(houseJson);
-//    HouseRender::make2dGeometry( rsg.RR(), sg, houseJson.get(), RDSPreMult(*floorplanNavigationMatrix.get()), Use2dDebugRendering::False );
-
-    as.loadHouse( *houseJson );
-    rsg.setRigCameraController<CameraControlWalk>();
-    Timeline::play( rsg.DC()->QAngleAnim(), 0,
-                    KeyFramePair{ 0.1f, quatCompose( V3f{ 0.0f, 0.0f, 0.0f } ) } );
-    Timeline::play( rsg.DC()->PosAnim(), 0,
-                    KeyFramePair{ 0.1f, V3f{ houseJson->center.x(), 1.6f, houseJson->center.y() }} );
-
 }
 
 void EditorBackEnd::activateImpl() {
     loadSceneEntities();
-}
-
-void EditorBackEnd::consumeCallbacks() {
-    if ( callbackStream.second ) {
-        showHouse(callbackStream.first);
-        callbackStream.second = false;
-    }
 }
 
 void EditorBackEnd::updateImpl( const AggregatedInputData &_aid ) {
@@ -142,10 +96,7 @@ void EditorBackEnd::updateImpl( const AggregatedInputData &_aid ) {
 //        LightmapManager::apply( scene, rsg.RR());
 //    }
 
-    if ( floorplanNavigationMatrix ) {
-        rsg.drawCameraLocator( *floorplanNavigationMatrix.get() );
-    }
+    asg.update();
 //    usleep(100000);
 
-    consumeCallbacks();
 }

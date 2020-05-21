@@ -30,10 +30,10 @@ struct CarilloStateMachineSML { auto operator()() const noexcept { return make_t
 using FrontEnd = sm<CarilloStateMachineSML>;
 
 // Back End
-class ArchVizBackEnd : public RunLoopBackEndBase, public LoginActivation<LoginFieldsPrecached>, public ScenePreLoader {
+class HouseMakerStateMachine : public RunLoopBackEndBase, public LoginActivation<LoginFieldsPrecached>, public ScenePreLoader {
 public:
-    ArchVizBackEnd( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchSceneGraph& _asg, ArchService& _as );
-    ~ArchVizBackEnd() override = default;
+    HouseMakerStateMachine( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchSceneGraph& _asg );
+    ~HouseMakerStateMachine() override = default;
 
     void updateImpl( const AggregatedInputData& _aid ) override;
     void activateImpl() override;
@@ -43,18 +43,14 @@ public:
 protected:
     void activatePostLoad() override;
     void luaFunctionsSetup() override;
-    void loadHouse( const std::string& _filename );
-    void loadHouseFromRemote( const std::string& _pid );
-    void showHouse();
-    void consumeCallbacks();
+    void elaborateHouse( const std::string& _filename );
 
 protected:
     ArchSceneGraph& asg;
-    ArchService& as;
     std::unique_ptr<FrontEnd> backEnd;
     HMBBSData hmbBSData{};
-    std::pair<std::shared_ptr<HouseBSData>, bool> callbackStream;
 
+    FurnitureMapStorage furnitureMap;
     std::shared_ptr<HouseBSData> houseJson;
     std::string skyboxImage         = "skybox,equirectangular,park,generic,001";
 };
