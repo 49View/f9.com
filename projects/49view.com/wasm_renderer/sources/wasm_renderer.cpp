@@ -97,6 +97,6 @@ void EditorBackEnd::updateImpl( const AggregatedInputData &_aid ) {
 //    }
 
     asg.update();
-//    usleep(100000);
+//    usleep(10000);
 
 }
