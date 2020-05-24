@@ -46,8 +46,10 @@ void EditorBackEnd::activatePostLoad() {
     rsg.setRigCameraController<CameraControlWalk>();
     rsg.DC()->setFoV( 60.0f );
 
-    sg.GB<GT::Shape>(ShapeType::Cube, GT::Tag(SHADOW_MAGIC_TAG), V3f::UP_AXIS_NEG * 0.15f,
-                  GT::Scale(500.0f, 0.1f, 500.0f));
+    sg.GB<GT::Shape>(ShapeType::Cube, GT::Tag(SHADOW_MAGIC_TAG), V3f::UP_AXIS_NEG * 0.15f, GT::Scale(500.0f, 0.1f, 500.0f));
+
+//    sg.addGeomScene("bathroom,tower");
+//    sg.GB<GT::Shape>(ShapeType::Cube);
 
     // Load default property if passed trough command line
     LOGRS( "CLI params:" << cliParams.printAll());
@@ -97,6 +99,6 @@ void EditorBackEnd::updateImpl( const AggregatedInputData &_aid ) {
 //    }
 
     asg.update();
-//    usleep(10000);
+//    usleep(100000);
 
 }
