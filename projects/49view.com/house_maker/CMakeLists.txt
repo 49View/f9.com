@@ -12,7 +12,7 @@ compile_submodule( "eh_arch/render" )
 compile_submodule( "eh_arch/makers" )
 compile_local( sources )
 
-add_executable(${PROJECT_NAME} ${BUILD_FILES})
+add_executable(${PROJECT_NAME} ${BUILD_FILES} ../../../eh_arch/render/kitchen_render.cpp ../../../eh_arch/render/kitchen_render.hpp)
 
 linker(${PROJECT_NAME} "${LIBS}")
 

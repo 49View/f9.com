@@ -1,14 +1,11 @@
 import * as metaAssistant from "../assistants/metadataAssistant";
 import * as fsController from "../controllers/fsController";
-import {writeFileComplete} from "../controllers/fsController";
+import {furnitureSetModel} from "../../models/furniture_set";
 
 const entityController = require("../controllers/entityController");
 const express = require("express");
 const router = express.Router();
-const tar = require("tar-stream");
-const streams = require("memory-streams");
 const logger = require('eh_logger');
-const db = require("eh_db");
 
 router.get("/:group/:tags", async (req, res, next) => {
   try {
@@ -22,9 +19,7 @@ router.get("/:group/:tags", async (req, res, next) => {
       project,
       group,
       tags,
-      req.params.tags,
-      true,
-      null
+      req.params.tags
     );
     if (foundEntities !== null && foundEntities.length > 0) {
       let entity = foundEntities[0];
@@ -44,38 +39,6 @@ router.get("/:group/:tags", async (req, res, next) => {
 //     try {
 //       logger.info("Post from daemon...");
 //
-//       const entity = await entityController.createEntity(
-//         req.params.filenameFSID,
-//         req.params.filename,
-//         decodeURIComponent(req.params.project),
-//         req.params.group,
-//         decodeURIComponent(req.params.username),
-//         decodeURIComponent(req.params.useremail)
-//       );
-//
-//       if (entity !== null) {
-//         res
-//           .status(201)
-//           .json(entity)
-//           .end();
-//       } else {
-//         throw "[post.entity] Entity created is null";
-//       }
-//     } catch (ex) {
-//       console.log("[POST] Entity error: ", ex);
-//       res.sendStatus(400);
-//     }
-//   }
-// );
-
-// // Data is going to be in body
-// router.post(
-//   "/:filename/:group",
-//   async (req, res, next) => {
-//     try {
-//       logger.info("Post from daemon...");
-//
-//       db.fsUpsert( db.bucketEntities, req.params.filename, req.body, )
 //       const entity = await entityController.createEntity(
 //         req.params.filenameFSID,
 //         req.params.filename,

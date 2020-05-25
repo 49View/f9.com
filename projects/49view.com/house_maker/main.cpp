@@ -268,7 +268,7 @@
 #ifndef ANDROID
 int main( int argc, char *argv[] ) {
 
-    EventHorizon<ArchVizBackEnd> ev{ argc, argv };
+    EventHorizon<HouseMakerStateMachine> ev{ argc, argv };
 
     return 0;
 }
@@ -280,7 +280,7 @@ int main( int argc, char *argv[] ) {
 #include "VrApi_Input.h"
 
 void glfvrMain() {
-    EventHorizon<ArchVizBackEnd> ev{ 1, NULL };
+    EventHorizon<HouseMakerStateMachine> ev{ 1, NULL };
 }
 
 #else
@@ -291,7 +291,7 @@ void glfvrMain() {
 
 void glfmMain(GLFMDisplay *display) {
     glfmdisplay = display;
-    EventHorizon<ArchVizBackEnd> ev{ 1, NULL };
+    EventHorizon<HouseMakerStateMachine> ev{ 1, NULL };
 }
 
 #endif
