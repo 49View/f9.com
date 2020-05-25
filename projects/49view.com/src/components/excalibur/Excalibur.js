@@ -12,11 +12,12 @@ import {
 import {excaliburInitialState, excaliburStateReducer, useExcaliburDragAndDropCallback} from "./ExcaliburLogic";
 import {useWasmContext} from "../../futuremodules/reactwasmcanvas/localreacwasmcanvas";
 import {DivDropZone, DivReports, DivWasm, ExcaliburGrid} from "./Excalibur.styled";
-import {Badge, Spinner} from "react-bootstrap";
+import {Badge, Button, FormControl, InputGroup, Spinner} from "react-bootstrap";
 import {getFileNameOnlyNoExt} from "../../futuremodules/utils/utils";
 import {useEffect} from "reactn";
-import {connect} from "../../futuremodules/webrtc/client";
+import {connect, sendChatMessage} from "../../futuremodules/webrtc/client";
 import {useAlertDangerNoMovie} from "../../futuremodules/alerts/alerts";
+import {PropertyRightMenu} from "../PropertyPage/Property.styled";
 
 const WasmGridCell = () => {
   const {canvasContainer} = useWasmContext(true);
@@ -105,6 +106,16 @@ export const Excalibur = () => {
             </FlexDragAndDrop>
           </DivDropZone>
           <DivReports>
+            <InputGroup className="mb-3">
+              <FormControl
+                onKeyUp={(evt) => {
+                  if ((evt.keyCode === 13 || evt.keyCode === 14)) {
+                    window.Module.addScriptLine(evt.target.value);
+                  }
+                }}
+              />
+            </InputGroup>
+            <Button onClick={() => window.Module.reloadShadersViaHttp()}>Reload shaders</Button>
           </DivReports>
         </ExcaliburGrid>
       </ContainerSectionShadowed>
