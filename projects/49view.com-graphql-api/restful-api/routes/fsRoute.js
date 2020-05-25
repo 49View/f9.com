@@ -1,4 +1,4 @@
-import {writeFileCompleteInsertNewNameIfExists} from "../controllers/fsController";
+import {writeFileComplete, writeFileCompleteInsertNewNameIfExists} from "../controllers/fsController";
 import {uploadModel} from "../../models/upload";
 import * as entityController from "../controllers/entityController";
 
@@ -8,7 +8,10 @@ const logger = require('eh_logger');
 
 router.post("/:group/:id", async (req, res, next) => {
   try {
-    const fname = await writeFileCompleteInsertNewNameIfExists(req.body, `uploads/${req.params.group}`, req.params.id);
+    const fname = await writeFileComplete(req.body, `uploads/${req.params.group}`, req.params.id);
+    // We might re-enable this later but I have the suspicous that mangling around with file names etc will
+    // create more problem than it solves, and it goes somehow against the functional programming principle.
+    // const fname = await writeFileCompleteInsertNewNameIfExists(req.body, `uploads/${req.params.group}`, req.params.id);
     const asset = new uploadModel({
       filename: fname,
       group: req.params.group,

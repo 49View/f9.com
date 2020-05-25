@@ -8,7 +8,6 @@
 #include <core/camera.h>
 #include <render_scene_graph/runloop_graphics.h>
 #include <render_scene_graph/scene_loader.hpp>
-#include <eh_arch/scene/arch_service.hpp>
 #include <eh_arch/scene/arch_scene_graph.hpp>
 
 // Events
@@ -30,7 +29,7 @@ using FrontEnd = sm<EditorStateMachineSML>;
 // Back End
 class EditorBackEnd : public RunLoopBackEndBase, public LoginActivation<LoginFieldsPrecached>, public ScenePreLoader {
 public:
-    EditorBackEnd( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchSceneGraph &_asg, ArchService& _as ) : RunLoopBackEndBase(_sg, _rsg), ScenePreLoader( _sg, _rsg ), asg( _asg ), as(_as) {
+    EditorBackEnd( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchSceneGraph &_asg ) : RunLoopBackEndBase(_sg, _rsg), ScenePreLoader( _sg, _rsg ), asg( _asg ) {
         backEnd = std::make_unique<FrontEnd>( *this, _sg, _rsg );
     }
     ~EditorBackEnd() override = default;
@@ -45,14 +44,7 @@ public:
 protected:
     void activatePostLoad() override;
     void luaFunctionsSetup() override;
-    void showHouse(std::shared_ptr<HouseBSData> houseJson);
-    void loadHouse( const std::string& _pid );
-    void consumeCallbacks();
-    void calcFloorplanNavigationTransform( std::shared_ptr<HouseBSData> houseJson );
 protected:
     std::unique_ptr<FrontEnd> backEnd;
     ArchSceneGraph& asg;
-    ArchService& as;
-    std::shared_ptr<Matrix4f> floorplanNavigationMatrix;
-    std::pair<std::shared_ptr<HouseBSData>, bool> callbackStream;
 };

@@ -17,12 +17,13 @@
 #include <graphics/lightmap_manager.hpp>
 #include <graphics/render_light_manager.h>
 #include <graphics/shader_manager.h>
+#include <graphics/imgui/imgui.h>
+#include <graphics/imgui/im_gui_console.h>
 #include <eh_arch/models/house_bsdata.hpp>
 #include <eh_arch/render/house_render.hpp>
 
-scene_t scene{ 0 };
-
-const std::string skyboxName = "tropical,beach";
+//scene_t scene{ 0 };
+//const std::string skyboxName = "tropical,beach";
 
 void EditorBackEnd::activatePostLoad() {
 
@@ -31,21 +32,28 @@ void EditorBackEnd::activatePostLoad() {
     backEnd->process_event( OnActivate{} );
 
     rsg.createSkybox( SkyBoxInitParams{ SkyBoxMode::CubeProcedural } );
+//    rsg.RR().createGrid( CommandBufferLimits::UnsortedStart, 1.0f, ( Color4f::PASTEL_GRAYLIGHT ).A( 0.35f ),
+//                           ( Color4f::PASTEL_GRAYLIGHT ).A( 0.25f ), V2f{ 15.0f }, 0.015f );
 
     Renderer::clearColor( C4f::WHITE );
     rsg.useSkybox( true );
-    rsg.useSunLighting( false );
+    rsg.RR().useVignette( true );
+    rsg.RR().useFilmGrain( true );
+//    rsg.useSunLighting( false );
     rsg.useSSAO( true );
-    rsg.RR().LM()->setShadowZFightCofficient( 0.02f );
-    rsg.RR().LM()->setIndoorSceneCoeff( 1.0f );
-    rsg.changeTime( "summer 13:50" );
-    rsg.setRigCameraController<CameraControlOrbit3d>();
+//    rsg.useMotionBlur( true );
+//    rsg.RR().LM()->setShadowZFightCofficient( 0.02f );
+//    rsg.RR().LM()->setIndoorSceneCoeff( -1.0f );
+    rsg.changeTime( "14:00" );
+    rsg.setRigCameraController<CameraControlWalk>();
     rsg.DC()->setFoV( 60.0f );
+
+    sg.GB<GT::Shape>(ShapeType::Cube, GT::Tag(SHADOW_MAGIC_TAG), V3f::UP_AXIS_NEG * 0.15f, GT::Scale(500.0f, 0.1f, 500.0f));
 
     // Load default property if passed trough command line
     LOGRS( "CLI params:" << cliParams.printAll());
     if ( auto pid = cliParams.getParam("pid"); pid ) {
-        loadHouse(*pid);
+        asg.loadHouse(*pid);
     }
 }
 
@@ -72,77 +80,12 @@ void EditorBackEnd::luaFunctionsSetup() {
     } );
 
     rsg.addLuaFunction( nsKey, "loadHouse", [&](const std::string _pid) {
-        loadHouse(_pid);
+        asg.loadHouse(_pid);
     } );
-}
-
-void EditorBackEnd::loadHouse( const std::string& _pid ) {
-    Http::get( Url{"/propertybim/" + _pid}, [this]( HttpResponeParams params ) {
-        auto house = std::make_shared<HouseBSData>( params.bufferString );
-        callbackStream = std::make_pair(house, true);
-    } );
-}
-
-void EditorBackEnd::calcFloorplanNavigationTransform( std::shared_ptr<HouseBSData> houseJson ) {
-    auto m = std::make_shared<Matrix4f>(Matrix4f::IDENTITY);
-    float vmax = max(houseJson->bbox.bottomRight().x(), houseJson->bbox.bottomRight().y());
-//    float padding = vmax*0.03f;
-    float screenFloorplanRatio = (1.0f/4.0f);
-    float screenPadding = 0.03f;
-    float vmaxScale = vmax / screenFloorplanRatio;
-    auto vr = 1.0f/ vmaxScale;
-    m->scale( V3f{vr, -vr, -vr});
-    m->translate( V3f{getScreenAspectRatio-screenFloorplanRatio-screenPadding, screenFloorplanRatio, screenFloorplanRatio});
-    floorplanNavigationMatrix = m;
-}
-
-void EditorBackEnd::showHouse( std::shared_ptr<HouseBSData> houseJson ) {
-
-//    houseJson->defaultSkybox = "barcelona";
-
-    calcFloorplanNavigationTransform(houseJson);
-    HouseRender::make2dGeometry( rsg.RR(), sg, houseJson.get(), RDSPreMult(*floorplanNavigationMatrix.get()), Use2dDebugRendering::False );
-
-//    Matrix4f m{Matrix4f::IDENTITY};
-//    m.scale(1.0f/11.0f);
-
-//    Rect2f ssBBox = Rect2f::IDENTITY*0.1f;
-//    rsg.RR().draw<DRect2d>( ssBBox, V4f::GREEN );
-//    rsg.RR().draw<DCircleFilled2d>( V3f::ONE*0.5f, V4f::BLACK, 0.05f );
-//    rsg.RR().draw<DCircle2d>( V3f::ONE*0.3f, V4f::RED, 0.06f );
-//    rsg.RR().draw<DText2d>( FDS{"Ciao a tutti", rsg.SG().FM().get(S::DEFAULT_FONT).get(), V3f::Y_AXIS*0.5f, 0.1f}, V4f::BLACK );
-//    auto floorPlanRect = Rect2f{ 0.0f, 0.0f, 0.5f,0.5f };
-//    rsg.RR().draw<DPoly>( floorPlanRect.pointscw(), C4f::WHITE.A( 0.75f ));
-//    rsg.RR().draw<DPoly2d>( floorPlanRect.pointscw(), C4f::WHITE.A( 0.75f ));
-
-//    rsg.RR().draw<DLine2d>( V3fVector{V3f::ZERO, V3f::MASK_Y_OUT}, V4f::BLACK, 0.005f, RDSPreMult(m) );
-
-
-//    rsg.setRigCameraController<CameraControl2d>();
-//    Timeline::play( rsg.DC()->QAngleAnim(), 0,
-//                    KeyFramePair{ 0.1f, quatCompose( V3f{ M_PI, 0.0f, 0.0f } ) } );
-//    Timeline::play( rsg.DC()->PosAnim(), 0,
-//                    KeyFramePair{ 0.1f, V3f{ houseJson->center.x(), 5.0f, houseJson->center.y() }} );
-
-    as.loadHouse( *houseJson );
-//    rsg.RR().showBucket( CommandBufferLimits::UnsortedStart, false );
-    rsg.setRigCameraController<CameraControlWalk>();
-    Timeline::play( rsg.DC()->QAngleAnim(), 0,
-                    KeyFramePair{ 0.1f, quatCompose( V3f{ 0.0f, 0.0f, 0.0f } ) } );
-    Timeline::play( rsg.DC()->PosAnim(), 0,
-                    KeyFramePair{ 0.1f, V3f{ houseJson->center.x(), 1.6f, houseJson->center.y() }} );
-
 }
 
 void EditorBackEnd::activateImpl() {
     loadSceneEntities();
-}
-
-void EditorBackEnd::consumeCallbacks() {
-    if ( callbackStream.second ) {
-        showHouse(callbackStream.first);
-        callbackStream.second = false;
-    }
 }
 
 void EditorBackEnd::updateImpl( const AggregatedInputData &_aid ) {
@@ -154,9 +97,26 @@ void EditorBackEnd::updateImpl( const AggregatedInputData &_aid ) {
 //        LightmapManager::apply( scene, rsg.RR());
 //    }
 
-    if ( floorplanNavigationMatrix ) {
-        rsg.drawCameraLocator( *floorplanNavigationMatrix.get() );
-    }
+    asg.update();
+//    usleep(100000);
 
-    consumeCallbacks();
+#ifdef _USE_IMGUI_
+    ImGui::Begin( "SceneGraph" );
+    sg.visitNodes( []( const GeomSPConst elem) {
+        ImGui::Text( "%s", elem->Name().c_str());
+    });
+    ImGui::End();
+
+    ImGui::Begin( "Camera" );
+    std::ostringstream camDump;
+    camDump << *sg.DC().get();
+    auto lines = split( camDump.str(), '\n' );
+    for ( const auto& line : lines ) {
+        ImGui::Text( "%s", line.c_str());
+    }
+    ImGui::End();
+
+    ImGuiLuaConsole( rsg );
+#endif
+
 }
