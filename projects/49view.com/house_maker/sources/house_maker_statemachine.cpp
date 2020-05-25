@@ -160,9 +160,10 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData &_aid ) {
         Timeline::play( rsg.DC()->QAngleAnim(), 0,
                         KeyFramePair{ 0.1f, quatCompose( V3f{ 0.0f, 0.0f, 0.0f } ) } );
         Timeline::play( rsg.DC()->PosAnim(), 0,
-                        KeyFramePair{ 0.1f, V3f{ houseJson->center.x(), 1.6f, houseJson->center.y() }} );
+                        KeyFramePair{ 0.1f, V3f{ houseJson->center.x(), 1.45f, houseJson->center.y() }} );
     }
     if ( ImGui::Button( "Publish" )) {
+        FM::writeLocalFile("./asr2bed.json", houseJson->serialize());
         Http::post( Url{ "/propertybim/5ea45ffeb06b0cfc7488ec45" }, houseJson->serialize(),
                     [this]( HttpResponeParams params ) {
                         LOGRS( "Published" );

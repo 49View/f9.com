@@ -9,7 +9,6 @@
 #include <render_scene_graph/runloop_graphics.h>
 #include <render_scene_graph/scene_loader.hpp>
 #include <eh_arch/scene/arch_scene_graph.hpp>
-#include <eh_arch/scene/arch_service.hpp>
 #include <eh_arch/makers/image/house_maker_bitmap.hpp>
 
 // Events
