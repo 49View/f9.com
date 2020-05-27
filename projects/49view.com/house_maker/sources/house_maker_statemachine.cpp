@@ -34,8 +34,8 @@ void HouseMakerStateMachine::luaFunctionsSetup() {
 void HouseMakerStateMachine::elaborateHouse( const std::string &_filename ) {
     auto data = FM::readLocalFileC( _filename );
     RawImage houseImage{ data };
-    sg.addRawImageIM("floorplan_img", houseImage);
     auto resImageName = getFileNameOnly( _filename );
+    sg.addRawImageIM(resImageName, houseImage);
 
     hmbBSData = HMBBSData{};
     houseJson = HouseMakerBitmap::make( houseImage, hmbBSData, resImageName );
