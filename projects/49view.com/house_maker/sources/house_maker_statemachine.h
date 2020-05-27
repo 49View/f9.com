@@ -37,12 +37,15 @@ public:
     void updateImpl( const AggregatedInputData& _aid ) override;
     void activateImpl() override;
 
-    void loadHouseCallback( std::vector<std::string>& _paths );
+    void elaborateHouseCallback( std::vector<std::string>& _paths );
 
 protected:
     void activatePostLoad() override;
     void luaFunctionsSetup() override;
     void elaborateHouse( const std::string& _filename );
+
+    void set2dMode();
+    void set3dMode();
 
 protected:
     ArchSceneGraph& asg;

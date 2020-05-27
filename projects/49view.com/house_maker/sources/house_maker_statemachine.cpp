@@ -29,31 +29,12 @@ void HouseMakerStateMachine::activateImpl() {
 }
 
 void HouseMakerStateMachine::luaFunctionsSetup() {
-    const std::string avKey = "av";
-    rsg.addLuaFunction( avKey, "floorPlanView", [&]() {
-        uint64_t frameSkipper = 2;
-        Timeline::play( rsg.DC()->PosAnim(), frameSkipper, KeyFramePair{ 2.0f, V3f{ 0.0f, 6.5f, 0.0f }} );
-        Timeline::play( rsg.DC()->QAngleAnim(), frameSkipper,
-                        KeyFramePair{ 2.0f, quatCompose( V3f{ M_PI_2, 0.0f, 0.0f } ) } );
-        rsg.setRigCameraController<CameraControl2d>();
-        rsg.useSkybox( false );
-        rsg.RR().changeMaterialAlphaOnTags( ArchType::CeilingT, 0.0f );
-    } );
-
-    rsg.addLuaFunction( avKey, "walkingView", [&]() {
-        uint64_t frameSkipper = 2;
-        Timeline::play( rsg.DC()->PosAnim(), frameSkipper, KeyFramePair{ 2.0f, V3f{ 0.0f, 1.5f, 0.0f }} );
-        Timeline::play( rsg.DC()->QAngleAnim(), frameSkipper,
-                        KeyFramePair{ 2.0f, quatCompose( V3f{ 0.0f, 0.0f, 0.0f } ) } );
-        rsg.setRigCameraController<CameraControlWalk>();
-        rsg.useSkybox( true );
-        rsg.RR().changeMaterialAlphaOnTags( ArchType::CeilingT, 1.0 );
-    } );
 }
 
 void HouseMakerStateMachine::elaborateHouse( const std::string &_filename ) {
     auto data = FM::readLocalFileC( _filename );
     RawImage houseImage{ data };
+    sg.addRawImageIM("floorplan_img", houseImage);
     auto resImageName = getFileNameOnly( _filename );
 
     hmbBSData = HMBBSData{};
@@ -62,12 +43,32 @@ void HouseMakerStateMachine::elaborateHouse( const std::string &_filename ) {
     asg.showHouse( houseJson );
 }
 
-void HouseMakerStateMachine::loadHouseCallback( std::vector<std::string> &_paths ) {
+void HouseMakerStateMachine::elaborateHouseCallback( std::vector<std::string> &_paths ) {
     if ( _paths.empty()) return;
     rsg.RR().clearTargets();
     rsg.RR().clearBucket( CommandBufferLimits::UnsortedStart );
     elaborateHouse( _paths[0] );
     _paths.clear();
+}
+
+void HouseMakerStateMachine::set2dMode() {
+    rsg.setRigCameraController(CameraControlType::Edit2d);
+//    rsg.RR().showBucket( CommandBufferLimits::UnsortedStart, true );
+    Timeline::play( rsg.DC()->QAngleAnim(), 0,
+                    KeyFramePair{ 0.1f, quatCompose( V3f{ M_PI_2, 0.0f, 0.0f } ) } );
+    Timeline::play( rsg.DC()->PosAnim(), 0,
+                    KeyFramePair{ 0.1f, V3f{ houseJson->center.x(), 5.0f, houseJson->center.y() }} );
+    rsg.useSkybox( false );
+}
+
+void HouseMakerStateMachine::set3dMode() {
+//    rsg.RR().showBucket( CommandBufferLimits::UnsortedStart, false );
+    rsg.setRigCameraController(CameraControlType::Walk);
+    Timeline::play( rsg.DC()->QAngleAnim(), 0,
+                    KeyFramePair{ 0.1f, quatCompose( V3f{ 0.0f, 0.0f, 0.0f } ) } );
+    Timeline::play( rsg.DC()->PosAnim(), 0,
+                    KeyFramePair{ 0.1f, V3f{ houseJson->center.x(), 1.45f, houseJson->center.y() }} );
+    rsg.useSkybox( true );
 }
 
 void HouseMakerStateMachine::activatePostLoad() {
@@ -80,8 +81,8 @@ void HouseMakerStateMachine::activatePostLoad() {
         }
     } );
 
-//    rsg.RR().createGridV2( CommandBufferLimits::UnsortedStart, 1.0f, ( Color4f::PASTEL_GRAYLIGHT ).A( 0.35f ),
-//                           ( Color4f::PASTEL_GRAYLIGHT ).A( 0.25f ), V2f{ 15.0f }, 0.015f );
+    rsg.RR().createGridV2( CommandBufferLimits::UnsortedStart, 1.0f, ( Color4f::PASTEL_GRAYLIGHT ).A( 0.35f ),
+                           ( Color4f::PASTEL_GRAYLIGHT ).A( 0.25f ), V2f{ 15.0f }, 0.015f );
     rsg.createSkybox( SkyBoxInitParams{ SkyBoxMode::CubeProcedural } );
     rsg.changeTime( "summer 14:00" );
 
@@ -94,24 +95,13 @@ void HouseMakerStateMachine::activatePostLoad() {
 
     luaFunctionsSetup();
 
-//    rsg.setRigCameraController<CameraControl2d>();
-//    Timeline::play( rsg.DC()->QAngleAnim(), 0,
-//                    KeyFramePair{ 0.1f, quatCompose( V3f{ M_PI_2, 0.0f, 0.0f } ) } );
-//    Timeline::play( rsg.DC()->PosAnim(), 0,
-//                    KeyFramePair{ 0.1f, V3f::UP_AXIS * 5.0f } );
+//    elaborateHouse( "/home/dado/Downloads/halterA7-11.png" );
+//    elaborateHouse( "/home/dado/Pictures/halterA7-11.png" );
+    elaborateHouse( "/home/dado/Pictures/vision_house_apt1_big.png" );
 
-    elaborateHouse( "/home/dado/Downloads/asr2bedroomflat.png" );
+    set2dMode();
 
-//    V2f a{1.0f, 1.0f};
-//    V2f b = V2f::ZERO;
-//    auto linex = FollowerService::createLinePath(a, b, 0.5f, 0.2f);
-//    sg.GB<GT::Extrude>(PolyOutLine{linex, V3f::UP_AXIS, 0.5f });
-
-    rsg.setRigCameraController<CameraControlWalk>();
-    rsg.DC()->setQuatAngles(V3f{ 0.0f, M_PI, 0.0f });
-    rsg.DC()->setPosition(V3f{ 2.0f, 1.6f, 6.0f });
-
-    rsg.setDragAndDropFunction( std::bind(&HouseMakerStateMachine::loadHouseCallback, this, std::placeholders::_1 ));
+    rsg.setDragAndDropFunction( std::bind(&HouseMakerStateMachine::elaborateHouseCallback, this, std::placeholders::_1 ));
     backEnd->process_event( OnActivate{} );
 }
 
@@ -146,21 +136,10 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData &_aid ) {
 
     ImGui::Begin( "Tweaker" );
     if ( ImGui::Button( "2d" )) {
-        rsg.setRigCameraController<CameraControl2d>();
-        rsg.RR().showBucket( CommandBufferLimits::UnsortedStart, true );
-        Timeline::play( rsg.DC()->QAngleAnim(), 0,
-                        KeyFramePair{ 0.1f, quatCompose( V3f{ M_PI_2, 0.0f, 0.0f } ) } );
-        Timeline::play( rsg.DC()->PosAnim(), 0,
-                        KeyFramePair{ 0.1f, V3f{ houseJson->center.x(), 5.0f, houseJson->center.y() }} );
+        set2dMode();
     }
     if ( ImGui::Button( "3d" )) {
-//        as.loadHouse( *houseJson );
-        rsg.RR().showBucket( CommandBufferLimits::UnsortedStart, false );
-        rsg.setRigCameraController<CameraControlWalk>();
-        Timeline::play( rsg.DC()->QAngleAnim(), 0,
-                        KeyFramePair{ 0.1f, quatCompose( V3f{ 0.0f, 0.0f, 0.0f } ) } );
-        Timeline::play( rsg.DC()->PosAnim(), 0,
-                        KeyFramePair{ 0.1f, V3f{ houseJson->center.x(), 1.45f, houseJson->center.y() }} );
+        set3dMode();
     }
     if ( ImGui::Button( "Publish" )) {
         FM::writeLocalFile("./asr2bed.json", houseJson->serialize());

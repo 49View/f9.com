@@ -45,7 +45,7 @@ void EditorBackEnd::activatePostLoad() {
 //    rsg.RR().LM()->setShadowZFightCofficient( 0.02f );
 //    rsg.RR().LM()->setIndoorSceneCoeff( -1.0f );
     rsg.changeTime( "14:00" );
-    rsg.setRigCameraController<CameraControlWalk>();
+    rsg.setRigCameraController(CameraControlType::Walk);
     rsg.DC()->setFoV( 60.0f );
 
     sg.GB<GT::Shape>(ShapeType::Cube, GT::Tag(SHADOW_MAGIC_TAG), V3f::UP_AXIS_NEG * 0.15f, GT::Scale(500.0f, 0.1f, 500.0f));
@@ -59,26 +59,6 @@ void EditorBackEnd::activatePostLoad() {
 
 void EditorBackEnd::luaFunctionsSetup() {
     const std::string nsKey = "f9";
-    rsg.addLuaFunction( nsKey, "floorPlanView", [&]() {
-        uint64_t frameSkipper = 2;
-        Timeline::play( rsg.DC()->PosAnim(), frameSkipper, KeyFramePair{ 2.0f, V3f{ 0.0f, 6.5f, 0.0f }} );
-        Timeline::play( rsg.DC()->QAngleAnim(), frameSkipper,
-                        KeyFramePair{ 2.0f, quatCompose( V3f{ M_PI_2, 0.0f, 0.0f } ) } );
-        rsg.setRigCameraController<CameraControl2d>();
-        rsg.useSkybox( false );
-        rsg.RR().changeMaterialAlphaOnTags( ArchType::CeilingT, 0.0f );
-    } );
-
-    rsg.addLuaFunction( nsKey, "walkingView", [&]() {
-        uint64_t frameSkipper = 2;
-        Timeline::play( rsg.DC()->PosAnim(), frameSkipper, KeyFramePair{ 2.0f, V3f{ 0.0f, 1.5f, 0.0f }} );
-        Timeline::play( rsg.DC()->QAngleAnim(), frameSkipper,
-                        KeyFramePair{ 2.0f, quatCompose( V3f{ 0.0f, 0.0f, 0.0f } ) } );
-        rsg.setRigCameraController<CameraControlWalk>();
-        rsg.useSkybox( true );
-        rsg.RR().changeMaterialAlphaOnTags( ArchType::CeilingT, 1.0 );
-    } );
-
     rsg.addLuaFunction( nsKey, "loadHouse", [&](const std::string _pid) {
         asg.loadHouse(_pid);
     } );
