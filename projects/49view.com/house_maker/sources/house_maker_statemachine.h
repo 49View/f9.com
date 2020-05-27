@@ -6,6 +6,7 @@
 
 #include <core/state_machine_helper.hpp>
 #include <core/camera.h>
+#include <core/raw_image.h>
 #include <render_scene_graph/runloop_graphics.h>
 #include <render_scene_graph/scene_loader.hpp>
 #include <eh_arch/scene/arch_scene_graph.hpp>
@@ -42,9 +43,9 @@ public:
 protected:
     void activatePostLoad() override;
     void luaFunctionsSetup() override;
-    void elaborateHouse( const std::string& _filename );
+    void elaborateHouseBitmap();
 
-    void set2dMode();
+    void set2dMode( const V3f& pos );
     void set3dMode();
 
 protected:

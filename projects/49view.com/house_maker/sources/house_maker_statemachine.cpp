@@ -31,14 +31,8 @@ void HouseMakerStateMachine::activateImpl() {
 void HouseMakerStateMachine::luaFunctionsSetup() {
 }
 
-void HouseMakerStateMachine::elaborateHouse( const std::string &_filename ) {
-    auto data = FM::readLocalFileC( _filename );
-    RawImage houseImage{ data };
-    sg.addRawImageIM("floorplan_img", houseImage);
-    auto resImageName = getFileNameOnly( _filename );
-
-    hmbBSData = HMBBSData{};
-    houseJson = HouseMakerBitmap::make( houseImage, hmbBSData, resImageName );
+void HouseMakerStateMachine::elaborateHouseBitmap() {
+    houseJson = HouseMakerBitmap::make( hmbBSData );
     HouseService::guessFittings( houseJson.get(), furnitureMap );
     asg.showHouse( houseJson );
 }
@@ -47,22 +41,24 @@ void HouseMakerStateMachine::elaborateHouseCallback( std::vector<std::string> &_
     if ( _paths.empty()) return;
     rsg.RR().clearTargets();
     rsg.RR().clearBucket( CommandBufferLimits::UnsortedStart );
-    elaborateHouse( _paths[0] );
+    rsg.RR().clearBucket( CommandBufferLimits::UI2dStart );
+
+    hmbBSData = HMBBSData{ getFileNameOnly( _paths[0] ), RawImage{ FM::readLocalFileC( _paths[0] ) }};
+    sg.addRawImageIM(hmbBSData.filename, hmbBSData.image);
+
+    elaborateHouseBitmap();
     _paths.clear();
 }
 
-void HouseMakerStateMachine::set2dMode() {
+void HouseMakerStateMachine::set2dMode( const V3f& pos ) {
     rsg.setRigCameraController(CameraControlType::Edit2d);
-//    rsg.RR().showBucket( CommandBufferLimits::UnsortedStart, true );
     Timeline::play( rsg.DC()->QAngleAnim(), 0,
                     KeyFramePair{ 0.1f, quatCompose( V3f{ M_PI_2, 0.0f, 0.0f } ) } );
-    Timeline::play( rsg.DC()->PosAnim(), 0,
-                    KeyFramePair{ 0.1f, V3f{ houseJson->center.x(), 5.0f, houseJson->center.y() }} );
+    Timeline::play( rsg.DC()->PosAnim(), 0, KeyFramePair{ 0.1f, pos} );
     rsg.useSkybox( false );
 }
 
 void HouseMakerStateMachine::set3dMode() {
-//    rsg.RR().showBucket( CommandBufferLimits::UnsortedStart, false );
     rsg.setRigCameraController(CameraControlType::Walk);
     Timeline::play( rsg.DC()->QAngleAnim(), 0,
                     KeyFramePair{ 0.1f, quatCompose( V3f{ 0.0f, 0.0f, 0.0f } ) } );
@@ -73,7 +69,7 @@ void HouseMakerStateMachine::set3dMode() {
 
 void HouseMakerStateMachine::activatePostLoad() {
 
-//    RoomServiceFurniture::addDefaultFurnitureSet("uk_default");
+    RoomServiceFurniture::addDefaultFurnitureSet("uk_default");
     Http::get( Url{ "/furnitureset/uk_default" }, [&, this]( HttpResponeParams &res ) {
         FurnitureSetContainer fset{ res.bufferString };
         for ( const auto &f : fset.set ) {
@@ -91,15 +87,14 @@ void HouseMakerStateMachine::activatePostLoad() {
     rsg.RR().useFilmGrain( true );
     rsg.RR().useBloom( false );
     rsg.useSSAO( true );
-//    rsg.useMotionBlur(true);
 
     luaFunctionsSetup();
 
 //    elaborateHouse( "/home/dado/Downloads/halterA7-11.png" );
 //    elaborateHouse( "/home/dado/Pictures/halterA7-11.png" );
-    elaborateHouse( "/home/dado/Pictures/vision_house_apt1_big.png" );
+//    elaborateHouse( "/home/dado/Pictures/vision_house_apt1_big.png" );
 
-    set2dMode();
+    set2dMode(V3f::UP_AXIS*5.0f);
 
     rsg.setDragAndDropFunction( std::bind(&HouseMakerStateMachine::elaborateHouseCallback, this, std::placeholders::_1 ));
     backEnd->process_event( OnActivate{} );
@@ -108,35 +103,39 @@ void HouseMakerStateMachine::activatePostLoad() {
 void HouseMakerStateMachine::updateImpl( const AggregatedInputData &_aid ) {
     // Debug control panel using imgui
 #ifdef _USE_IMGUI_
-    ImGui::Begin( "Favourites" );
-    std::vector<std::string> filenames = {
-            "/Users/Dado/Documents/sixthview-code/data/floorplans/kingston_palace.jpg",
-            "/Users/Dado/Documents/sixthview-code/data/floorplans/visionhouse-apt1.png",
-            "/Users/Dado/Documents/sixthview-code/data/floorplans/visionhouse-apt1min.png",
-            "/Users/Dado/Documents/sixthview-code/data/floorplans/visionhouse-apt2.png",
-            "/Users/Dado/Documents/sixthview-code/data/floorplans/visionhouse-apt3.png",
-            "/Users/Dado/Documents/sixthview-code/data/floorplans/visionhouse-apt4.png",
-            "/Users/Dado/Documents/sixthview-code/data/floorplans/visionhouse-apt4-full.png",
-            "/Users/Dado/Documents/sixthview-code/data/floorplans/visionhouse-apt5.png",
-            "/Users/Dado/Documents/sixthview-code/data/floorplans/visionhouse2-section.png",
-            "/Users/Dado/Documents/sixthview-code/data/floorplans/test_lightingpw.png",
-            "/Users/Dado/Documents/sixthview-code/data/floorplans/springfield_court.png",
-            "/Users/Dado/Documents/sixthview-code/data/floorplans/canbury_park_road.jpg",
-            "/Users/Dado/Documents/sixthview-code/data/floorplans/riverstone_court.jpg",
-            "/Users/Dado/Documents/sixthview-code/data/floorplans/royalqyarter.png",
-    };
-    for ( const auto &fn : filenames ) {
-        if ( ImGui::Button( getFileNameOnly( fn ).c_str())) {
-            rsg.RR().clearTargets();
-            rsg.RR().clearBucket( CommandBufferLimits::UnsortedStart );
-            elaborateHouse( fn );
-        }
-    }
-    ImGui::End();
+//    ImGui::Begin( "Favourites" );
+//    std::vector<std::string> filenames = {
+//            "/Users/Dado/Documents/sixthview-code/data/floorplans/kingston_palace.jpg",
+//            "/Users/Dado/Documents/sixthview-code/data/floorplans/visionhouse-apt1.png",
+//            "/Users/Dado/Documents/sixthview-code/data/floorplans/visionhouse-apt1min.png",
+//            "/Users/Dado/Documents/sixthview-code/data/floorplans/visionhouse-apt2.png",
+//            "/Users/Dado/Documents/sixthview-code/data/floorplans/visionhouse-apt3.png",
+//            "/Users/Dado/Documents/sixthview-code/data/floorplans/visionhouse-apt4.png",
+//            "/Users/Dado/Documents/sixthview-code/data/floorplans/visionhouse-apt4-full.png",
+//            "/Users/Dado/Documents/sixthview-code/data/floorplans/visionhouse-apt5.png",
+//            "/Users/Dado/Documents/sixthview-code/data/floorplans/visionhouse2-section.png",
+//            "/Users/Dado/Documents/sixthview-code/data/floorplans/test_lightingpw.png",
+//            "/Users/Dado/Documents/sixthview-code/data/floorplans/springfield_court.png",
+//            "/Users/Dado/Documents/sixthview-code/data/floorplans/canbury_park_road.jpg",
+//            "/Users/Dado/Documents/sixthview-code/data/floorplans/riverstone_court.jpg",
+//            "/Users/Dado/Documents/sixthview-code/data/floorplans/royalqyarter.png",
+//    };
+//    for ( const auto &fn : filenames ) {
+//        if ( ImGui::Button( getFileNameOnly( fn ).c_str())) {
+//            rsg.RR().clearTargets();
+//            rsg.RR().clearBucket( CommandBufferLimits::UnsortedStart );
+//            elaborateHouse( fn );
+//        }
+//    }
+//    ImGui::End();
 
-    ImGui::Begin( "Tweaker" );
+    ImGui::Begin( "Control" );
+    if ( ImGui::Button( "Elaborate" )) {
+        elaborateHouseBitmap();
+    }
     if ( ImGui::Button( "2d" )) {
-        set2dMode();
+        auto pos = houseJson ? V3f{ houseJson->center.x(), 5.0f, houseJson->center.y() } : V3f::UP_AXIS*5.0f;
+        set2dMode(pos);
     }
     if ( ImGui::Button( "3d" )) {
         set3dMode();
