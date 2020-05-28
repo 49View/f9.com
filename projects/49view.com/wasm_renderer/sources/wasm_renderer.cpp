@@ -53,14 +53,14 @@ void EditorBackEnd::activatePostLoad() {
     // Load default property if passed trough command line
     LOGRS( "CLI params:" << cliParams.printAll());
     if ( auto pid = cliParams.getParam("pid"); pid ) {
-        asg.loadHouse(*pid);
+        asg.loadHouse(*pid, ShowHouseMatrixFlags::Show3dHouse|ShowHouseMatrixFlags::Show2dFloorPlan);
     }
 }
 
 void EditorBackEnd::luaFunctionsSetup() {
     const std::string nsKey = "f9";
     rsg.addLuaFunction( nsKey, "loadHouse", [&](const std::string _pid) {
-        asg.loadHouse(_pid);
+        asg.loadHouse(_pid, ShowHouseMatrixFlags::Show3dHouse|ShowHouseMatrixFlags::Show2dFloorPlan);
     } );
 }
 

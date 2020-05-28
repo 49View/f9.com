@@ -34,7 +34,8 @@ void HouseMakerStateMachine::luaFunctionsSetup() {
 void HouseMakerStateMachine::elaborateHouseBitmap() {
     houseJson = HouseMakerBitmap::make( hmbBSData, sourceImages );
     HouseService::guessFittings( houseJson.get(), furnitureMap );
-    asg.showHouse( houseJson );
+    ShowHouseMatrix houseMode = ShowHouseMatrixFlags::Show3dFloorPlan|ShowHouseMatrixFlags::UseDebugMode;
+    asg.showHouse( houseJson, houseMode );
 }
 
 void HouseMakerStateMachine::updateHMB() {
@@ -77,10 +78,12 @@ void HouseMakerStateMachine::set2dMode( const V3f& pos ) {
 
 void HouseMakerStateMachine::set3dMode() {
     rsg.setRigCameraController(CameraControlType::Walk);
-    Timeline::play( rsg.DC()->QAngleAnim(), 0,
-                    KeyFramePair{ 0.1f, quatCompose( V3f{ 0.0f, 0.0f, 0.0f } ) } );
-    Timeline::play( rsg.DC()->PosAnim(), 0,
-                    KeyFramePair{ 0.1f, V3f{ houseJson->center.x(), 1.45f, houseJson->center.y() }} );
+    if ( houseJson ) {
+        Timeline::play( rsg.DC()->QAngleAnim(), 0,
+                        KeyFramePair{ 0.1f, quatCompose( V3f{ 0.0f, 0.0f, 0.0f } ) } );
+        Timeline::play( rsg.DC()->PosAnim(), 0,
+                        KeyFramePair{ 0.1f, V3f{ houseJson->center.x(), 1.45f, houseJson->center.y() }} );
+    }
     rsg.useSkybox( true );
 }
 
@@ -94,7 +97,7 @@ void HouseMakerStateMachine::activatePostLoad() {
         }
     } );
 
-    rsg.RR().createGridV2( CommandBufferLimits::UnsortedStart, 1.0f, ( Color4f::PASTEL_GRAYLIGHT ).A( 0.35f ),
+    rsg.RR().createGrid( CommandBufferLimits::UnsortedStart, 1.0f, ( Color4f::PASTEL_GRAYLIGHT ).A( 0.35f ),
                            ( Color4f::PASTEL_GRAYLIGHT ).A( 0.25f ), V2f{ 15.0f }, 0.015f );
     rsg.createSkybox( SkyBoxInitParams{ SkyBoxMode::CubeProcedural } );
     rsg.changeTime( "summer 14:00" );
