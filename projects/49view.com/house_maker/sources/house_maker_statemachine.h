@@ -48,10 +48,13 @@ protected:
     void set2dMode( const V3f& pos );
     void set3dMode();
 
+    void updateHMB();
+
 protected:
     ArchSceneGraph& asg;
     std::unique_ptr<FrontEnd> backEnd;
     HMBBSData hmbBSData{};
+    SourceImages sourceImages;
 
     FurnitureMapStorage furnitureMap;
     std::shared_ptr<HouseBSData> houseJson;

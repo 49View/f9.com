@@ -32,21 +32,38 @@ void HouseMakerStateMachine::luaFunctionsSetup() {
 }
 
 void HouseMakerStateMachine::elaborateHouseBitmap() {
-    houseJson = HouseMakerBitmap::make( hmbBSData );
+    houseJson = HouseMakerBitmap::make( hmbBSData, sourceImages );
     HouseService::guessFittings( houseJson.get(), furnitureMap );
     asg.showHouse( houseJson );
 }
+
+void HouseMakerStateMachine::updateHMB() {
+    sourceImages = HouseMakerBitmap::prepareImages(hmbBSData);
+
+    auto sourceBim = sg.get<RawImage>(hmbBSData.filename+"_bin");
+    if ( sourceBim ) {
+        memcpy(sourceBim->data(), sourceImages.sourceFileImageBin.data, sourceBim->size());
+        sg.updateRawImage(hmbBSData.filename+"_bin");
+
+    } else {
+        auto sourceBinParams = getImageParamsFromMat(sourceImages.sourceFileImageBin);
+        auto sourceBinImage = RawImage{sourceBinParams.width, sourceBinParams.height, sourceBinParams.channels, sourceImages.sourceFileImageBin.data};
+        sg.addRawImageIM(hmbBSData.filename+"_bin", sourceBinImage);
+    }
+};
 
 void HouseMakerStateMachine::elaborateHouseCallback( std::vector<std::string> &_paths ) {
     if ( _paths.empty()) return;
     rsg.RR().clearTargets();
     rsg.RR().clearBucket( CommandBufferLimits::UnsortedStart );
     rsg.RR().clearBucket( CommandBufferLimits::UI2dStart );
+    rsg.RR().clearBucket( CommandBufferLimits::PBRStart );
 
     hmbBSData = HMBBSData{ getFileNameOnly( _paths[0] ), RawImage{ FM::readLocalFileC( _paths[0] ) }};
     sg.addRawImageIM(hmbBSData.filename, hmbBSData.image);
 
-    elaborateHouseBitmap();
+    updateHMB();
+
     _paths.clear();
 }
 
@@ -103,33 +120,30 @@ void HouseMakerStateMachine::activatePostLoad() {
 void HouseMakerStateMachine::updateImpl( const AggregatedInputData &_aid ) {
     // Debug control panel using imgui
 #ifdef _USE_IMGUI_
-//    ImGui::Begin( "Favourites" );
-//    std::vector<std::string> filenames = {
-//            "/Users/Dado/Documents/sixthview-code/data/floorplans/kingston_palace.jpg",
-//            "/Users/Dado/Documents/sixthview-code/data/floorplans/visionhouse-apt1.png",
-//            "/Users/Dado/Documents/sixthview-code/data/floorplans/visionhouse-apt1min.png",
-//            "/Users/Dado/Documents/sixthview-code/data/floorplans/visionhouse-apt2.png",
-//            "/Users/Dado/Documents/sixthview-code/data/floorplans/visionhouse-apt3.png",
-//            "/Users/Dado/Documents/sixthview-code/data/floorplans/visionhouse-apt4.png",
-//            "/Users/Dado/Documents/sixthview-code/data/floorplans/visionhouse-apt4-full.png",
-//            "/Users/Dado/Documents/sixthview-code/data/floorplans/visionhouse-apt5.png",
-//            "/Users/Dado/Documents/sixthview-code/data/floorplans/visionhouse2-section.png",
-//            "/Users/Dado/Documents/sixthview-code/data/floorplans/test_lightingpw.png",
-//            "/Users/Dado/Documents/sixthview-code/data/floorplans/springfield_court.png",
-//            "/Users/Dado/Documents/sixthview-code/data/floorplans/canbury_park_road.jpg",
-//            "/Users/Dado/Documents/sixthview-code/data/floorplans/riverstone_court.jpg",
-//            "/Users/Dado/Documents/sixthview-code/data/floorplans/royalqyarter.png",
-//    };
-//    for ( const auto &fn : filenames ) {
-//        if ( ImGui::Button( getFileNameOnly( fn ).c_str())) {
-//            rsg.RR().clearTargets();
-//            rsg.RR().clearBucket( CommandBufferLimits::UnsortedStart );
-//            elaborateHouse( fn );
-//        }
-//    }
-//    ImGui::End();
 
     ImGui::Begin( "Control" );
+    if ( ImGui::SliderFloat("Contrast", &hmbBSData.sourceContrast, 0.0f, 20.0f) ) {
+        updateHMB();
+    }
+    if ( ImGui::SliderFloat("Brightness", &hmbBSData.sourceBrightness, 0.0f, 255.0f) ) {
+        updateHMB();
+    }
+    if ( ImGui::SliderFloat("Gaussian", &hmbBSData.sourceGuassian, 1.0f, 5.0f) ) {
+        updateHMB();
+    }
+    if ( ImGui::SliderInt("Gaussian Sigma", &hmbBSData.sourceGuassianSigma, 1, 21) ) {
+        if ( !isOdd(hmbBSData.sourceGuassianSigma) ) hmbBSData.sourceGuassianSigma++;
+        updateHMB();
+    }
+    if ( ImGui::SliderFloat("Gaussian Beta", &hmbBSData.sourceGuassianBeta, -5.0f, 5.0f) ) {
+        updateHMB();
+    }
+    if ( ImGui::SliderFloat("minBinThreshold", &hmbBSData.minBinThreshold, 0.0f, 255.0f) ) {
+        updateHMB();
+    }
+    if ( ImGui::SliderFloat("maxBinThreshold", &hmbBSData.maxBinThreshold, 0.0f, 255.0f) ) {
+        updateHMB();
+    }
     if ( ImGui::Button( "Elaborate" )) {
         elaborateHouseBitmap();
     }
@@ -147,12 +161,26 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData &_aid ) {
                         LOGRS( "Published" );
                     } );
     }
+    ImGui::End();
+
+    ImGui::Begin( "SourceImages" );
+    ImGui::Text("Source");
+    if ( !hmbBSData.filename.empty() ) {
+        float tSize = 1000.0f;
+        auto tex = rsg.RR().TM()->get(hmbBSData.filename);
+        auto ar = tex->getAspectRatioVector();
+        ImGui::Image(reinterpret_cast<ImTextureID*>(tex->getHandle()), ImVec2{tSize, tSize/ar.y()});
+
+        auto texBin = rsg.RR().TM()->get(hmbBSData.filename+"_bin");
+        ImGui::Image(reinterpret_cast<ImTextureID*>(texBin->getHandle()), ImVec2{tSize, tSize/ar.y()});
+    }
+    ImGui::End();
+
 
 ////    ImGui::InputScalar("minWallPixelWidth", ImGuiDataType_U64, &hmbBSData.minWallPixelWidth);
 ////    ImGui::InputScalar("maxWallPixelWidth", ImGuiDataType_U64, &hmbBSData.maxWallPixelWidth);
 //    ImGui::InputScalar("mainWallStrategyIndex", ImGuiDataType_S32, &hmbBSData.mainWallStrategyIndex);
 //    ImGui::InputScalar("RooomScore", ImGuiDataType_Float, &hmbBSData.roomScore);
-    ImGui::End();
 
 #endif
 
