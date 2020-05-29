@@ -11,25 +11,26 @@
 #include <render_scene_graph/scene_loader.hpp>
 #include <eh_arch/scene/arch_scene_graph.hpp>
 #include <eh_arch/makers/image/house_maker_bitmap.hpp>
+#include <eh_arch/makers/room_builder.hpp>
 
-// Events
-struct OnActivate {};
-
-// Actions
-
-struct Activate {
-    void operator()( SceneGraph& _sg, RenderOrchestrator& rsg ) noexcept {
-    }
+enum class SMState {
+    Browsing,
+    InsertingWalls,
+    EditingWalls,
 };
 
-// State machine Front End
-struct CarilloStateMachineSML { auto operator()() const noexcept { return make_transition_table(
-   *state<class Initial>      + event<OnActivate>                                / Activate{}             = state<class RoomExplorer>
-); } };
+class StateMachineFrontEnd {
+public:
+    SMState getCurrentState() const {
+        return currentState;
+    }
+    void setCurrentState( SMState _currentState ) {
+        currentState = _currentState;
+    }
+private:
+    SMState currentState = SMState::Browsing;
+};
 
-using FrontEnd = sm<CarilloStateMachineSML>;
-
-// Back End
 class HouseMakerStateMachine : public RunLoopBackEndBase, public LoginActivation<LoginFieldsPrecached>, public ScenePreLoader {
 public:
     HouseMakerStateMachine( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchSceneGraph& _asg );
@@ -43,6 +44,7 @@ public:
 protected:
     void activatePostLoad() override;
     void luaFunctionsSetup() override;
+    void elaborateHouseStage1( const std::string& filename );
     void elaborateHouseBitmap();
 
     void set2dMode( const V3f& pos );
@@ -52,11 +54,13 @@ protected:
 
 protected:
     ArchSceneGraph& asg;
-    std::unique_ptr<FrontEnd> backEnd;
     HMBBSData hmbBSData{};
     SourceImages sourceImages;
-
+    std::unique_ptr<RoomBuilder> rb;
+    RoomBuilderSegmentPoints segments;
     FurnitureMapStorage furnitureMap;
     std::shared_ptr<HouseBSData> houseJson;
-    std::string skyboxImage         = "skybox,equirectangular,park,generic,001";
+    IMHouseRenderSettings ims{FloorPlanRenderMode::Debug3d};
+
+    StateMachineFrontEnd smFrotnEnd;
 };

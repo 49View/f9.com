@@ -16,7 +16,7 @@ int main( int argc, char *argv[] ) {
 //    LOGRS("min distance: " << distance(pointOfContact, center));
 //    return 0;
 
-    EventHorizon<EditorBackEnd> ev{ argc, argv };
+    EventHorizon<Showcaser> ev{ argc, argv };
 
     return 0;
 }
