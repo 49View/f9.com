@@ -16,6 +16,7 @@
 #include <eh_arch/render/room_render.hpp>
 #include <eh_arch/render/house_render.hpp>
 #include <core/math/vector_util.hpp>
+#include <eh_arch/models/wall_service.hpp>
 
 HouseMakerStateMachine::HouseMakerStateMachine( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchSceneGraph& _asg ) :
         RunLoopBackEndBase(_sg, _rsg),
@@ -45,7 +46,7 @@ void HouseMakerStateMachine::elaborateHouseStage1( const std::string& filename )
     updateHMB();
     houseJson = HouseMakerBitmap::makeEmpty(hmbBSData);
     asg.showIMHouse(houseJson, ims);
-    rsg.DC()->setPosition( rsg.DC()->center( houseJson->bbox, 0.0f) );
+    rsg.DC()->setPosition(rsg.DC()->center(houseJson->bbox, 0.0f));
 }
 
 void HouseMakerStateMachine::updateHMB() {
@@ -85,6 +86,10 @@ void HouseMakerStateMachine::set3dMode() {
                        KeyFramePair{ 0.1f, V3f{ houseJson->center.x(), 1.45f, houseJson->center.y() } });
     }
     rsg.useSkybox(true);
+}
+
+void HouseMakerStateMachine::showIMHouse() {
+    asg.showIMHouse(houseJson, ims);
 }
 
 void HouseMakerStateMachine::activatePostLoad() {
@@ -217,22 +222,23 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
         }
     }
 
-    if ( smFrotnEnd.getCurrentState() == SMState::EditingWalls ) {
+    auto cs = smFrotnEnd.getCurrentState();
+    if ( cs == SMState::EditingWalls ) {
         if ( _aid.isMouseTouchedDown(TOUCH_ZERO) ) {
             auto pickedRay = rsg.DC()->rayViewportPickIntersection(_aid.mousePos(TOUCH_ZERO));
-            Plane3f zeroPlane{V3f::UP_AXIS, 0.0f};
+            Plane3f zeroPlane{ V3f::UP_AXIS, 0.0f };
             auto is = zeroPlane.intersectLine(pickedRay.rayNear, pickedRay.rayFar);
 //            LOGRS("Mouse Position on the screen near: " << pickedRay.rayNear );
 //            LOGRS("Mouse Position on the screen far: " << pickedRay.rayFar );
 //            LOGRS("Intersection with screen: " << is );
-            auto w = HouseService::isPointInsideWalls( houseJson, is.xz() );
+            auto w = HouseService::isPointInsideWalls(houseJson, is.xz());
             if ( w ) {
-//                WallService::translatePoint(w, 0, V2f{0.1f});
+                ims.addToSelectionList(w->hash);
+//                WallService::translatePoint(w.get(), 0, _aid.mousePos(TOUCH_ZERO));
+                showIMHouse();
             }
         }
-
     }
 
     rsg.UI().updateAnim();
-    asg.update();
 }

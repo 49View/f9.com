@@ -19,6 +19,10 @@ enum class SMState {
     EditingWalls,
 };
 
+class BaseState {
+
+};
+
 class StateMachineFrontEnd {
 public:
     SMState getCurrentState() const {
@@ -49,6 +53,7 @@ protected:
 
     void set2dMode( const V3f& pos );
     void set3dMode();
+    void showIMHouse();
 
     void updateHMB();
 
