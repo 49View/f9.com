@@ -17,6 +17,7 @@
 #include <graphics/imgui/imgui.h>
 #include <graphics/imgui/im_gui_console.h>
 #include <eh_arch/render/house_render.hpp>
+#include <eh_arch/render/arch_render_controller.hpp>
 #include <eh_arch/models/house_service.hpp>
 
 //scene_t scene{ 0 };
@@ -24,7 +25,7 @@
 
 void Showcaser::postLoadHouseCallback(std::shared_ptr<HouseBSData> houseJson) {
     floorplanNavigationMatrix = asg.calcFloorplanNavigationTransform(houseJson, 3.5f, 0.02f);
-    HouseRender::IMHouseRender(rsg.RR(), sg, houseJson.get(), { RDSPreMult(floorplanNavigationMatrix),
+    HouseRender::IMHouseRender(rsg.RR(), sg, houseJson.get(), IMHouseRenderSettings{ RDSPreMult(floorplanNavigationMatrix),
                                                                 FloorPlanRenderMode::Normal2d });
 
     V2f cobr = HouseService::centerOfBiggestRoom(houseJson.get());
