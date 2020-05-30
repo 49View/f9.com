@@ -12,6 +12,7 @@
 #include <eh_arch/scene/arch_scene_graph.hpp>
 #include <eh_arch/makers/image/house_maker_bitmap.hpp>
 #include <eh_arch/makers/room_builder.hpp>
+#include <eh_arch/render/arch_render_controller.hpp>
 
 enum class SMState {
     Browsing,

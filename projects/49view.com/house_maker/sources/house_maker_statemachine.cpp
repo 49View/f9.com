@@ -224,19 +224,22 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
 
     auto cs = smFrotnEnd.getCurrentState();
     if ( cs == SMState::EditingWalls ) {
-        if ( _aid.isMouseTouchedDown(TOUCH_ZERO) ) {
-            auto pickedRay = rsg.DC()->rayViewportPickIntersection(_aid.mousePos(TOUCH_ZERO));
-            Plane3f zeroPlane{ V3f::UP_AXIS, 0.0f };
-            auto is = zeroPlane.intersectLine(pickedRay.rayNear, pickedRay.rayFar);
-//            LOGRS("Mouse Position on the screen near: " << pickedRay.rayNear );
-//            LOGRS("Mouse Position on the screen far: " << pickedRay.rayFar );
-//            LOGRS("Intersection with screen: " << is );
-            auto w = HouseService::isPointInsideWalls(houseJson, is.xz());
+        if ( _aid.isMouseTouchedDownFirstTime(TOUCH_ZERO) ) {
+            float aroundDistance = 0.05f;
+            auto is = _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC());
+            auto w = HouseService::isPointNearWall(houseJson, is, aroundDistance);
             if ( w ) {
                 ims.addToSelectionList(w->hash);
+                auto afs = WallService::getNearestFeatureToPoint(w.get(), is, aroundDistance);
+                if ( afs.feature != ArchStructuralFeature::ASF_None ) {
+                    ims.addToFeatureSelectionList(afs);
+                }
 //                WallService::translatePoint(w.get(), 0, _aid.mousePos(TOUCH_ZERO));
                 showIMHouse();
             }
+        }
+        if ( _aid.isMouseTouchedDownAndMoving(TOUCH_ZERO) ) {
+
         }
     }
 
