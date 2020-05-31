@@ -238,7 +238,7 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
         if ( cs == SMState::EditingWallsSelected ) {
             auto is = _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC());
             ims.moveSelectionList(is, [&]( const ArchStructuralFeatureDescriptor& asf, const V2f& offset ) {
-                WallService::translatePoint(HouseService::findWall(houseJson.get(), asf.hash), asf.index, offset);
+                WallService::movePoint(HouseService::findWall(houseJson.get(), asf.hash), asf.index, offset, false);
                 showIMHouse();
             });
         }
