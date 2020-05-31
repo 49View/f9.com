@@ -244,6 +244,7 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
         }
         if ( _aid.isMouseTouchedUp(TOUCH_ZERO) ) {
             smFrotnEnd.setCurrentState(SMState::EditingWalls);
+            ims.resetSelection();
         }
     }
     rsg.UI().updateAnim();

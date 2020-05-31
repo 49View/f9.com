@@ -25,7 +25,7 @@
 
 void Showcaser::postLoadHouseCallback(std::shared_ptr<HouseBSData> houseJson) {
     floorplanNavigationMatrix = asg.calcFloorplanNavigationTransform(houseJson, 3.5f, 0.02f);
-    HouseRender::IMHouseRender(rsg.RR(), sg, houseJson.get(), IMHouseRenderSettings{ RDSPreMult(floorplanNavigationMatrix),
+    HouseRender::IMHouseRender(rsg.RR(), sg, houseJson.get(), ArchRenderController{ RDSPreMult(floorplanNavigationMatrix),
                                                                 FloorPlanRenderMode::Normal2d });
 
     V2f cobr = HouseService::centerOfBiggestRoom(houseJson.get());

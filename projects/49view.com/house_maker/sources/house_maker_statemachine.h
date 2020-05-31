@@ -67,7 +67,7 @@ protected:
     RoomBuilderSegmentPoints segments;
     FurnitureMapStorage furnitureMap;
     std::shared_ptr<HouseBSData> houseJson;
-    IMHouseRenderSettings ims{FloorPlanRenderMode::Debug3d};
+    ArchRenderController ims{ FloorPlanRenderMode::Debug3d};
 
     StateMachineFrontEnd smFrotnEnd;
 };
