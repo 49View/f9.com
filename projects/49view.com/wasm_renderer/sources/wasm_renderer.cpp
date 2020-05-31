@@ -17,7 +17,7 @@
 #include <graphics/imgui/imgui.h>
 #include <graphics/imgui/im_gui_console.h>
 #include <eh_arch/render/house_render.hpp>
-#include <eh_arch/render/arch_render_controller.hpp>
+#include <eh_arch/controller/arch_render_controller.hpp>
 #include <eh_arch/models/house_service.hpp>
 
 //scene_t scene{ 0 };

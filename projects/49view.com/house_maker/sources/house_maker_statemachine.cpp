@@ -18,7 +18,7 @@
 #include <core/math/vector_util.hpp>
 #include <eh_arch/models/wall_service.hpp>
 
-HouseMakerStateMachine::HouseMakerStateMachine( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchSceneGraph& _asg ) :
+HouseMakerStateMachine::HouseMakerStateMachine( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchOrchestrator& _asg ) :
         RunLoopBackEndBase(_sg, _rsg),
         ScenePreLoader(_sg, _rsg),
         asg(_asg) {
@@ -86,7 +86,7 @@ void HouseMakerStateMachine::set3dMode() {
                        KeyFramePair{ 0.1f, V3f{ houseJson->center.x(), 1.45f, houseJson->center.y() } });
     }
     rsg.useSkybox(true);
-    asg.showHouse(houseJson);
+    asg.show3dHouse(houseJson);
 }
 
 void HouseMakerStateMachine::showIMHouse() {

@@ -9,10 +9,10 @@
 #include <core/raw_image.h>
 #include <render_scene_graph/runloop_graphics.h>
 #include <render_scene_graph/scene_loader.hpp>
-#include <eh_arch/scene/arch_scene_graph.hpp>
+#include <eh_arch/controller/arch_orchestrator.hpp>
 #include <eh_arch/makers/image/house_maker_bitmap.hpp>
 #include <eh_arch/makers/room_builder.hpp>
-#include <eh_arch/render/arch_render_controller.hpp>
+#include <eh_arch/controller/arch_render_controller.hpp>
 
 enum class SMState {
     Browsing,
@@ -39,7 +39,7 @@ private:
 
 class HouseMakerStateMachine : public RunLoopBackEndBase, public LoginActivation<LoginFieldsPrecached>, public ScenePreLoader {
 public:
-    HouseMakerStateMachine( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchSceneGraph& _asg );
+    HouseMakerStateMachine( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchOrchestrator& _asg );
     ~HouseMakerStateMachine() override = default;
 
     void updateImpl( const AggregatedInputData& _aid ) override;
@@ -60,7 +60,7 @@ protected:
     void updateHMB();
 
 protected:
-    ArchSceneGraph& asg;
+    ArchOrchestrator& asg;
     HMBBSData hmbBSData{};
     SourceImages sourceImages;
     std::unique_ptr<RoomBuilder> rb;

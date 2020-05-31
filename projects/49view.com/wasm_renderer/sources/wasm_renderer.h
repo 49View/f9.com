@@ -8,12 +8,12 @@
 #include <core/camera.h>
 #include <render_scene_graph/runloop_graphics.h>
 #include <render_scene_graph/scene_loader.hpp>
-#include <eh_arch/scene/arch_scene_graph.hpp>
+#include <eh_arch/controller/arch_orchestrator.hpp>
 
 // Back End
 class Showcaser : public RunLoopBackEndBase, public LoginActivation<LoginFieldsPrecached>, public ScenePreLoader {
 public:
-    Showcaser( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchSceneGraph& _asg ) : RunLoopBackEndBase(_sg, _rsg),
+    Showcaser( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchOrchestrator& _asg ) : RunLoopBackEndBase(_sg, _rsg),
                                                                                    ScenePreLoader(_sg, _rsg),
                                                                                    asg(_asg) {}
     ~Showcaser() override = default;
@@ -27,6 +27,6 @@ protected:
     void updatePersonLocator();
     void postLoadHouseCallback(std::shared_ptr<HouseBSData> houseJson);
 protected:
-    ArchSceneGraph& asg;
+    ArchOrchestrator& asg;
     Matrix4f floorplanNavigationMatrix;
 };
