@@ -18,6 +18,7 @@ enum class SMState {
     Browsing,
     InsertingWalls,
     EditingWalls,
+    EditingWallsSelected
 };
 
 class BaseState {

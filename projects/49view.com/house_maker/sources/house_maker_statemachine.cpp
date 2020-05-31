@@ -86,6 +86,7 @@ void HouseMakerStateMachine::set3dMode() {
                        KeyFramePair{ 0.1f, V3f{ houseJson->center.x(), 1.45f, houseJson->center.y() } });
     }
     rsg.useSkybox(true);
+    asg.showHouse(houseJson);
 }
 
 void HouseMakerStateMachine::showIMHouse() {
@@ -223,25 +224,27 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
     }
 
     auto cs = smFrotnEnd.getCurrentState();
-    if ( cs == SMState::EditingWalls ) {
+    if ( cs == SMState::EditingWalls || cs == SMState::EditingWallsSelected ) {
         if ( _aid.isMouseTouchedDownFirstTime(TOUCH_ZERO) ) {
             float aroundDistance = 0.05f;
             auto is = _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC());
-            auto w = HouseService::isPointNearWall(houseJson, is, aroundDistance);
-            if ( w ) {
-                ims.addToSelectionList(w->hash);
-                auto afs = WallService::getNearestFeatureToPoint(w.get(), is, aroundDistance);
-                if ( afs.feature != ArchStructuralFeature::ASF_None ) {
-                    ims.addToFeatureSelectionList(afs);
-                }
-//                WallService::translatePoint(w.get(), 0, _aid.mousePos(TOUCH_ZERO));
+            auto afs = WallService::getNearestFeatureToPoint(houseJson.get(), is, aroundDistance);
+            if ( afs.feature != ArchStructuralFeature::ASF_None ) {
+                ims.addToSelectionList(afs, is);
                 showIMHouse();
+                smFrotnEnd.setCurrentState(SMState::EditingWallsSelected);
             }
         }
-        if ( _aid.isMouseTouchedDownAndMoving(TOUCH_ZERO) ) {
-
+        if ( cs == SMState::EditingWallsSelected ) {
+            auto is = _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC());
+            ims.moveSelectionList(is, [&]( const ArchStructuralFeatureDescriptor& asf, const V2f& offset ) {
+                WallService::translatePoint(HouseService::findWall(houseJson.get(), asf.hash), asf.index, offset);
+                showIMHouse();
+            });
+        }
+        if ( _aid.isMouseTouchedUp(TOUCH_ZERO) ) {
+            smFrotnEnd.setCurrentState(SMState::EditingWalls);
         }
     }
-
     rsg.UI().updateAnim();
 }
