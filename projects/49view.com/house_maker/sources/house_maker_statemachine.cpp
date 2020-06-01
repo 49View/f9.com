@@ -244,9 +244,9 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
         if ( cs == SMState::EditingWallsSelected && _aid.hasMouseMoved(TOUCH_ZERO) ) {
             auto is = _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC());
             ims.moveSelectionList(is, [&]( const ArchStructuralFeatureDescriptor& asf, const V2f& offset ) {
-                WallService::movePoint(houseJson.get(), asf, offset, false);
-                showIMHouse();
+                WallService::moveFeature(houseJson.get(), asf, offset, false);
             });
+            showIMHouse();
         }
         if ( _aid.isMouseTouchedUp(TOUCH_ZERO) ) {
             smFrotnEnd.setCurrentState(SMState::EditingWalls);
@@ -257,16 +257,16 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
              _aid.TI().checkKeyToggleOn(GMK_A) ) {
             ims.splitFirstEdgeOnSelectionList([&]( const ArchStructuralFeatureDescriptor& asf, const V2f& offset ) {
                 WallService::splitEdgeAndAddPointInTheMiddle(houseJson.get(), asf, offset);
-                showIMHouse();
-                ims.resetSelection();
             });
+            showIMHouse();
+            ims.resetSelection();
         }
         if ( cs == SMState::EditingWallsSelected && _aid.TI().checkKeyToggleOn(GMK_DELETE) ) {
-//            ims.deleteElementsOnSelectionList( [&]( const ArchStructuralFeatureDescriptor& asf ) {
-//                WallService::deletePoint( houseJson.get(), asf, offset );
-//                showIMHouse();
-//                ims.resetSelection();
-//            });
+            ims.deleteElementsOnSelectionList( [&]( const ArchStructuralFeatureDescriptor& asf ) {
+                WallService::deleteFeature( houseJson.get(), asf );
+            });
+            showIMHouse();
+            ims.resetSelection();
         }
     }
     rsg.UI().updateAnim();
