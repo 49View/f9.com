@@ -120,8 +120,8 @@ void HouseMakerStateMachine::activatePostLoad() {
 
     rsg.setDragAndDropFunction(std::bind(&HouseMakerStateMachine::elaborateHouseCallback, this, std::placeholders::_1));
 
-//    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/canbury_park_road.jpg");
-    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/test_lightingpw.png");
+    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/canbury_park_road.jpg");
+//    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/test_lightingpw.png");
 }
 
 void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
@@ -235,17 +235,34 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
                 smFrotnEnd.setCurrentState(SMState::EditingWallsSelected);
             }
         }
-        if ( cs == SMState::EditingWallsSelected ) {
+        if ( cs == SMState::EditingWallsSelected && _aid.hasMouseMoved(TOUCH_ZERO)) {
             auto is = _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC());
             ims.moveSelectionList(is, [&]( const ArchStructuralFeatureDescriptor& asf, const V2f& offset ) {
-                WallService::movePoint(HouseService::findWall(houseJson.get(), asf.hash), asf.index, offset, false);
+                WallService::movePoint( houseJson.get(), asf, offset, false );
                 showIMHouse();
             });
         }
         if ( _aid.isMouseTouchedUp(TOUCH_ZERO) ) {
             smFrotnEnd.setCurrentState(SMState::EditingWalls);
             ims.resetSelection();
+            showIMHouse();
         }
+        if ( cs == SMState::EditingWallsSelected && ims.singleSelectedFeature() == ArchStructuralFeature::ASF_Edge &&
+            _aid.TI().checkKeyToggleOn(GMK_A) ) {
+            ims.splitFirstEdgeOnSelectionList( [&]( const ArchStructuralFeatureDescriptor& asf, const V2f& offset ) {
+                WallService::splitEdgeAndAddPointInTheMiddle( houseJson.get(), asf, offset );
+                showIMHouse();
+                ims.resetSelection();
+            });
+        }
+        if ( cs == SMState::EditingWallsSelected && _aid.TI().checkKeyToggleOn(GMK_DELETE) ) {
+//            ims.deleteElementsOnSelectionList( [&]( const ArchStructuralFeatureDescriptor& asf ) {
+//                WallService::deletePoint( houseJson.get(), asf, offset );
+//                showIMHouse();
+//                ims.resetSelection();
+//            });
+        }
+
     }
     rsg.UI().updateAnim();
 }
