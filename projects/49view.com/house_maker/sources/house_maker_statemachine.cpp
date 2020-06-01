@@ -205,6 +205,12 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
 
 #endif
 
+    if ( _aid.isMouseDoubleTap(TOUCH_ZERO) ) {
+        auto cpos = rsg.DC()->getPosition();
+        Timeline::play(rsg.DC()->PosAnim(), 0,
+                       KeyFramePair{ 0.2f, V3f{ cpos.x(), lerp(0.5f, 0.0f, cpos.y()), cpos.z() } });
+    }
+
     if ( smFrotnEnd.getCurrentState() == SMState::InsertingWalls ) {
         if ( _aid.hasMouseMoved(TOUCH_ZERO) && _aid.isMouseTouchedDown(TOUCH_ZERO) ) {
             rb->setCurrentPointerPos(_aid.mousePos(TOUCH_ZERO));
@@ -235,10 +241,10 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
                 smFrotnEnd.setCurrentState(SMState::EditingWallsSelected);
             }
         }
-        if ( cs == SMState::EditingWallsSelected && _aid.hasMouseMoved(TOUCH_ZERO)) {
+        if ( cs == SMState::EditingWallsSelected && _aid.hasMouseMoved(TOUCH_ZERO) ) {
             auto is = _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC());
             ims.moveSelectionList(is, [&]( const ArchStructuralFeatureDescriptor& asf, const V2f& offset ) {
-                WallService::movePoint( houseJson.get(), asf, offset, false );
+                WallService::movePoint(houseJson.get(), asf, offset, false);
                 showIMHouse();
             });
         }
@@ -248,9 +254,9 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
             showIMHouse();
         }
         if ( cs == SMState::EditingWallsSelected && ims.singleSelectedFeature() == ArchStructuralFeature::ASF_Edge &&
-            _aid.TI().checkKeyToggleOn(GMK_A) ) {
-            ims.splitFirstEdgeOnSelectionList( [&]( const ArchStructuralFeatureDescriptor& asf, const V2f& offset ) {
-                WallService::splitEdgeAndAddPointInTheMiddle( houseJson.get(), asf, offset );
+             _aid.TI().checkKeyToggleOn(GMK_A) ) {
+            ims.splitFirstEdgeOnSelectionList([&]( const ArchStructuralFeatureDescriptor& asf, const V2f& offset ) {
+                WallService::splitEdgeAndAddPointInTheMiddle(houseJson.get(), asf, offset);
                 showIMHouse();
                 ims.resetSelection();
             });
@@ -262,7 +268,6 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
 //                ims.resetSelection();
 //            });
         }
-
     }
     rsg.UI().updateAnim();
 }
