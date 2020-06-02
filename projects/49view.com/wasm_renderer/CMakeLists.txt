@@ -4,7 +4,7 @@ project(wasm_renderer)
 
 set(BUILD_FROM_SOURCE TRUE)
 compile( core lua graphics poly render_scene_graph converters )
-compile_submodule( eh_arch/scene )
+compile_submodule( eh_arch/controller )
 compile_submodule( eh_arch/render )
 compile_submodule( eh_arch/models )
 compile_local( sources )

@@ -8,43 +8,25 @@
 #include <core/camera.h>
 #include <render_scene_graph/runloop_graphics.h>
 #include <render_scene_graph/scene_loader.hpp>
-#include <eh_arch/scene/arch_scene_graph.hpp>
-
-// Events
-struct OnActivate {};
-
-// Actions
-struct Activate {
-    void operator()( SceneGraph& _sg, RenderOrchestrator& rsg ) noexcept {
-    }
-};
-
-// State machine Front End
-struct EditorStateMachineSML { auto operator()() const noexcept { return make_transition_table(
-                *state<class Initial>      + event<OnActivate>                                / Activate{}             = state<class Editor>
-        ); } };
-
-using FrontEnd = sm<EditorStateMachineSML>;
+#include <eh_arch/controller/arch_orchestrator.hpp>
 
 // Back End
-class EditorBackEnd : public RunLoopBackEndBase, public LoginActivation<LoginFieldsPrecached>, public ScenePreLoader {
+class Showcaser : public RunLoopBackEndBase, public LoginActivation<LoginFieldsPrecached>, public ScenePreLoader {
 public:
-    EditorBackEnd( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchSceneGraph &_asg ) : RunLoopBackEndBase(_sg, _rsg), ScenePreLoader( _sg, _rsg ), asg( _asg ) {
-        backEnd = std::make_unique<FrontEnd>( *this, _sg, _rsg );
-    }
-    ~EditorBackEnd() override = default;
+    Showcaser( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchOrchestrator& _asg ) : RunLoopBackEndBase(_sg, _rsg),
+                                                                                   ScenePreLoader(_sg, _rsg),
+                                                                                   asg(_asg) {}
+    ~Showcaser() override = default;
 
     void updateImpl( const AggregatedInputData& _aid ) override;
     void activateImpl() override;
 
-    const static LoginFields loginCert() {
-        return LoginFields{ "guest", "guest", "eh_sandbox" };
-    }
-
 protected:
     void activatePostLoad() override;
     void luaFunctionsSetup() override;
+    void updatePersonLocator();
+    void postLoadHouseCallback(std::shared_ptr<HouseBSData> houseJson);
 protected:
-    std::unique_ptr<FrontEnd> backEnd;
-    ArchSceneGraph& asg;
+    ArchOrchestrator& asg;
+    Matrix4f floorplanNavigationMatrix;
 };
