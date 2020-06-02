@@ -39,14 +39,33 @@ void HouseMakerStateMachine::elaborateHouseBitmap() {
 }
 
 void HouseMakerStateMachine::elaborateHouseStage1( const std::string& filename ) {
-//    rsg.RR().clearBucket(CommandBufferLimits::PBRStart);
-
     hmbBSData = HMBBSData{ getFileNameOnly(filename), RawImage{ FM::readLocalFileC(filename) } };
     sg.addRawImageIM(hmbBSData.filename, hmbBSData.image);
     updateHMB();
     houseJson = HouseMakerBitmap::makeEmpty(hmbBSData);
     asg.showIMHouse(houseJson, ims);
     rsg.DC()->setPosition(rsg.DC()->center(houseJson->bbox, 0.0f));
+}
+
+void HouseMakerStateMachine::elaborateHouseStageWalls() {
+    V2fVectorOfVector wallsPoints;
+    float scale = 1.0f / hmbBSData.rescaleFactor;
+    for ( const auto& f : houseJson->mFloors ) {
+        for ( const auto& w : f->walls ) {
+            if ( !WallService::isWindowOrDoorPart(w.get()) ) {
+                V2fVector ePointScaled{};
+                for ( const auto& ep : w->epoints ) {
+                    ePointScaled.emplace_back(ep * scale);
+                }
+                wallsPoints.emplace_back(ePointScaled);
+            }
+        }
+    }
+
+//    hmbBSData.resetPCM();
+
+    houseJson = HouseMakerBitmap::makeFromWalls(wallsPoints, hmbBSData, sourceImages);
+    HouseService::guessFittings(houseJson.get(), furnitureMap);
 }
 
 void HouseMakerStateMachine::updateHMB() {
@@ -71,6 +90,7 @@ void HouseMakerStateMachine::elaborateHouseCallback( std::vector<std::string>& _
 }
 
 void HouseMakerStateMachine::set2dMode( const V3f& pos ) {
+    rsg.RR().showBucket(CommandBufferLimits::UI2dStart, true);
     rsg.setRigCameraController(CameraControlType::Edit2d);
     rsg.DC()->setPosition(pos);
     rsg.DC()->setQuatAngles(V3f{ M_PI_2, 0.0f, 0.0f });
@@ -78,6 +98,7 @@ void HouseMakerStateMachine::set2dMode( const V3f& pos ) {
 }
 
 void HouseMakerStateMachine::set3dMode() {
+    rsg.RR().showBucket(CommandBufferLimits::UI2dStart, false);
     rsg.setRigCameraController(CameraControlType::Walk);
     if ( houseJson ) {
         Timeline::play(rsg.DC()->QAngleAnim(), 0,
@@ -120,6 +141,7 @@ void HouseMakerStateMachine::activatePostLoad() {
 
     rsg.setDragAndDropFunction(std::bind(&HouseMakerStateMachine::elaborateHouseCallback, this, std::placeholders::_1));
 
+//    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/asr2bedroomflat.png");
     elaborateHouseStage1("/home/dado/Downloads/data/floorplans/canbury_park_road.jpg");
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/test_lightingpw.png");
 }
@@ -252,6 +274,7 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
             smFrotnEnd.setCurrentState(SMState::EditingWalls);
             ims.resetSelection();
             showIMHouse();
+            elaborateHouseStageWalls();
         }
         if ( cs == SMState::EditingWallsSelected && ims.singleSelectedFeature() == ArchStructuralFeature::ASF_Edge &&
              _aid.TI().checkKeyToggleOn(GMK_A) ) {
@@ -262,8 +285,8 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
             ims.resetSelection();
         }
         if ( cs == SMState::EditingWallsSelected && _aid.TI().checkKeyToggleOn(GMK_DELETE) ) {
-            ims.deleteElementsOnSelectionList( [&]( const ArchStructuralFeatureDescriptor& asf ) {
-                WallService::deleteFeature( houseJson.get(), asf );
+            ims.deleteElementsOnSelectionList([&]( const ArchStructuralFeatureDescriptor& asf ) {
+                WallService::deleteFeature(houseJson.get(), asf);
             });
             showIMHouse();
             ims.resetSelection();

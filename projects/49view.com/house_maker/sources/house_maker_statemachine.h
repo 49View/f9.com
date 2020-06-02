@@ -52,6 +52,7 @@ protected:
     void luaFunctionsSetup() override;
     void elaborateHouseStage1( const std::string& filename );
     void elaborateHouseBitmap();
+    void elaborateHouseStageWalls();
 
     void set2dMode( const V3f& pos );
     void set3dMode();
