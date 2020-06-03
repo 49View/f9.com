@@ -48,7 +48,7 @@ void HouseMakerStateMachine::elaborateHouseStage1( const std::string& filename )
 }
 
 void HouseMakerStateMachine::elaborateHouseStageWalls( const V2fVectorOfVector& wallPoints ) {
-    houseJson = HouseMakerBitmap::makeFromWalls(wallPoints, hmbBSData, sourceImages);
+    HouseMakerBitmap::makeFromWalls( houseJson, wallPoints, hmbBSData, sourceImages);
     HouseService::guessFittings(houseJson.get(), furnitureMap);
 }
 
@@ -77,6 +77,7 @@ void HouseMakerStateMachine::set2dMode( const V3f& pos ) {
     rsg.RR().showBucket(CommandBufferLimits::UI2dStart, true);
     rsg.RR().showBucket(CommandBufferLimits::PBRStart, false);
     rsg.setRigCameraController(CameraControlType::Edit2d);
+    rsg.DC()->LockAtWalkingHeight(false);
     rsg.DC()->setPosition(pos);
     rsg.DC()->setQuatAngles(V3f{ M_PI_2, 0.0f, 0.0f });
     rsg.useSkybox(false);
@@ -109,8 +110,8 @@ void HouseMakerStateMachine::activatePostLoad() {
         }
     });
 
-    rsg.RR().createGrid(CommandBufferLimits::UnsortedStart + 1, 1.0f, ( Color4f::PASTEL_GRAYLIGHT ).A(0.35f),
-                        ( Color4f::PASTEL_GRAYLIGHT ).A(0.25f), V2f{ 15.0f }, 0.015f);
+    rsg.RR().createGrid(CommandBufferLimits::UnsortedStart + 1, 1.0f, ( Color4f::PASTEL_GRAYLIGHT ),
+                        ( Color4f::DARK_GRAY ), V2f{ 15.0f }, 0.015f);
     rsg.createSkybox(SkyBoxInitParams{ SkyBoxMode::CubeProcedural });
     rsg.changeTime("summer 14:00");
 
@@ -162,6 +163,17 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
     }
     if ( ImGui::SliderFloat("maxBinThreshold", &hmbBSData.maxBinThreshold, 0.0f, 255.0f) ) {
         updateHMB();
+    }
+    static float scaleFactorInc = 0.01f;
+    static float oldScaleFactorInc = 0.01f;
+    if ( ImGui::InputFloat("Scale Factor", &scaleFactorInc, 0.01f, 0.01f, 4) ) {
+        if ( houseJson ) {
+            float sc = sign(scaleFactorInc-oldScaleFactorInc) > 0.0f ? 1.01f : 0.99f;
+            HouseMakerBitmap::rescale(houseJson.get(), sc, sc);
+            oldScaleFactorInc = scaleFactorInc;
+//            rb->scale( centimetersToMeters(hmbBSData.rescaleFactor) );
+            showIMHouse();
+        }
     }
     if ( ImGui::Button("Elaborate") ) {
         elaborateHouseBitmap();
@@ -218,9 +230,9 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
 #endif
 
     if ( _aid.isMouseDoubleTap(TOUCH_ZERO) ) {
-        auto cpos = rsg.DC()->getPosition();
-        Timeline::play(rsg.DC()->PosAnim(), 0,
-                       KeyFramePair{ 0.2f, V3f{ cpos.x(), lerp(0.5f, 0.0f, cpos.y()), cpos.z() } });
+//        auto cpos = rsg.DC()->getPosition();
+//        Timeline::play(rsg.DC()->PosAnim(), 0,
+//                       KeyFramePair{ 0.2f, V3f{ cpos.x(), lerp(0.5f, 0.0f, cpos.y()), cpos.z() } });
     }
 
     if ( smFrotnEnd.getCurrentState() == SMState::InsertingWalls ) {
@@ -230,17 +242,20 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
         if ( _aid.isMouseTouchedUp(TOUCH_ZERO) ) {
             rb->validateAddPoint(_aid.mousePos(TOUCH_ZERO));
         }
-        if ( _aid.TI().checkKeyToggleOn(GMK_Z) ) {
+        if ( _aid.TI().checkKeyToggleOn(GMK_I) ) {
             rb->changeSegmentType(ArchType::WallT);
         }
-        if ( _aid.TI().checkKeyToggleOn(GMK_X) ) {
+        if ( _aid.TI().checkKeyToggleOn(GMK_O) ) {
             rb->changeSegmentType(ArchType::WindowT);
         }
-        if ( _aid.TI().checkKeyToggleOn(GMK_C) ) {
+        if ( _aid.TI().checkKeyToggleOn(GMK_P) ) {
             rb->changeSegmentType(ArchType::DoorT);
         }
+        if ( _aid.TI().checkKeyToggleOn(GMK_Z) ) {
+            rb->undo();
+        }
         if ( _aid.TI().checkKeyToggleOn(GMK_F) ) {
-            appendBespokeWalls( rb->bespokeriseWalls(1.0f/hmbBSData.rescaleFactor) );
+            appendBespokeWalls( rb->bespokeriseWalls(1.0f) );
             elaborateHouseStageWalls( bespokeWalls );
             rb->clear();
             showIMHouse();
