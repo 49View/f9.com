@@ -47,24 +47,8 @@ void HouseMakerStateMachine::elaborateHouseStage1( const std::string& filename )
     rsg.DC()->setPosition(rsg.DC()->center(houseJson->bbox, 0.0f));
 }
 
-void HouseMakerStateMachine::elaborateHouseStageWalls() {
-    V2fVectorOfVector wallsPoints;
-    float scale = 1.0f / hmbBSData.rescaleFactor;
-    for ( const auto& f : houseJson->mFloors ) {
-        for ( const auto& w : f->walls ) {
-            if ( !WallService::isWindowOrDoorPart(w.get()) ) {
-                V2fVector ePointScaled{};
-                for ( const auto& ep : w->epoints ) {
-                    ePointScaled.emplace_back(ep * scale);
-                }
-                wallsPoints.emplace_back(ePointScaled);
-            }
-        }
-    }
-
-//    hmbBSData.resetPCM();
-
-    houseJson = HouseMakerBitmap::makeFromWalls(wallsPoints, hmbBSData, sourceImages);
+void HouseMakerStateMachine::elaborateHouseStageWalls( const V2fVectorOfVector& wallPoints ) {
+    houseJson = HouseMakerBitmap::makeFromWalls(wallPoints, hmbBSData, sourceImages);
     HouseService::guessFittings(houseJson.get(), furnitureMap);
 }
 
@@ -91,6 +75,7 @@ void HouseMakerStateMachine::elaborateHouseCallback( std::vector<std::string>& _
 
 void HouseMakerStateMachine::set2dMode( const V3f& pos ) {
     rsg.RR().showBucket(CommandBufferLimits::UI2dStart, true);
+    rsg.RR().showBucket(CommandBufferLimits::PBRStart, false);
     rsg.setRigCameraController(CameraControlType::Edit2d);
     rsg.DC()->setPosition(pos);
     rsg.DC()->setQuatAngles(V3f{ M_PI_2, 0.0f, 0.0f });
@@ -99,10 +84,10 @@ void HouseMakerStateMachine::set2dMode( const V3f& pos ) {
 
 void HouseMakerStateMachine::set3dMode() {
     rsg.RR().showBucket(CommandBufferLimits::UI2dStart, false);
+    rsg.RR().showBucket(CommandBufferLimits::PBRStart, true);
     rsg.setRigCameraController(CameraControlType::Walk);
+    rsg.DC()->setQuatAngles(V3f{ 0.0f, 0.0f, 0.0f });
     if ( houseJson ) {
-        Timeline::play(rsg.DC()->QAngleAnim(), 0,
-                       KeyFramePair{ 0.1f, quatCompose(V3f{ 0.0f, 0.0f, 0.0f }) });
         Timeline::play(rsg.DC()->PosAnim(), 0,
                        KeyFramePair{ 0.1f, V3f{ houseJson->center.x(), 1.45f, houseJson->center.y() } });
     }
@@ -141,9 +126,14 @@ void HouseMakerStateMachine::activatePostLoad() {
 
     rsg.setDragAndDropFunction(std::bind(&HouseMakerStateMachine::elaborateHouseCallback, this, std::placeholders::_1));
 
-    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/asr2bedroomflat.png");
+//    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/asr2bedroomflat.png");
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/canbury_park_road.jpg");
+    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/halterA7-11.png");
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/test_lightingpw.png");
+}
+
+void HouseMakerStateMachine::appendBespokeWalls( const V2fVectorOfVector& bwalls ) {
+    bespokeWalls.insert( bespokeWalls.end(), bwalls.begin(), bwalls.end() );
 }
 
 void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
@@ -249,6 +239,13 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
         if ( _aid.TI().checkKeyToggleOn(GMK_C) ) {
             rb->changeSegmentType(ArchType::DoorT);
         }
+        if ( _aid.TI().checkKeyToggleOn(GMK_F) ) {
+            appendBespokeWalls( rb->bespokeriseWalls(1.0f/hmbBSData.rescaleFactor) );
+            elaborateHouseStageWalls( bespokeWalls );
+            rb->clear();
+            showIMHouse();
+            smFrotnEnd.setCurrentState(SMState::Browsing);
+        }
     }
 
     auto cs = smFrotnEnd.getCurrentState();
@@ -274,7 +271,7 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
             smFrotnEnd.setCurrentState(SMState::EditingWalls);
             ims.resetSelection();
             showIMHouse();
-            elaborateHouseStageWalls();
+            elaborateHouseStageWalls( HouseService::rescaleWallInverse( houseJson.get(), hmbBSData.rescaleFactor ) );
         }
         if ( cs == SMState::EditingWallsSelected && ims.singleSelectedFeature() == ArchStructuralFeature::ASF_Edge &&
              _aid.TI().checkKeyToggleOn(GMK_A) ) {

@@ -52,7 +52,8 @@ protected:
     void luaFunctionsSetup() override;
     void elaborateHouseStage1( const std::string& filename );
     void elaborateHouseBitmap();
-    void elaborateHouseStageWalls();
+    void elaborateHouseStageWalls( const V2fVectorOfVector& wallPoints );
+    void appendBespokeWalls( const V2fVectorOfVector& bwalls );
 
     void set2dMode( const V3f& pos );
     void set3dMode();
@@ -69,6 +70,9 @@ protected:
     FurnitureMapStorage furnitureMap;
     std::shared_ptr<HouseBSData> houseJson;
     ArchRenderController ims{ FloorPlanRenderMode::Debug3d};
+
+    // Bespoke state
+    V2fVectorOfVector bespokeWalls;
 
     StateMachineFrontEnd smFrotnEnd;
 };
