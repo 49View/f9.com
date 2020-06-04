@@ -296,6 +296,15 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
                 ims.addToSelectionList(afs, is);
                 showIMHouse();
                 smFrotnEnd.setCurrentState(SMState::EditingWallsSelected);
+            } else {
+                auto door = HouseService::point<DoorBSData, IsInside>(houseJson.get(), is);
+                if ( door ) {
+                    afs.feature = ArchStructuralFeature::ASF_Poly;
+                    afs.hash = door->hash;
+                    ims.addToSelectionList(afs, is);
+                    showIMHouse();
+                    smFrotnEnd.setCurrentState(SMState::EditingDoorSelected);
+                }
             }
         }
         if ( cs == SMState::EditingWallsSelected && _aid.hasMouseMoved(TOUCH_ZERO) ) {

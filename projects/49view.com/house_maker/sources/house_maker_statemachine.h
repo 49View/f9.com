@@ -18,7 +18,11 @@ enum class SMState {
     Browsing,
     InsertingWalls,
     EditingWalls,
-    EditingWallsSelected
+    EditingWallsSelected,
+    EditingDoorSelected,
+    EditingWindowSelected,
+    EditingStairSelected,
+    EditingRoomSelected
 };
 
 class BaseState {
