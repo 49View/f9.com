@@ -25,10 +25,6 @@ enum class SMState {
     EditingRoomSelected
 };
 
-class BaseState {
-
-};
-
 class StateMachineFrontEnd {
 public:
     SMState getCurrentState() const {
@@ -41,7 +37,11 @@ private:
     SMState currentState = SMState::Browsing;
 };
 
-class HouseMakerStateMachine : public RunLoopBackEndBase, public LoginActivation<LoginFieldsPrecached>, public ScenePreLoader {
+struct FrontEndStateMachineSML;
+using FrontEnd = sm<FrontEndStateMachineSML>;
+
+class HouseMakerStateMachine
+        : public RunLoopBackEndBase, public LoginActivation<LoginFieldsPrecached>, public ScenePreLoader {
 public:
     HouseMakerStateMachine( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchOrchestrator& _asg );
     ~HouseMakerStateMachine() override = default;
@@ -50,6 +50,8 @@ public:
     void activateImpl() override;
 
     void elaborateHouseCallback( std::vector<std::string>& _paths );
+
+    void clear();
 
 protected:
     void activatePostLoad() override;
@@ -63,19 +65,18 @@ protected:
     void set3dMode();
     void showIMHouse();
 
-    void clear();
-
     void updateHMB();
     void finaliseBespoke();
 
 protected:
+    std::unique_ptr<FrontEnd> backEnd;
     ArchOrchestrator& asg;
     HMBBSData hmbBSData{};
     SourceImages sourceImages;
     std::unique_ptr<RoomBuilder> rb;
     FurnitureMapStorage furnitureMap;
     std::shared_ptr<HouseBSData> houseJson;
-    ArchRenderController ims{ FloorPlanRenderMode::Debug3d};
+    ArchRenderController ims{ FloorPlanRenderMode::Debug3d };
 
     // Bespoke state
     V2fVectorOfVector bespokeWalls;

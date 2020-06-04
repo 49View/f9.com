@@ -18,11 +18,14 @@
 #include <core/math/vector_util.hpp>
 #include <eh_arch/models/wall_service.hpp>
 
+#include "transition_table_fsm.hpp"
+
 HouseMakerStateMachine::HouseMakerStateMachine( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchOrchestrator& _asg ) :
         RunLoopBackEndBase(_sg, _rsg),
         ScenePreLoader(_sg, _rsg),
         asg(_asg) {
     rb = std::make_unique<RoomBuilder>(_sg, _rsg, houseJson);
+    backEnd = std::make_unique<FrontEnd>( *this, rb, _asg, _sg, _rsg );
 }
 
 void HouseMakerStateMachine::activateImpl() {
@@ -135,6 +138,7 @@ void HouseMakerStateMachine::activatePostLoad() {
     rb->loadSegments(FM::readLocalFileC("/home/dado/Documents/GitHub/f9.com/builds/house_maker/debug/bespoke_segments14807935707459752956") );
     finaliseBespoke();
 
+    backEnd->process_event( OnActivateEvent{} );
 }
 
 void HouseMakerStateMachine::clear() {
@@ -249,13 +253,18 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
 //    ImGui::InputScalar("RooomScore", ImGuiDataType_Float, &hmbBSData.roomScore);
 
 #endif
-
-    if ( _aid.TI().checkModKeyPressed(GMK_LEFT_SHIFT) && _aid.TI().checkKeyToggleOn(GMK_DELETE) ) {
-        clear();
-    }
-
     bool isLeftAltPressed = _aid.TI().checkKeyPressed(GMK_LEFT_ALT);
     bool isEscapePressed = _aid.TI().checkKeyPressed(GMK_ESCAPE);
+
+    if ( isLeftAltPressed ) {
+        backEnd->process_event( OnAltPressedEvent{} );
+    }
+
+    if ( _aid.TI().checkModKeyPressed(GMK_LEFT_SHIFT) && _aid.TI().checkKeyToggleOn(GMK_DELETE) ) {
+        backEnd->process_event( OnClearEvent{} );
+//        clear();
+    }
+
     if ( smFrotnEnd.getCurrentState() == SMState::Browsing && isLeftAltPressed ) {
         smFrotnEnd.setCurrentState(SMState::InsertingWalls);
     }
