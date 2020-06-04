@@ -254,6 +254,15 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
         clear();
     }
 
+    bool isLeftAltPressed = _aid.TI().checkKeyPressed(GMK_LEFT_ALT);
+    bool isEscapePressed = _aid.TI().checkKeyPressed(GMK_ESCAPE);
+    if ( smFrotnEnd.getCurrentState() == SMState::Browsing && isLeftAltPressed ) {
+        smFrotnEnd.setCurrentState(SMState::InsertingWalls);
+    }
+    if ( smFrotnEnd.getCurrentState() == SMState::InsertingWalls && isEscapePressed ) {
+        smFrotnEnd.setCurrentState(SMState::Browsing);
+    }
+
     if ( smFrotnEnd.getCurrentState() == SMState::Browsing ) {
         if ( _aid.isMouseDoubleTap(TOUCH_ZERO) ) {
         auto cpos = rsg.DC()->getPosition();
