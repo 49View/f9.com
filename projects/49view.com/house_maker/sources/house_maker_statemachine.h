@@ -59,14 +59,16 @@ protected:
     void set3dMode();
     void showIMHouse();
 
+    void clear();
+
     void updateHMB();
+    void finaliseBespoke();
 
 protected:
     ArchOrchestrator& asg;
     HMBBSData hmbBSData{};
     SourceImages sourceImages;
     std::unique_ptr<RoomBuilder> rb;
-    RoomBuilderSegmentPoints segments;
     FurnitureMapStorage furnitureMap;
     std::shared_ptr<HouseBSData> houseJson;
     ArchRenderController ims{ FloorPlanRenderMode::Debug3d};
