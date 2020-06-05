@@ -294,6 +294,9 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
     if ( _aid.TI().checkKeyToggleOn(GMK_ENTER) ) {
         backEnd->process_event( OnFinaliseEvent{} );
     }
+    if ( _aid.TI().checkKeyToggleOn(GMK_SPACE) ) {
+        backEnd->process_event( OnSpaceEvent{} );
+    }
     if ( _aid.TI().checkKeyToggleOn(GMK_ESCAPE) ) {
         backEnd->process_event( OnEscapeEvent{} );
     }

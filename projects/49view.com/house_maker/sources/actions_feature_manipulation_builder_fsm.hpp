@@ -6,7 +6,7 @@
 
 #include <eh_arch/models/house_service.hpp>
 #include <eh_arch/models/wall_service.hpp>
-
+#include <eh_arch/models/door_service.hpp>
 
 struct EnterFeatureManipulation {
     void operator()( HouseMakerStateMachine& hm ) noexcept {
@@ -71,6 +71,18 @@ struct DeleteFeatureManipulation {
         ims.deleteElementsOnSelectionList([&]( const ArchStructuralFeatureDescriptor& asf ) {
             WallService::deleteFeature(hm.H(), asf);
             HouseService::recalculateBBox(hm.H());
+        });
+        return true;
+    }
+};
+
+struct SpaceToggleFeatureManipulation {
+    bool operator()( ArchRenderController& ims, HouseMakerStateMachine& hm ) noexcept {
+        ims.deleteElementsOnSelectionList([&]( const ArchStructuralFeatureDescriptor& asf ) {
+            if ( auto door = HouseService::find<DoorBSData>(hm.H(), asf.hash); door ) {
+                DoorService::toggleOrientations(door);
+            }
+
         });
         return true;
     }
