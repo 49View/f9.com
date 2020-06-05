@@ -26,10 +26,10 @@ struct FrontEndStateMachineSML {
             ,state<class Bespoke> + event<OnFinaliseEvent> / FinaliseBespoke{} = state<class HouseMaker>
             ,state<class Bespoke> + event<OnEscapeEvent> / ExitBespoke{} = state<class HouseMaker>
 
-            ,state<class FeatureManipulation> + event<OnTouchMoveViewportSpaceEvent> / TouchMoveFeatureManipulation{}
-            ,state<class FeatureManipulation> + event<OnDeleteEvent> / DeleteFeatureManipulation{}
-            ,state<class FeatureManipulation> + event<OnKeyToggleEvent> / KeyToggleFeatureManipulation{}
-            ,state<class FeatureManipulation> + event<OnTouchUpViewportSpaceEvent> / TouchUpEventFeatureManipulation{} = state<class HouseMaker>
+            ,state<class FeatureManipulation> + event<OnTouchMoveViewportSpaceEvent>[TouchMoveFeatureManipulation{}] / UpdateFeatureManipulation{}
+            ,state<class FeatureManipulation> + event<OnKeyToggleEvent>[KeyToggleFeatureManipulation{}] / UpdateFeatureManipulation{}
+            ,state<class FeatureManipulation> + event<OnDeleteEvent>[DeleteFeatureManipulation{}] / ExitFeatureManipulation{} = state<class HouseMaker>
+            ,state<class FeatureManipulation> + event<OnTouchUpViewportSpaceEvent>[TouchUpEventFeatureManipulation{}] / ExitFeatureManipulation{} = state<class HouseMaker>
 
         );
     }
