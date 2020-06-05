@@ -131,13 +131,13 @@ void HouseMakerStateMachine::activatePostLoad() {
 
     rsg.setDragAndDropFunction(std::bind(&HouseMakerStateMachine::elaborateHouseCallback, this, std::placeholders::_1));
 
-//    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/asr2bedroomflat.png");
+    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/asr2bedroomflat.png");
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/canbury_park_road.jpg");
-    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/halterA7-11.png");
+//    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/halterA7-11.png");
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/test_lightingpw.png");
 
-    rb->loadSegments(FM::readLocalFileC("/home/dado/Documents/GitHub/f9.com/builds/house_maker/debug/bespoke_segments14807935707459752956") );
-    finaliseBespoke();
+//    rb->loadSegments(FM::readLocalFileC("/home/dado/Documents/GitHub/f9.com/builds/house_maker/debug/bespoke_segments14807935707459752956") );
+//    finaliseBespoke();
 
     backEnd->process_event( OnActivateEvent{} );
 }
