@@ -12,9 +12,25 @@
 struct FrontEndStateMachineSML {
     auto operator()() const noexcept {
         return make_transition_table(
-                *state<class Initial> + event<OnActivateEvent> / []{} = state<class Browsing>
-                ,state<class Browsing> + event<OnAltPressedEvent> / []{} = state<class Bespoke>
-                ,state<class Bespoke> + event<OnClearEvent> / ClearEverthing{} = state<class Bespoke>
+            *state<class Initial> + event<OnActivateEvent> / []{} = state<class HouseMaker>
+
+            ,state<class HouseMaker> + event<OnAltPressedEvent> / []{} = state<class Bespoke>
+            ,state<class HouseMaker> + event<OnDoubleTapEvent> / QuickZoomIn{}
+            ,state<class HouseMaker> + event<OnClearEvent> / ClearEverthing{}
+            ,state<class HouseMaker> + event<OnFirstTimeTouchDownViewportSpaceEvent>[TouchedDownFirstTimeFeatureManipulationGuard{}] / EnterFeatureManipulation{} = state<class FeatureManipulation>
+
+            ,state<class Bespoke> + event<OnUndoEvent> / UndoBespoke{}
+            ,state<class Bespoke> + event<OnTouchMoveEvent> / TouchMoveBespoke{}
+            ,state<class Bespoke> + event<OnTouchUpEvent> / TouchUpEventBespoke{}
+            ,state<class Bespoke> + event<OnKeyToggleEvent> / KeyToggleBespoke{}
+            ,state<class Bespoke> + event<OnFinaliseEvent> / FinaliseBespoke{} = state<class HouseMaker>
+            ,state<class Bespoke> + event<OnEscapeEvent> / ExitBespoke{} = state<class HouseMaker>
+
+            ,state<class FeatureManipulation> + event<OnTouchMoveViewportSpaceEvent> / TouchMoveFeatureManipulation{}
+            ,state<class FeatureManipulation> + event<OnDeleteEvent> / DeleteFeatureManipulation{}
+            ,state<class FeatureManipulation> + event<OnKeyToggleEvent> / KeyToggleFeatureManipulation{}
+            ,state<class FeatureManipulation> + event<OnTouchUpViewportSpaceEvent> / TouchUpEventFeatureManipulation{} = state<class HouseMaker>
+
         );
     }
 };

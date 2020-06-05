@@ -3,3 +3,50 @@
 //
 
 #pragma once
+
+struct UndoBespoke {
+    void operator()( RoomBuilder* rb ) noexcept {
+        rb->undo();
+    }
+};
+
+struct TouchMoveBespoke {
+    void operator()( RoomBuilder* rb, const OnTouchMoveEvent& mouseEvent ) noexcept {
+        rb->setCurrentPointerPos(mouseEvent.mousePos);
+    }
+};
+
+struct TouchUpEventBespoke {
+    void operator()( RoomBuilder* rb, const OnTouchUpEvent& mouseEvent ) noexcept {
+        rb->validateAddPoint(mouseEvent.mousePos);
+    }
+};
+
+
+struct KeyToggleBespoke {
+    void operator()( RoomBuilder* rb, HouseMakerStateMachine& hm, OnKeyToggleEvent keyEvent ) noexcept {
+
+        if ( keyEvent.keyCode == GMK_Z ) {
+            rb->changeSegmentType(ArchType::WallT);
+        }
+        if ( keyEvent.keyCode == (GMK_X) ) {
+            rb->changeSegmentType(ArchType::WindowT);
+        }
+        if ( keyEvent.keyCode == (GMK_C) ) {
+            rb->changeSegmentType(ArchType::DoorT);
+        }
+    }
+};
+
+struct FinaliseBespoke {
+    void operator()( HouseMakerStateMachine& hm ) noexcept {
+        hm.finaliseBespoke();
+    }
+};
+
+struct ExitBespoke {
+    void operator()( RoomBuilder* rb ) noexcept {
+        // On Exit, we might need to save some states, cache or whatever, do it here
+    }
+};
+

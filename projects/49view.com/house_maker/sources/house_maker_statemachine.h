@@ -14,36 +14,14 @@
 #include <eh_arch/makers/room_builder.hpp>
 #include <eh_arch/controller/arch_render_controller.hpp>
 
-enum class SMState {
-    Browsing,
-    InsertingWalls,
-    EditingWalls,
-    EditingWallsSelected,
-    EditingDoorSelected,
-    EditingWindowSelected,
-    EditingStairSelected,
-    EditingRoomSelected
-};
-
-class StateMachineFrontEnd {
-public:
-    SMState getCurrentState() const {
-        return currentState;
-    }
-    void setCurrentState( SMState _currentState ) {
-        currentState = _currentState;
-    }
-private:
-    SMState currentState = SMState::Browsing;
-};
-
 struct FrontEndStateMachineSML;
 using FrontEnd = sm<FrontEndStateMachineSML>;
 
 class HouseMakerStateMachine
         : public RunLoopBackEndBase, public LoginActivation<LoginFieldsPrecached>, public ScenePreLoader {
 public:
-    HouseMakerStateMachine( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchOrchestrator& _asg );
+    HouseMakerStateMachine( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchOrchestrator& _asg,
+                            ArchRenderController& _ims );
     ~HouseMakerStateMachine() override = default;
 
     void updateImpl( const AggregatedInputData& _aid ) override;
@@ -52,6 +30,11 @@ public:
     void elaborateHouseCallback( std::vector<std::string>& _paths );
 
     void clear();
+    void quickZoomIn();
+    void finaliseBespoke();
+    void showIMHouse();
+
+    HouseBSData *H();
 
 protected:
     void activatePostLoad() override;
@@ -63,23 +46,19 @@ protected:
 
     void set2dMode( const V3f& pos );
     void set3dMode();
-    void showIMHouse();
 
     void updateHMB();
-    void finaliseBespoke();
 
 protected:
     std::unique_ptr<FrontEnd> backEnd;
     ArchOrchestrator& asg;
     HMBBSData hmbBSData{};
     SourceImages sourceImages;
-    std::unique_ptr<RoomBuilder> rb;
+    std::shared_ptr<RoomBuilder> rb;
     FurnitureMapStorage furnitureMap;
     std::shared_ptr<HouseBSData> houseJson;
-    ArchRenderController ims{ FloorPlanRenderMode::Debug3d };
+    ArchRenderController& ims;
 
     // Bespoke state
     V2fVectorOfVector bespokeWalls;
-
-    StateMachineFrontEnd smFrotnEnd;
 };

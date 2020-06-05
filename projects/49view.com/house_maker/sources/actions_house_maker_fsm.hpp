@@ -11,3 +11,9 @@ struct ClearEverthing {
         hm.clear();
     }
 };
+
+struct QuickZoomIn {
+    void operator()( HouseMakerStateMachine& hm ) noexcept {
+        hm.quickZoomIn();
+    }
+};
