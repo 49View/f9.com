@@ -262,8 +262,13 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
         backEnd->process_event( OnDoubleTapEvent{} );
     }
 
-    if ( _aid.TI().checkModKeyPressed(GMK_LEFT_CONTROL) && _aid.TI().checkKeyToggleOn(GMK_Z) ) {
-        backEnd->process_event( OnUndoEvent{} );
+    if ( _aid.TI().checkModKeyPressed(GMK_LEFT_CONTROL) ) {
+        if ( _aid.TI().checkKeyToggleOn(GMK_Z) ) {
+            backEnd->process_event( OnUndoEvent{} );
+        }
+        if ( _aid.TI().checkKeyToggleOn(GMK_T) ) {
+            backEnd->process_event( OnSpecialSpaceEvent{} );
+        }
     }
 
     if ( _aid.isMouseTouchedDownFirstTime(TOUCH_ZERO) ) {
@@ -308,4 +313,10 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
 
 HouseBSData *HouseMakerStateMachine::H() {
     return houseJson.get();
+}
+HMBBSData& HouseMakerStateMachine::HMB() {
+    return hmbBSData;
+}
+SourceImages& HouseMakerStateMachine::SI() {
+    return sourceImages;
 }

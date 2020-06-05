@@ -38,4 +38,5 @@ struct OnKeyToggleEvent{
 struct OnFinaliseEvent {};
 struct OnEscapeEvent {};
 struct OnSpaceEvent {};
+struct OnSpecialSpaceEvent {};
 struct OnDeleteEvent {};

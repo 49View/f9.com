@@ -35,6 +35,8 @@ public:
     void showIMHouse();
 
     HouseBSData *H();
+    HMBBSData& HMB();
+    SourceImages& SI();
 
 protected:
     void activatePostLoad() override;

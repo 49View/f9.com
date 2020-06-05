@@ -78,7 +78,7 @@ struct DeleteFeatureManipulation {
 
 struct SpaceToggleFeatureManipulation {
     bool operator()( ArchRenderController& ims, HouseMakerStateMachine& hm ) noexcept {
-        ims.deleteElementsOnSelectionList([&]( const ArchStructuralFeatureDescriptor& asf ) {
+        ims.toggleElementsOnSelectionList([&]( const ArchStructuralFeatureDescriptor& asf ) {
             if ( auto door = HouseService::find<DoorBSData>(hm.H(), asf.hash); door ) {
                 DoorService::toggleOrientations(door);
             }
@@ -87,6 +87,16 @@ struct SpaceToggleFeatureManipulation {
         return true;
     }
 };
+
+struct SpecialSpaceToggleFeatureManipulation {
+    bool operator()( ArchRenderController& ims, HouseMakerStateMachine& hm ) noexcept {
+        ims.toggleElementsOnSelectionList([&]( const ArchStructuralFeatureDescriptor& asf ) {
+            HouseMakerBitmap::makeFromSwapDoorOrWindow( hm.H(), hm.HMB(), hm.SI(), asf.hash );
+        });
+        return true;
+    }
+};
+
 
 struct KeyToggleFeatureManipulation {
     bool operator()( ArchRenderController& ims, HouseMakerStateMachine& hm, OnKeyToggleEvent keyEvent ) noexcept {

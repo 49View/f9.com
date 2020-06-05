@@ -29,6 +29,7 @@ struct FrontEndStateMachineSML {
             ,state<class FeatureManipulation> + event<OnTouchMoveViewportSpaceEvent>[TouchMoveFeatureManipulation{}] / UpdateFeatureManipulation{}
             ,state<class FeatureManipulation> + event<OnKeyToggleEvent>[KeyToggleFeatureManipulation{}] / UpdateFeatureManipulation{}
             ,state<class FeatureManipulation> + event<OnSpaceEvent>[SpaceToggleFeatureManipulation{}] / UpdateFeatureManipulation{}
+            ,state<class FeatureManipulation> + event<OnSpecialSpaceEvent>[SpecialSpaceToggleFeatureManipulation{}] / UpdateFeatureManipulation{}
             ,state<class FeatureManipulation> + event<OnDeleteEvent>[DeleteFeatureManipulation{}] / ExitFeatureManipulation{} = state<class HouseMaker>
             ,state<class FeatureManipulation> + event<OnTouchUpViewportSpaceEvent>[TouchUpEventFeatureManipulation{}] / ExitFeatureManipulation{} = state<class HouseMaker>
 
