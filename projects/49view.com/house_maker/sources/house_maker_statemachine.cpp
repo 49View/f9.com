@@ -18,11 +18,15 @@
 #include <core/math/vector_util.hpp>
 #include <eh_arch/models/wall_service.hpp>
 
-HouseMakerStateMachine::HouseMakerStateMachine( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchOrchestrator& _asg ) :
+#include "transition_table_fsm.hpp"
+
+HouseMakerStateMachine::HouseMakerStateMachine( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchOrchestrator& _asg, ArchRenderController& _ims ) :
         RunLoopBackEndBase(_sg, _rsg),
         ScenePreLoader(_sg, _rsg),
-        asg(_asg) {
-    rb = std::make_unique<RoomBuilder>(_sg, _rsg, houseJson, segments);
+        asg(_asg), ims(_ims) {
+    ims.renderMode( FloorPlanRenderMode::Debug3d );
+    rb = std::make_shared<RoomBuilder>(_sg, _rsg, houseJson);
+    backEnd = std::make_unique<FrontEnd>( *this, rb.get(), _asg, _sg, _rsg, houseJson.get(), _ims );
 }
 
 void HouseMakerStateMachine::activateImpl() {
@@ -34,7 +38,7 @@ void HouseMakerStateMachine::luaFunctionsSetup() {
 
 void HouseMakerStateMachine::elaborateHouseBitmap() {
     houseJson = HouseMakerBitmap::make(hmbBSData, sourceImages);
-    HouseService::guessFittings(houseJson.get(), furnitureMap);
+//    HouseService::guessFittings(houseJson.get(), furnitureMap);
     asg.showIMHouse(houseJson, ims);
 }
 
@@ -47,24 +51,8 @@ void HouseMakerStateMachine::elaborateHouseStage1( const std::string& filename )
     rsg.DC()->setPosition(rsg.DC()->center(houseJson->bbox, 0.0f));
 }
 
-void HouseMakerStateMachine::elaborateHouseStageWalls() {
-    V2fVectorOfVector wallsPoints;
-    float scale = 1.0f / hmbBSData.rescaleFactor;
-    for ( const auto& f : houseJson->mFloors ) {
-        for ( const auto& w : f->walls ) {
-            if ( !WallService::isWindowOrDoorPart(w.get()) ) {
-                V2fVector ePointScaled{};
-                for ( const auto& ep : w->epoints ) {
-                    ePointScaled.emplace_back(ep * scale);
-                }
-                wallsPoints.emplace_back(ePointScaled);
-            }
-        }
-    }
-
-//    hmbBSData.resetPCM();
-
-    houseJson = HouseMakerBitmap::makeFromWalls(wallsPoints, hmbBSData, sourceImages);
+void HouseMakerStateMachine::elaborateHouseStageWalls( const V2fVectorOfVector& wallPoints ) {
+    HouseMakerBitmap::makeFromWalls( houseJson, wallPoints, hmbBSData, sourceImages);
     HouseService::guessFittings(houseJson.get(), furnitureMap);
 }
 
@@ -91,7 +79,9 @@ void HouseMakerStateMachine::elaborateHouseCallback( std::vector<std::string>& _
 
 void HouseMakerStateMachine::set2dMode( const V3f& pos ) {
     rsg.RR().showBucket(CommandBufferLimits::UI2dStart, true);
+    rsg.RR().showBucket(CommandBufferLimits::PBRStart, false);
     rsg.setRigCameraController(CameraControlType::Edit2d);
+    rsg.DC()->LockAtWalkingHeight(false);
     rsg.DC()->setPosition(pos);
     rsg.DC()->setQuatAngles(V3f{ M_PI_2, 0.0f, 0.0f });
     rsg.useSkybox(false);
@@ -99,10 +89,10 @@ void HouseMakerStateMachine::set2dMode( const V3f& pos ) {
 
 void HouseMakerStateMachine::set3dMode() {
     rsg.RR().showBucket(CommandBufferLimits::UI2dStart, false);
+    rsg.RR().showBucket(CommandBufferLimits::PBRStart, true);
     rsg.setRigCameraController(CameraControlType::Walk);
+    rsg.DC()->setQuatAngles(V3f{ 0.0f, 0.0f, 0.0f });
     if ( houseJson ) {
-        Timeline::play(rsg.DC()->QAngleAnim(), 0,
-                       KeyFramePair{ 0.1f, quatCompose(V3f{ 0.0f, 0.0f, 0.0f }) });
         Timeline::play(rsg.DC()->PosAnim(), 0,
                        KeyFramePair{ 0.1f, V3f{ houseJson->center.x(), 1.45f, houseJson->center.y() } });
     }
@@ -124,8 +114,8 @@ void HouseMakerStateMachine::activatePostLoad() {
         }
     });
 
-    rsg.RR().createGrid(CommandBufferLimits::UnsortedStart + 1, 1.0f, ( Color4f::PASTEL_GRAYLIGHT ).A(0.35f),
-                        ( Color4f::PASTEL_GRAYLIGHT ).A(0.25f), V2f{ 15.0f }, 0.015f);
+    rsg.RR().createGrid(CommandBufferLimits::UnsortedStart + 1, 1.0f, ( Color4f::PASTEL_GRAYLIGHT ),
+                        ( Color4f::DARK_GRAY ), V2f{ 15.0f }, 0.015f);
     rsg.createSkybox(SkyBoxInitParams{ SkyBoxMode::CubeProcedural });
     rsg.changeTime("summer 14:00");
 
@@ -143,7 +133,39 @@ void HouseMakerStateMachine::activatePostLoad() {
 
     elaborateHouseStage1("/home/dado/Downloads/data/floorplans/asr2bedroomflat.png");
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/canbury_park_road.jpg");
+//    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/halterA7-11.png");
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/test_lightingpw.png");
+
+//    rb->loadSegments(FM::readLocalFileC("/home/dado/Documents/GitHub/f9.com/builds/house_maker/debug/bespoke_segments14807935707459752956") );
+//    finaliseBespoke();
+
+    backEnd->process_event( OnActivateEvent{} );
+}
+
+void HouseMakerStateMachine::clear() {
+    rb->clear();
+    if ( houseJson ) {
+        HouseService::clearHouse(houseJson.get());
+        showIMHouse();
+    }
+    bespokeWalls.clear();
+}
+
+void HouseMakerStateMachine::appendBespokeWalls( const V2fVectorOfVector& bwalls ) {
+    bespokeWalls.insert( bespokeWalls.end(), bwalls.begin(), bwalls.end() );
+}
+
+void HouseMakerStateMachine::finaliseBespoke() {
+    appendBespokeWalls( rb->bespokeriseWalls(1.0f) );
+    elaborateHouseStageWalls( bespokeWalls );
+    rb->clear();
+    showIMHouse();
+}
+
+void HouseMakerStateMachine::quickZoomIn() {
+    auto cpos = rsg.DC()->getPosition();
+    Timeline::play(rsg.DC()->PosAnim(), 0,
+                   KeyFramePair{ 0.2f, V3f{ cpos.x(), lerp(0.5f, 0.0f, cpos.y()), cpos.z() } });
 }
 
 void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
@@ -173,14 +195,19 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
     if ( ImGui::SliderFloat("maxBinThreshold", &hmbBSData.maxBinThreshold, 0.0f, 255.0f) ) {
         updateHMB();
     }
+    static float scaleFactorInc = 0.01f;
+    static float oldScaleFactorInc = 0.01f;
+    if ( ImGui::InputFloat("Scale Factor", &scaleFactorInc, 0.01f, 0.01f, 4) ) {
+        if ( houseJson ) {
+            float sc = sign(scaleFactorInc-oldScaleFactorInc) > 0.0f ? 1.01f : 0.99f;
+            HouseMakerBitmap::rescale(houseJson.get(), sc, sc);
+            oldScaleFactorInc = scaleFactorInc;
+//            rb->scale( centimetersToMeters(hmbBSData.rescaleFactor) );
+            showIMHouse();
+        }
+    }
     if ( ImGui::Button("Elaborate") ) {
         elaborateHouseBitmap();
-    }
-    if ( ImGui::Button("Add Walls") ) {
-        smFrotnEnd.setCurrentState(SMState::InsertingWalls);
-    }
-    if ( ImGui::Button("Edit Walls") ) {
-        smFrotnEnd.setCurrentState(SMState::EditingWalls);
     }
     if ( ImGui::Button("2d") ) {
         auto pos = houseJson ? V3f{ houseJson->center.x(), 5.0f, houseJson->center.y() } : V3f::UP_AXIS * 5.0f;
@@ -220,77 +247,76 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
     }
     ImGui::End();
 
-////    ImGui::InputScalar("minWallPixelWidth", ImGuiDataType_U64, &hmbBSData.minWallPixelWidth);
-////    ImGui::InputScalar("maxWallPixelWidth", ImGuiDataType_U64, &hmbBSData.maxWallPixelWidth);
-//    ImGui::InputScalar("mainWallStrategyIndex", ImGuiDataType_S32, &hmbBSData.mainWallStrategyIndex);
-//    ImGui::InputScalar("RooomScore", ImGuiDataType_Float, &hmbBSData.roomScore);
-
 #endif
 
+    bool isLeftAltPressed = _aid.TI().checkKeyPressed(GMK_LEFT_ALT);
+
+    if ( isLeftAltPressed ) {
+        backEnd->process_event( OnAltPressedEvent{} );
+    }
+    if ( _aid.TI().checkModKeyPressed(GMK_LEFT_SHIFT) && _aid.TI().checkKeyToggleOn(GMK_DELETE) ) {
+        backEnd->process_event( OnClearEvent{} );
+    }
+
     if ( _aid.isMouseDoubleTap(TOUCH_ZERO) ) {
-        auto cpos = rsg.DC()->getPosition();
-        Timeline::play(rsg.DC()->PosAnim(), 0,
-                       KeyFramePair{ 0.2f, V3f{ cpos.x(), lerp(0.5f, 0.0f, cpos.y()), cpos.z() } });
+        backEnd->process_event( OnDoubleTapEvent{} );
     }
 
-    if ( smFrotnEnd.getCurrentState() == SMState::InsertingWalls ) {
-        if ( _aid.hasMouseMoved(TOUCH_ZERO) && _aid.isMouseTouchedDown(TOUCH_ZERO) ) {
-            rb->setCurrentPointerPos(_aid.mousePos(TOUCH_ZERO));
-        }
-        if ( _aid.isMouseTouchedUp(TOUCH_ZERO) ) {
-            rb->validateAddPoint(_aid.mousePos(TOUCH_ZERO));
-        }
+    if ( _aid.TI().checkModKeyPressed(GMK_LEFT_CONTROL) ) {
         if ( _aid.TI().checkKeyToggleOn(GMK_Z) ) {
-            rb->changeSegmentType(ArchType::WallT);
+            backEnd->process_event( OnUndoEvent{} );
         }
-        if ( _aid.TI().checkKeyToggleOn(GMK_X) ) {
-            rb->changeSegmentType(ArchType::WindowT);
-        }
-        if ( _aid.TI().checkKeyToggleOn(GMK_C) ) {
-            rb->changeSegmentType(ArchType::DoorT);
+        if ( _aid.TI().checkKeyToggleOn(GMK_T) ) {
+            backEnd->process_event( OnSpecialSpaceEvent{} );
         }
     }
 
-    auto cs = smFrotnEnd.getCurrentState();
-    if ( cs == SMState::EditingWalls || cs == SMState::EditingWallsSelected ) {
-        if ( _aid.isMouseTouchedDownFirstTime(TOUCH_ZERO) ) {
-            float aroundDistance = 0.05f;
-            auto is = _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC());
-            auto afs = WallService::getNearestFeatureToPoint(houseJson.get(), is, aroundDistance);
-            if ( afs.feature != ArchStructuralFeature::ASF_None ) {
-                ims.addToSelectionList(afs, is);
-                showIMHouse();
-                smFrotnEnd.setCurrentState(SMState::EditingWallsSelected);
-            }
-        }
-        if ( cs == SMState::EditingWallsSelected && _aid.hasMouseMoved(TOUCH_ZERO) ) {
-            auto is = _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC());
-            ims.moveSelectionList(is, [&]( const ArchStructuralFeatureDescriptor& asf, const V2f& offset ) {
-                WallService::moveFeature(houseJson.get(), asf, offset, false);
-            });
-            showIMHouse();
-        }
-        if ( _aid.isMouseTouchedUp(TOUCH_ZERO) ) {
-            smFrotnEnd.setCurrentState(SMState::EditingWalls);
-            ims.resetSelection();
-            showIMHouse();
-            elaborateHouseStageWalls();
-        }
-        if ( cs == SMState::EditingWallsSelected && ims.singleSelectedFeature() == ArchStructuralFeature::ASF_Edge &&
-             _aid.TI().checkKeyToggleOn(GMK_A) ) {
-            ims.splitFirstEdgeOnSelectionList([&]( const ArchStructuralFeatureDescriptor& asf, const V2f& offset ) {
-                WallService::splitEdgeAndAddPointInTheMiddle(houseJson.get(), asf, offset);
-            });
-            showIMHouse();
-            ims.resetSelection();
-        }
-        if ( cs == SMState::EditingWallsSelected && _aid.TI().checkKeyToggleOn(GMK_DELETE) ) {
-            ims.deleteElementsOnSelectionList([&]( const ArchStructuralFeatureDescriptor& asf ) {
-                WallService::deleteFeature(houseJson.get(), asf);
-            });
-            showIMHouse();
-            ims.resetSelection();
-        }
+    if ( _aid.isMouseTouchedDownFirstTime(TOUCH_ZERO) ) {
+        backEnd->process_event( OnFirstTimeTouchDownEvent{_aid.mousePos(TOUCH_ZERO)} );
+        backEnd->process_event( OnFirstTimeTouchDownViewportSpaceEvent{_aid.mouseViewportPos(TOUCH_ZERO, rsg.DC())} );
     }
-    rsg.UI().updateAnim();
+    if ( _aid.hasMouseMoved(TOUCH_ZERO) && _aid.isMouseTouchedDown(TOUCH_ZERO) ) {
+        backEnd->process_event( OnTouchMoveEvent{_aid.mousePos(TOUCH_ZERO)} );
+        backEnd->process_event( OnTouchMoveViewportSpaceEvent{_aid.mouseViewportPos(TOUCH_ZERO, rsg.DC())} );
+    }
+    if ( _aid.isMouseTouchedUp(TOUCH_ZERO) ) {
+        backEnd->process_event( OnTouchUpEvent{_aid.mousePos(TOUCH_ZERO)} );
+        backEnd->process_event( OnTouchUpViewportSpaceEvent{_aid.mouseViewportPos(TOUCH_ZERO, rsg.DC())} );
+    }
+
+    if ( _aid.TI().checkKeyToggleOn(GMK_A) ) {
+        backEnd->process_event( OnKeyToggleEvent{GMK_A} );
+    }
+    if ( _aid.TI().checkKeyToggleOn(GMK_Z) ) {
+        backEnd->process_event( OnKeyToggleEvent{GMK_Z} );
+    }
+    if ( _aid.TI().checkKeyToggleOn(GMK_X) ) {
+        backEnd->process_event( OnKeyToggleEvent{GMK_X} );
+    }
+    if ( _aid.TI().checkKeyToggleOn(GMK_C) ) {
+        backEnd->process_event( OnKeyToggleEvent{GMK_C} );
+    }
+    if ( _aid.TI().checkKeyToggleOn(GMK_ENTER) ) {
+        backEnd->process_event( OnFinaliseEvent{} );
+    }
+    if ( _aid.TI().checkKeyToggleOn(GMK_SPACE) ) {
+        backEnd->process_event( OnSpaceEvent{} );
+    }
+    if ( _aid.TI().checkKeyToggleOn(GMK_ESCAPE) ) {
+        backEnd->process_event( OnEscapeEvent{} );
+    }
+    if ( _aid.TI().checkKeyToggleOn(GMK_DELETE) ) {
+        backEnd->process_event( OnDeleteEvent{} );
+    }
+
+}
+
+HouseBSData *HouseMakerStateMachine::H() {
+    return houseJson.get();
+}
+HMBBSData& HouseMakerStateMachine::HMB() {
+    return hmbBSData;
+}
+SourceImages& HouseMakerStateMachine::SI() {
+    return sourceImages;
 }

@@ -14,32 +14,14 @@
 #include <eh_arch/makers/room_builder.hpp>
 #include <eh_arch/controller/arch_render_controller.hpp>
 
-enum class SMState {
-    Browsing,
-    InsertingWalls,
-    EditingWalls,
-    EditingWallsSelected
-};
+struct FrontEndStateMachineSML;
+using FrontEnd = sm<FrontEndStateMachineSML>;
 
-class BaseState {
-
-};
-
-class StateMachineFrontEnd {
+class HouseMakerStateMachine
+        : public RunLoopBackEndBase, public LoginActivation<LoginFieldsPrecached>, public ScenePreLoader {
 public:
-    SMState getCurrentState() const {
-        return currentState;
-    }
-    void setCurrentState( SMState _currentState ) {
-        currentState = _currentState;
-    }
-private:
-    SMState currentState = SMState::Browsing;
-};
-
-class HouseMakerStateMachine : public RunLoopBackEndBase, public LoginActivation<LoginFieldsPrecached>, public ScenePreLoader {
-public:
-    HouseMakerStateMachine( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchOrchestrator& _asg );
+    HouseMakerStateMachine( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchOrchestrator& _asg,
+                            ArchRenderController& _ims );
     ~HouseMakerStateMachine() override = default;
 
     void updateImpl( const AggregatedInputData& _aid ) override;
@@ -47,28 +29,38 @@ public:
 
     void elaborateHouseCallback( std::vector<std::string>& _paths );
 
+    void clear();
+    void quickZoomIn();
+    void finaliseBespoke();
+    void showIMHouse();
+
+    HouseBSData *H();
+    HMBBSData& HMB();
+    SourceImages& SI();
+
 protected:
     void activatePostLoad() override;
     void luaFunctionsSetup() override;
     void elaborateHouseStage1( const std::string& filename );
     void elaborateHouseBitmap();
-    void elaborateHouseStageWalls();
+    void elaborateHouseStageWalls( const V2fVectorOfVector& wallPoints );
+    void appendBespokeWalls( const V2fVectorOfVector& bwalls );
 
     void set2dMode( const V3f& pos );
     void set3dMode();
-    void showIMHouse();
 
     void updateHMB();
 
 protected:
+    std::unique_ptr<FrontEnd> backEnd;
     ArchOrchestrator& asg;
     HMBBSData hmbBSData{};
     SourceImages sourceImages;
-    std::unique_ptr<RoomBuilder> rb;
-    RoomBuilderSegmentPoints segments;
+    std::shared_ptr<RoomBuilder> rb;
     FurnitureMapStorage furnitureMap;
     std::shared_ptr<HouseBSData> houseJson;
-    ArchRenderController ims{ FloorPlanRenderMode::Debug3d};
+    ArchRenderController& ims;
 
-    StateMachineFrontEnd smFrotnEnd;
+    // Bespoke state
+    V2fVectorOfVector bespokeWalls;
 };
