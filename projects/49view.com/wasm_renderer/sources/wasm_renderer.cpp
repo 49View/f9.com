@@ -29,7 +29,7 @@ void Showcaser::postLoadHouseCallback(std::shared_ptr<HouseBSData> houseJson) {
                                                                 FloorPlanRenderMode::Normal2d });
 
     V2f cobr = HouseService::centerOfBiggestRoom(houseJson.get());
-    V3f lngp = V3f{ cobr.x(), 1.6f, cobr.y() };
+    V3f lngp = V3f{ cobr.x(), 1.48f, cobr.y() };
     sg.setLastKnownGoodPosition(lngp);
     rsg.setRigCameraController(CameraControlType::Walk);
     rsg.DC()->setQuatAngles(V3f{ 0.08f, -0.70f, 0.0f });
@@ -40,17 +40,16 @@ void Showcaser::activatePostLoad() {
 
     rsg.createSkybox(SkyBoxInitParams{ SkyBoxMode::CubeProcedural });
 
-    Renderer::clearColor(C4f::WHITE);
-    rsg.useSkybox(true);
+    Renderer::clearColor(C4f::XTORGBA("8ae9e9"));
+    rsg.RR().setLoadingFlag( true );
+    rsg.useSkybox(false);
     rsg.RR().useVignette(true);
     rsg.RR().useFilmGrain(true);
     rsg.useSSAO(true);
     rsg.changeTime("14:00");
     rsg.setRigCameraController(CameraControlType::Walk);
+    rsg.DC()->setQuatAngles(V3f{ 0.08f, -0.00f, 0.0f });
     rsg.DC()->setFoV(60.0f);
-
-    sg.GB<GT::Shape>(ShapeType::Cube, GT::Tag(SHADOW_MAGIC_TAG), V3f::UP_AXIS_NEG * 0.15f,
-                     GT::Scale(500.0f, 0.1f, 500.0f));
 
     // Load default property if passed trough command line
     LOGRS("CLI params:" << cliParams.printAll());
