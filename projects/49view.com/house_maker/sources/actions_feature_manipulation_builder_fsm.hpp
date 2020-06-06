@@ -109,12 +109,10 @@ struct KeyToggleFeatureManipulation {
             return true;
         }
         if ( keyEvent.keyCode == GMK_D ) {
-            auto is = keyEvent.viewportPos;
-            ims.createTwoShapeOnSelectedEdge(is, [&]( const ArchStructuralFeatureDescriptor& asf, const V2f& offset ) {
-                WallService::createTwoShapeOnSelectedEdge(hm.H(), asf, offset);
-                HouseService::recalculateBBox(hm.H());
-            });
-            ims.resetSelection();
+            auto fus = WallService::createTwoShapeAt(hm.H(), keyEvent.viewportPos);
+            if ( FloorService::isFloorUShapeValid(fus) ) {
+                HouseMakerBitmap::makeAddDoor(hm.H(), hm.HMB(), hm.SI(), fus );
+            }
             return true;
         }
         return false;
