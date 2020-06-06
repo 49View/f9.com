@@ -17,3 +17,15 @@ struct QuickZoomIn {
         hm.quickZoomIn();
     }
 };
+
+struct KeyToggleHouseMaker {
+    void operator()( HouseMakerStateMachine& hm, OnKeyToggleEvent keyEvent ) noexcept {
+
+        if ( keyEvent.keyCode == GMK_2 ) {
+            hm.set2dMode();
+        }
+        if ( keyEvent.keyCode == GMK_3 ) {
+            hm.set3dMode();
+        }
+    }
+};

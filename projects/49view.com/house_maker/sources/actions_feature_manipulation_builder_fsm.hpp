@@ -108,6 +108,15 @@ struct KeyToggleFeatureManipulation {
             ims.resetSelection();
             return true;
         }
+        if ( keyEvent.keyCode == GMK_D ) {
+            auto is = keyEvent.viewportPos;
+            ims.createTwoShapeOnSelectedEdge(is, [&]( const ArchStructuralFeatureDescriptor& asf, const V2f& offset ) {
+                WallService::createTwoShapeOnSelectedEdge(hm.H(), asf, offset);
+                HouseService::recalculateBBox(hm.H());
+            });
+            ims.resetSelection();
+            return true;
+        }
         return false;
     }
 };

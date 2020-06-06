@@ -77,7 +77,8 @@ void HouseMakerStateMachine::elaborateHouseCallback( std::vector<std::string>& _
     _paths.clear();
 }
 
-void HouseMakerStateMachine::set2dMode( const V3f& pos ) {
+void HouseMakerStateMachine::set2dMode() {
+    auto pos = houseJson ? V3f{ houseJson->center.x(), 5.0f, houseJson->center.y() } : V3f::UP_AXIS * 5.0f;
     rsg.RR().showBucket(CommandBufferLimits::UI2dStart, true);
     rsg.RR().showBucket(CommandBufferLimits::PBRStart, false);
     rsg.setRigCameraController(CameraControlType::Edit2d);
@@ -127,11 +128,12 @@ void HouseMakerStateMachine::activatePostLoad() {
 
     luaFunctionsSetup();
 
-    set2dMode(V3f::UP_AXIS * 5.0f);
+    set2dMode();
 
     rsg.setDragAndDropFunction(std::bind(&HouseMakerStateMachine::elaborateHouseCallback, this, std::placeholders::_1));
 
-    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/asr2bedroomflat.png");
+    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/visionhouse-apt2.png");
+//    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/asr2bedroomflat.png");
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/canbury_park_road.jpg");
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/halterA7-11.png");
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/test_lightingpw.png");
@@ -209,13 +211,6 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
     if ( ImGui::Button("Elaborate") ) {
         elaborateHouseBitmap();
     }
-    if ( ImGui::Button("2d") ) {
-        auto pos = houseJson ? V3f{ houseJson->center.x(), 5.0f, houseJson->center.y() } : V3f::UP_AXIS * 5.0f;
-        set2dMode(pos);
-    }
-    if ( ImGui::Button("3d") ) {
-        set3dMode();
-    }
     if ( ImGui::Button("Publish") ) {
         FM::writeLocalFile("./asr2bed.json", houseJson->serialize());
         Http::post(Url{ "/propertybim/5ea45ffeb06b0cfc7488ec45" }, houseJson->serialize(),
@@ -286,6 +281,15 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
 
     if ( _aid.TI().checkKeyToggleOn(GMK_A) ) {
         backEnd->process_event( OnKeyToggleEvent{GMK_A} );
+    }
+    if ( _aid.TI().checkKeyToggleOn(GMK_D) ) {
+        backEnd->process_event( OnKeyToggleEvent{GMK_D, _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC())} );
+    }
+    if ( _aid.TI().checkKeyToggleOn(GMK_2) ) {
+        backEnd->process_event( OnKeyToggleEvent{GMK_2} );
+    }
+    if ( _aid.TI().checkKeyToggleOn(GMK_3) ) {
+        backEnd->process_event( OnKeyToggleEvent{GMK_3} );
     }
     if ( _aid.TI().checkKeyToggleOn(GMK_Z) ) {
         backEnd->process_event( OnKeyToggleEvent{GMK_Z} );

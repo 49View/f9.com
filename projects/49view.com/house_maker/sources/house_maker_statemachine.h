@@ -38,6 +38,9 @@ public:
     HMBBSData& HMB();
     SourceImages& SI();
 
+    void set2dMode();
+    void set3dMode();
+
 protected:
     void activatePostLoad() override;
     void luaFunctionsSetup() override;
@@ -45,9 +48,6 @@ protected:
     void elaborateHouseBitmap();
     void elaborateHouseStageWalls( const V2fVectorOfVector& wallPoints );
     void appendBespokeWalls( const V2fVectorOfVector& bwalls );
-
-    void set2dMode( const V3f& pos );
-    void set3dMode();
 
     void updateHMB();
 

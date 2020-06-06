@@ -33,6 +33,7 @@ struct OnTouchUpViewportSpaceEvent {
 
 struct OnKeyToggleEvent{
     int keyCode = 0;
+    V2f viewportPos{V2fc::HUGE_VALUE_NEG};
 };
 
 struct OnFinaliseEvent {};

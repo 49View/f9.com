@@ -45,7 +45,7 @@ struct FinaliseBespoke {
 };
 
 struct ExitBespoke {
-    void operator()( RoomBuilder* rb ) noexcept {
+    void operator()( [[maybe_unused]] RoomBuilder* rb ) noexcept {
         // On Exit, we might need to save some states, cache or whatever, do it here
     }
 };
