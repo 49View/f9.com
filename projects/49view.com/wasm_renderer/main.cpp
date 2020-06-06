@@ -1,8 +1,7 @@
 #include <render_scene_graph/event_horizon.h>
 #include "sources/wasm_renderer.h"
 
-#include <core/math/vector2f.h>
-#include <core/math/collision_detection.hpp>
+#include <eh_arch/controller/arch_render_controller.hpp>
 
 int main( int argc, char *argv[] ) {
 

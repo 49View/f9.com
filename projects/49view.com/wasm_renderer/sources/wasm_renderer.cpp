@@ -9,7 +9,6 @@
 #include <core/camera.h>
 #include <core/resources/profile.hpp>
 #include <render_scene_graph/render_orchestrator.h>
-#include <core/resources/resource_builder.hpp>
 #include <core/math/vector_util.hpp>
 #include <core/lightmap_exchange_format.h>
 #include <graphics/render_light_manager.h>
@@ -23,10 +22,15 @@
 //scene_t scene{ 0 };
 //const std::string skyboxName = "tropical,beach";
 
+Showcaser::Showcaser( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchOrchestrator& _asg, ArchRenderController& _ims ) : RunLoopBackEndBase(_sg, _rsg),
+                                                                                                                        ScenePreLoader(_sg, _rsg),
+                                                                                                                        asg(_asg), ims(_ims) {}
+
 void Showcaser::postLoadHouseCallback(std::shared_ptr<HouseBSData> houseJson) {
     floorplanNavigationMatrix = asg.calcFloorplanNavigationTransform(houseJson, 3.5f, 0.02f);
-    HouseRender::IMHouseRender(rsg.RR(), sg, houseJson.get(), ArchRenderController{ RDSPreMult(floorplanNavigationMatrix),
-                                                                FloorPlanRenderMode::Normal2d });
+    ims.pm(RDSPreMult(floorplanNavigationMatrix));
+    ims.renderMode(FloorPlanRenderMode::Normal2d);
+    HouseRender::IMHouseRender(rsg.RR(), sg, houseJson.get(), ims);
 
     V2f cobr = HouseService::centerOfBiggestRoom(houseJson.get());
     V3f lngp = V3f{ cobr.x(), 1.48f, cobr.y() };

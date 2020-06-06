@@ -10,12 +10,12 @@
 #include <render_scene_graph/scene_loader.hpp>
 #include <eh_arch/controller/arch_orchestrator.hpp>
 
+class ArchRenderController;
+
 // Back End
 class Showcaser : public RunLoopBackEndBase, public LoginActivation<LoginFieldsPrecached>, public ScenePreLoader {
 public:
-    Showcaser( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchOrchestrator& _asg ) : RunLoopBackEndBase(_sg, _rsg),
-                                                                                   ScenePreLoader(_sg, _rsg),
-                                                                                   asg(_asg) {}
+    Showcaser( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchOrchestrator& _asg, ArchRenderController& _ims );
     ~Showcaser() override = default;
 
     void updateImpl( const AggregatedInputData& _aid ) override;
@@ -28,5 +28,6 @@ protected:
     void postLoadHouseCallback(std::shared_ptr<HouseBSData> houseJson);
 protected:
     ArchOrchestrator& asg;
+    ArchRenderController& ims;
     Matrix4f floorplanNavigationMatrix;
 };
