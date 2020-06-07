@@ -255,12 +255,15 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
     }
     ImGui::End();
 
-    ImGui::Begin("Structure");
-    static bool lbStructureOpen = true;
+    ImGui::Begin("House Structure");
+    static bool lbStructureOpen = false;
     imguiTreeOpenAtStart( lbStructureOpen );
-    if ( ImGui::CollapsingHeader( "Structure" )) {
+    if ( ImGui::CollapsingHeader( "House" )) {
         houseJson->visit<ImGUIJson>();
     }
+//    static bool bStructureVisible = false;
+//    ImGui::Begin("Structure", &bStructureVisible);
+//    houseJson->visit<ImGUIJson>();
     ImGui::End();
 
 
