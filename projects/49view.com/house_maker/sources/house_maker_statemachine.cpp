@@ -17,6 +17,7 @@
 #include <eh_arch/render/house_render.hpp>
 #include <core/math/vector_util.hpp>
 #include <eh_arch/models/wall_service.hpp>
+#include <graphics/imgui/imgui_jsonvisit.hpp>
 
 #include "transition_table_fsm.hpp"
 
@@ -46,9 +47,11 @@ void HouseMakerStateMachine::elaborateHouseStage1( const std::string& filename )
     hmbBSData = HMBBSData{ getFileNameOnly(filename), RawImage{ FM::readLocalFileC(filename) } };
     sg.addRawImageIM(hmbBSData.filename, hmbBSData.image);
     updateHMB();
-    houseJson = HouseMakerBitmap::makeEmpty(hmbBSData);
+    houseJson = HouseMakerBitmap::make(hmbBSData, sourceImages);
     asg.showIMHouse(houseJson, ims);
-    rsg.DC()->setPosition(rsg.DC()->center(houseJson->bbox, 0.0f));
+    if ( houseJson->bbox.isValid() ) {
+        rsg.DC()->setPosition(rsg.DC()->center(houseJson->bbox, 0.0f));
+    }
 }
 
 void HouseMakerStateMachine::elaborateHouseStageWalls( const V2fVectorOfVector& wallPoints ) {
@@ -132,7 +135,8 @@ void HouseMakerStateMachine::activatePostLoad() {
 
     rsg.setDragAndDropFunction(std::bind(&HouseMakerStateMachine::elaborateHouseCallback, this, std::placeholders::_1));
 
-    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/visionhouse-apt2.png");
+    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/visionhouse-apt1.png");
+//    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/visionhouse-apt2.png");
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/asr2bedroomflat.png");
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/canbury_park_road.jpg");
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/halterA7-11.png");
@@ -170,6 +174,13 @@ void HouseMakerStateMachine::quickZoomIn() {
                    KeyFramePair{ 0.2f, V3f{ cpos.x(), lerp(0.5f, 0.0f, cpos.y()), cpos.z() } });
 }
 
+void imguiTreeOpenAtStart( bool& _bOpen ) {
+    if ( _bOpen ) {
+        ImGui::SetNextTreeNodeOpen( true );
+        _bOpen = false;
+    }
+}
+
 void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
     // Debug control panel using imgui
 #ifdef _USE_IMGUI_
@@ -197,6 +208,8 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
     if ( ImGui::SliderFloat("maxBinThreshold", &hmbBSData.maxBinThreshold, 0.0f, 255.0f) ) {
         updateHMB();
     }
+    ImGui::Text( "Winning Strategy: %d", hmbBSData.winningStrategy );
+    ImGui::Text( "Winning Margin: %f", hmbBSData.winningMargin );
     static float scaleFactorInc = 0.01f;
     static float oldScaleFactorInc = 0.01f;
     if ( ImGui::InputFloat("Scale Factor", &scaleFactorInc, 0.01f, 0.01f, 4) ) {
@@ -241,6 +254,15 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
         ImGui::Text("%s", line.c_str());
     }
     ImGui::End();
+
+    ImGui::Begin("Structure");
+    static bool lbStructureOpen = true;
+    imguiTreeOpenAtStart( lbStructureOpen );
+    if ( ImGui::CollapsingHeader( "Structure" )) {
+        houseJson->visit<ImGUIJson>();
+    }
+    ImGui::End();
+
 
 #endif
 
@@ -299,6 +321,9 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
     }
     if ( _aid.TI().checkKeyToggleOn(GMK_C) ) {
         backEnd->process_event( OnKeyToggleEvent{GMK_C} );
+    }
+    if ( _aid.TI().checkKeyToggleOn(GMK_R) ) {
+        backEnd->process_event( OnKeyToggleEvent{GMK_R} );
     }
     if ( _aid.TI().checkKeyToggleOn(GMK_ENTER) ) {
         backEnd->process_event( OnFinaliseEvent{} );

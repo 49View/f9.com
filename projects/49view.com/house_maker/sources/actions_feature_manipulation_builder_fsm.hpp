@@ -61,7 +61,6 @@ struct TouchMoveFeatureManipulation {
 
 struct TouchUpEventFeatureManipulation {
     bool operator()( ArchRenderController& ims, HouseMakerStateMachine& hm ) noexcept {
-//            elaborateHouseStageWalls( HouseService::rescaleWallInverse( houseJson.get(), hmbBSData.rescaleFactor ) );
         return true;
     }
 };

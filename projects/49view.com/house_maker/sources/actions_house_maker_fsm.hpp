@@ -27,5 +27,9 @@ struct KeyToggleHouseMaker {
         if ( keyEvent.keyCode == GMK_3 ) {
             hm.set3dMode();
         }
+        if ( keyEvent.keyCode == GMK_R ) {
+            HouseMakerBitmap::makeFromWalls(hm.H(), hm.HMB(), hm.SI() );
+            hm.showIMHouse();
+        }
     }
 };
