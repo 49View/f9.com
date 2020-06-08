@@ -44,7 +44,7 @@ void HouseMakerStateMachine::elaborateHouseStage1( const std::string& filename )
     hmbBSData = HMBBSData{ getFileNameOnly(filename), RawImage{ FM::readLocalFileC(filename) } };
     sg.addRawImageIM(hmbBSData.filename, hmbBSData.image);
     updateHMB();
-    houseJson = HouseMakerBitmap::make(hmbBSData, sourceImages);
+    houseJson = HouseMakerBitmap::makeEmpty(hmbBSData);
     asg.showIMHouse(houseJson, ims);
     if ( houseJson->bbox.isValid() ) {
         rsg.DC()->setPosition(rsg.DC()->center(houseJson->bbox, 0.0f));
@@ -139,7 +139,7 @@ void HouseMakerStateMachine::activatePostLoad() {
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/halterA7-11.png");
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/test_lightingpw.png");
 
-//    rb->loadSegments(FM::readLocalFileC("/home/dado/Documents/GitHub/f9.com/builds/house_maker/debug/bespoke_segments14807935707459752956") );
+//    rb->loadSegments(FM::readLocalFileC("/home/dado/Documents/GitHub/f9.com/builds/house_maker/debug/bespoke_segments12355083106397132608") );
 //    finaliseBespoke();
 
     backEnd->process_event(OnActivateEvent{});
@@ -281,6 +281,7 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
                             RoomService::addRoomType(room, ASType::GenericRoom);
                         }
                     }
+                    HouseService::guessFittings(houseJson.get(), furnitureMap);
                     showIMHouse();
                 }
             }
@@ -307,10 +308,7 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
         if ( _aid.TI().checkKeyToggleOn(GMK_Z) ) {
             backEnd->process_event(OnUndoEvent{});
         }
-    }
-
-    if ( _aid.TI().checkModKeyPressed(GMK_RIGHT_CONTROL) ) {
-        if ( _aid.TI().checkKeyToggleOn(GMK_SPACE) ) {
+        if ( _aid.TI().checkKeyToggleOn(GMK_COMMA) ) {
             backEnd->process_event(OnSpecialSpaceEvent{});
         }
     }

@@ -21,6 +21,7 @@ struct FrontEndStateMachineSML {
             ,state<class HouseMaker> + event<OnFirstTimeTouchDownViewportSpaceEvent>[TouchedDownFirstTimeFeatureManipulationGuard{}] / EnterFeatureManipulation{} = state<class FeatureManipulation>
 
             ,state<class Bespoke> + event<OnUndoEvent> / UndoBespoke{}
+            ,state<class Bespoke> + event<OnClearEvent> / ClearBespoke{}
             ,state<class Bespoke> + event<OnTouchMoveEvent> / TouchMoveBespoke{}
             ,state<class Bespoke> + event<OnTouchUpEvent> / TouchUpEventBespoke{}
             ,state<class Bespoke> + event<OnKeyToggleEvent> / KeyToggleBespoke{}
