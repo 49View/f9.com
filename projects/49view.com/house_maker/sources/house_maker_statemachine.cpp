@@ -3,31 +3,28 @@
 //
 
 #include "house_maker_statemachine.h"
-#include <core/resources/resource_builder.hpp>
 #include <core/file_manager.h>
 #include <core/raw_image.h>
 #include <graphics/render_light_manager.h>
 #include <graphics/imgui/imgui.h>
 #include <poly/scene_dependency_resolver.hpp>
-#include <poly/follower.hpp>
 
 #include <eh_arch/render/wall_render.hpp>
-#include <eh_arch/render/window_render.hpp>
 #include <eh_arch/render/room_render.hpp>
 #include <eh_arch/render/house_render.hpp>
 #include <core/math/vector_util.hpp>
-#include <eh_arch/models/wall_service.hpp>
 #include <graphics/imgui/imgui_jsonvisit.hpp>
 
 #include "transition_table_fsm.hpp"
 
-HouseMakerStateMachine::HouseMakerStateMachine( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchOrchestrator& _asg, ArchRenderController& _ims ) :
+HouseMakerStateMachine::HouseMakerStateMachine( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchOrchestrator& _asg,
+                                                ArchRenderController& _ims ) :
         RunLoopBackEndBase(_sg, _rsg),
         ScenePreLoader(_sg, _rsg),
         asg(_asg), ims(_ims) {
-    ims.renderMode( FloorPlanRenderMode::Debug3d );
+    ims.renderMode(FloorPlanRenderMode::Debug3d);
     rb = std::make_shared<RoomBuilder>(_sg, _rsg, houseJson);
-    backEnd = std::make_unique<FrontEnd>( *this, rb.get(), _asg, _sg, _rsg, houseJson.get(), _ims );
+    backEnd = std::make_unique<FrontEnd>(*this, rb.get(), _asg, _sg, _rsg, houseJson.get(), _ims);
 }
 
 void HouseMakerStateMachine::activateImpl() {
@@ -39,7 +36,7 @@ void HouseMakerStateMachine::luaFunctionsSetup() {
 
 void HouseMakerStateMachine::elaborateHouseBitmap() {
     houseJson = HouseMakerBitmap::make(hmbBSData, sourceImages);
-//    HouseService::guessFittings(houseJson.get(), furnitureMap);
+    HouseService::guessFittings(houseJson.get(), furnitureMap);
     asg.showIMHouse(houseJson, ims);
 }
 
@@ -55,7 +52,7 @@ void HouseMakerStateMachine::elaborateHouseStage1( const std::string& filename )
 }
 
 void HouseMakerStateMachine::elaborateHouseStageWalls( const V2fVectorOfVector& wallPoints ) {
-    HouseMakerBitmap::makeFromWalls( houseJson, wallPoints, hmbBSData, sourceImages);
+    HouseMakerBitmap::makeFromWalls(houseJson, wallPoints, hmbBSData, sourceImages);
     HouseService::guessFittings(houseJson.get(), furnitureMap);
 }
 
@@ -72,7 +69,7 @@ void HouseMakerStateMachine::updateHMB() {
                                         sourceImages.sourceFileImageBin.data };
         sg.addRawImageIM(hmbBSData.filename + "_bin", sourceBinImage);
     }
-};
+}
 
 void HouseMakerStateMachine::elaborateHouseCallback( std::vector<std::string>& _paths ) {
     if ( _paths.empty() ) return;
@@ -145,7 +142,7 @@ void HouseMakerStateMachine::activatePostLoad() {
 //    rb->loadSegments(FM::readLocalFileC("/home/dado/Documents/GitHub/f9.com/builds/house_maker/debug/bespoke_segments14807935707459752956") );
 //    finaliseBespoke();
 
-    backEnd->process_event( OnActivateEvent{} );
+    backEnd->process_event(OnActivateEvent{});
 }
 
 void HouseMakerStateMachine::clear() {
@@ -158,12 +155,12 @@ void HouseMakerStateMachine::clear() {
 }
 
 void HouseMakerStateMachine::appendBespokeWalls( const V2fVectorOfVector& bwalls ) {
-    bespokeWalls.insert( bespokeWalls.end(), bwalls.begin(), bwalls.end() );
+    bespokeWalls.insert(bespokeWalls.end(), bwalls.begin(), bwalls.end());
 }
 
 void HouseMakerStateMachine::finaliseBespoke() {
-    appendBespokeWalls( rb->bespokeriseWalls(1.0f) );
-    elaborateHouseStageWalls( bespokeWalls );
+    appendBespokeWalls(rb->bespokeriseWalls(1.0f));
+    elaborateHouseStageWalls(bespokeWalls);
     rb->clear();
     showIMHouse();
 }
@@ -176,7 +173,7 @@ void HouseMakerStateMachine::quickZoomIn() {
 
 void imguiTreeOpenAtStart( bool& _bOpen ) {
     if ( _bOpen ) {
-        ImGui::SetNextTreeNodeOpen( true );
+        ImGui::SetNextTreeNodeOpen(true);
         _bOpen = false;
     }
 }
@@ -208,13 +205,13 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
     if ( ImGui::SliderFloat("maxBinThreshold", &hmbBSData.maxBinThreshold, 0.0f, 255.0f) ) {
         updateHMB();
     }
-    ImGui::Text( "Winning Strategy: %d", hmbBSData.winningStrategy );
-    ImGui::Text( "Winning Margin: %f", hmbBSData.winningMargin );
+    ImGui::Text("Winning Strategy: %d", hmbBSData.winningStrategy);
+    ImGui::Text("Winning Margin: %f", hmbBSData.winningMargin);
     static float scaleFactorInc = 0.01f;
     static float oldScaleFactorInc = 0.01f;
     if ( ImGui::InputFloat("Scale Factor", &scaleFactorInc, 0.01f, 0.01f, 4) ) {
         if ( houseJson ) {
-            float sc = sign(scaleFactorInc-oldScaleFactorInc) > 0.0f ? 1.01f : 0.99f;
+            float sc = sign(scaleFactorInc - oldScaleFactorInc) > 0.0f ? 1.01f : 0.99f;
             HouseMakerBitmap::rescale(houseJson.get(), sc, sc);
             oldScaleFactorInc = scaleFactorInc;
 //            rb->scale( centimetersToMeters(hmbBSData.rescaleFactor) );
@@ -227,8 +224,8 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
     if ( ImGui::Button("Publish") ) {
         FM::writeLocalFile("./asr2bed.json", houseJson->serialize());
         Http::post(Url{ "/propertybim/5ea45ffeb06b0cfc7488ec45" }, houseJson->serialize(),
-                   [this]( HttpResponeParams params ) {
-                       LOGRS("Published");
+                   []( HttpResponeParams params ) {
+                       LOGRS("Published")
                    });
     }
     ImGui::End();
@@ -257,88 +254,115 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
 
     ImGui::Begin("House Structure");
     static bool lbStructureOpen = false;
-    imguiTreeOpenAtStart( lbStructureOpen );
-    if ( ImGui::CollapsingHeader( "House" )) {
+    imguiTreeOpenAtStart(lbStructureOpen);
+    if ( ImGui::CollapsingHeader("House") ) {
         houseJson->visit<ImGUIJson>();
     }
-//    static bool bStructureVisible = false;
-//    ImGui::Begin("Structure", &bStructureVisible);
-//    houseJson->visit<ImGUIJson>();
     ImGui::End();
 
+    auto selected = ims.selectionFront();
+    if ( selected ) {
+        ImGui::Begin("Selection");
+        auto *room = HouseService::find<RoomBSData>(houseJson.get(), selected->hash);
+        if ( room ) {
+            static std::array<bool, ASType::LastRoom> hasRoomV{};
+            auto startIndex = ASType::GenericRoom;
+            for ( auto rn = startIndex; rn < ASType::LastRoom; rn++ ) {
+                hasRoomV[rn - startIndex] = RoomService::hasRoomType(room, rn);
+            }
+            for ( auto rn = startIndex; rn < ASType::LastRoom; rn++ ) {
+                if ( ImGui::Checkbox(RoomService::roomTypeToName1to1(rn).c_str(), &hasRoomV[rn - startIndex]) ) {
+                    if ( hasRoomV[rn-startIndex] ) {
+                        RoomService::addRoomType(room, rn);
+                        RoomService::removeRoomType(room, ASType::GenericRoom);
+                    } else {
+                        RoomService::removeRoomType(room, rn);
+                        if ( room->roomTypes.empty() ) {
+                            RoomService::addRoomType(room, ASType::GenericRoom);
+                        }
+                    }
+                    showIMHouse();
+                }
+            }
+        }
+        ImGui::End();
+    }
 
 #endif
 
     bool isLeftAltPressed = _aid.TI().checkKeyPressed(GMK_LEFT_ALT);
 
     if ( isLeftAltPressed ) {
-        backEnd->process_event( OnAltPressedEvent{} );
+        backEnd->process_event(OnAltPressedEvent{});
     }
     if ( _aid.TI().checkModKeyPressed(GMK_LEFT_SHIFT) && _aid.TI().checkKeyToggleOn(GMK_DELETE) ) {
-        backEnd->process_event( OnClearEvent{} );
+        backEnd->process_event(OnClearEvent{});
     }
 
     if ( _aid.isMouseDoubleTap(TOUCH_ZERO) ) {
-        backEnd->process_event( OnDoubleTapEvent{} );
+        backEnd->process_event(OnDoubleTapEvent{});
     }
 
     if ( _aid.TI().checkModKeyPressed(GMK_LEFT_CONTROL) ) {
         if ( _aid.TI().checkKeyToggleOn(GMK_Z) ) {
-            backEnd->process_event( OnUndoEvent{} );
+            backEnd->process_event(OnUndoEvent{});
         }
-        if ( _aid.TI().checkKeyToggleOn(GMK_T) ) {
-            backEnd->process_event( OnSpecialSpaceEvent{} );
+    }
+
+    if ( _aid.TI().checkModKeyPressed(GMK_RIGHT_CONTROL) ) {
+        if ( _aid.TI().checkKeyToggleOn(GMK_SPACE) ) {
+            backEnd->process_event(OnSpecialSpaceEvent{});
         }
     }
 
     if ( _aid.isMouseTouchedDownFirstTime(TOUCH_ZERO) ) {
-        backEnd->process_event( OnFirstTimeTouchDownEvent{_aid.mousePos(TOUCH_ZERO)} );
-        backEnd->process_event( OnFirstTimeTouchDownViewportSpaceEvent{_aid.mouseViewportPos(TOUCH_ZERO, rsg.DC())} );
+        backEnd->process_event(OnFirstTimeTouchDownEvent{ _aid.mousePos(TOUCH_ZERO) });
+        backEnd->process_event(OnFirstTimeTouchDownViewportSpaceEvent{ _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC()) });
     }
     if ( _aid.hasMouseMoved(TOUCH_ZERO) && _aid.isMouseTouchedDown(TOUCH_ZERO) ) {
-        backEnd->process_event( OnTouchMoveEvent{_aid.mousePos(TOUCH_ZERO)} );
-        backEnd->process_event( OnTouchMoveViewportSpaceEvent{_aid.mouseViewportPos(TOUCH_ZERO, rsg.DC())} );
+        backEnd->process_event(OnTouchMoveEvent{ _aid.mousePos(TOUCH_ZERO) });
+        backEnd->process_event(OnTouchMoveViewportSpaceEvent{ _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC()) });
     }
     if ( _aid.isMouseTouchedUp(TOUCH_ZERO) ) {
-        backEnd->process_event( OnTouchUpEvent{_aid.mousePos(TOUCH_ZERO)} );
-        backEnd->process_event( OnTouchUpViewportSpaceEvent{_aid.mouseViewportPos(TOUCH_ZERO, rsg.DC())} );
+        backEnd->process_event(OnTouchUpEvent{ _aid.mousePos(TOUCH_ZERO) });
+        backEnd->process_event(OnTouchUpViewportSpaceEvent{ _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC()) });
     }
 
     if ( _aid.TI().checkKeyToggleOn(GMK_A) ) {
-        backEnd->process_event( OnKeyToggleEvent{GMK_A} );
+        backEnd->process_event(OnKeyToggleEvent{ GMK_A });
     }
     if ( _aid.TI().checkKeyToggleOn(GMK_D) ) {
-        backEnd->process_event( OnKeyToggleEvent{GMK_D, _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC())} );
+        backEnd->process_event(OnKeyToggleEvent{ GMK_D, _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC()) });
     }
     if ( _aid.TI().checkKeyToggleOn(GMK_2) ) {
-        backEnd->process_event( OnKeyToggleEvent{GMK_2} );
+        backEnd->process_event(OnKeyToggleEvent{ GMK_2 });
     }
     if ( _aid.TI().checkKeyToggleOn(GMK_3) ) {
-        backEnd->process_event( OnKeyToggleEvent{GMK_3} );
+        backEnd->process_event(OnKeyToggleEvent{ GMK_3 });
     }
     if ( _aid.TI().checkKeyToggleOn(GMK_Z) ) {
-        backEnd->process_event( OnKeyToggleEvent{GMK_Z} );
+        backEnd->process_event(OnKeyToggleEvent{ GMK_Z });
     }
     if ( _aid.TI().checkKeyToggleOn(GMK_X) ) {
-        backEnd->process_event( OnKeyToggleEvent{GMK_X} );
+        backEnd->process_event(OnKeyToggleEvent{ GMK_X });
     }
     if ( _aid.TI().checkKeyToggleOn(GMK_C) ) {
-        backEnd->process_event( OnKeyToggleEvent{GMK_C} );
+        backEnd->process_event(OnKeyToggleEvent{ GMK_C });
     }
     if ( _aid.TI().checkKeyToggleOn(GMK_R) ) {
-        backEnd->process_event( OnKeyToggleEvent{GMK_R} );
+        backEnd->process_event(OnKeyToggleEvent{ GMK_R });
     }
     if ( _aid.TI().checkKeyToggleOn(GMK_ENTER) ) {
-        backEnd->process_event( OnFinaliseEvent{} );
+        backEnd->process_event(OnFinaliseEvent{});
     }
     if ( _aid.TI().checkKeyToggleOn(GMK_SPACE) ) {
         backEnd->process_event( OnSpaceEvent{} );
     }
     if ( _aid.TI().checkKeyToggleOn(GMK_ESCAPE) ) {
-        backEnd->process_event( OnEscapeEvent{} );
+        backEnd->process_event(OnEscapeEvent{});
     }
     if ( _aid.TI().checkKeyToggleOn(GMK_DELETE) ) {
-        backEnd->process_event( OnDeleteEvent{} );
+        backEnd->process_event(OnDeleteEvent{});
     }
 
 }
