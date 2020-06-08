@@ -207,14 +207,15 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
     }
     ImGui::Text("Winning Strategy: %d", hmbBSData.winningStrategy);
     ImGui::Text("Winning Margin: %f", hmbBSData.winningMargin);
-    static float scaleFactorInc = 0.01f;
-    static float oldScaleFactorInc = 0.01f;
-    if ( ImGui::InputFloat("Scale Factor", &scaleFactorInc, 0.01f, 0.01f, 4) ) {
+    static float oldScaleFactor = hmbBSData.rescaleFactor;
+    static float currentScaleFactormeters = centimetersToMeters(hmbBSData.rescaleFactor);
+    if ( ImGui::InputFloat("Scale Factor", &currentScaleFactormeters, 0.001f, 0.01f, 5) ) {
         if ( houseJson ) {
-            float sc = sign(scaleFactorInc - oldScaleFactorInc) > 0.0f ? 1.01f : 0.99f;
-            HouseMakerBitmap::rescale(houseJson.get(), sc, sc);
-            oldScaleFactorInc = scaleFactorInc;
-//            rb->scale( centimetersToMeters(hmbBSData.rescaleFactor) );
+            HouseMakerBitmap::rescale(houseJson.get(), 1.0f/oldScaleFactor, metersToCentimeters(1.0f/oldScaleFactor));
+            hmbBSData.rescaleFactor = metersToCentimeters(currentScaleFactormeters);
+            HouseMakerBitmap::rescale(houseJson.get(), hmbBSData.rescaleFactor, centimetersToMeters(hmbBSData.rescaleFactor));
+            HouseService::guessFittings(houseJson.get(), furnitureMap);
+            oldScaleFactor = hmbBSData.rescaleFactor;
             showIMHouse();
         }
     }
