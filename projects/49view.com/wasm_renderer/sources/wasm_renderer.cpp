@@ -24,13 +24,13 @@
 
 Showcaser::Showcaser( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchOrchestrator& _asg, ArchRenderController& _ims ) : RunLoopBackEndBase(_sg, _rsg),
                                                                                                                         ScenePreLoader(_sg, _rsg),
-                                                                                                                        asg(_asg), ims(_ims) {}
+                                                                                                                        asg(_asg), arc(_ims) {}
 
 void Showcaser::postLoadHouseCallback(std::shared_ptr<HouseBSData> houseJson) {
     floorplanNavigationMatrix = asg.calcFloorplanNavigationTransform(houseJson, 3.5f, 0.02f);
-    ims.pm(RDSPreMult(floorplanNavigationMatrix));
-    ims.renderMode(FloorPlanRenderMode::Normal2d);
-    HouseRender::IMHouseRender(rsg.RR(), sg, houseJson.get(), ims);
+    arc.pm(RDSPreMult(floorplanNavigationMatrix));
+    arc.renderMode(FloorPlanRenderMode::Normal2d);
+    HouseRender::IMHouseRender(rsg.RR(), sg, houseJson.get(), arc);
 
     V2f cobr = HouseService::centerOfBiggestRoom(houseJson.get());
     V3f lngp = V3f{ cobr.x(), 1.48f, cobr.y() };

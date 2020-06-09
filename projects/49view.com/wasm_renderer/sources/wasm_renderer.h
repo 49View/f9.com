@@ -28,6 +28,6 @@ protected:
     void postLoadHouseCallback(std::shared_ptr<HouseBSData> houseJson);
 protected:
     ArchOrchestrator& asg;
-    ArchRenderController& ims;
+    ArchRenderController& arc;
     Matrix4f floorplanNavigationMatrix;
 };

@@ -54,7 +54,7 @@ protected:
     std::shared_ptr<RoomBuilder> rb;
     FurnitureMapStorage furnitureMap;
     std::shared_ptr<HouseBSData> houseJson;
-    ArchRenderController& ims;
+    ArchRenderController& arc;
 
     // Bespoke state
     V2fVectorOfVector bespokeWalls;

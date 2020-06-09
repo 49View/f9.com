@@ -21,8 +21,8 @@ HouseMakerStateMachine::HouseMakerStateMachine( SceneGraph& _sg, RenderOrchestra
                                                 ArchRenderController& _ims ) :
         RunLoopBackEndBase(_sg, _rsg),
         ScenePreLoader(_sg, _rsg),
-        asg(_asg), ims(_ims) {
-    ims.renderMode(FloorPlanRenderMode::Debug3d);
+        asg(_asg), arc(_ims) {
+    arc.renderMode(FloorPlanRenderMode::Debug3d);
     rb = std::make_shared<RoomBuilder>(_sg, _rsg, houseJson);
     backEnd = std::make_unique<FrontEnd>(*this, rb.get(), _asg, _sg, _rsg, houseJson.get(), _ims);
 }
@@ -44,7 +44,7 @@ void HouseMakerStateMachine::elaborateHouseStage1( const std::string& filename )
     sg.addRawImageIM(hmbBSData.filename, hmbBSData.image);
     updateHMB();
     houseJson = HouseMakerBitmap::makeEmpty(hmbBSData);
-    asg.showIMHouse(houseJson.get(), ims);
+    asg.showIMHouse(houseJson.get(), arc);
     asg.centerCameraMiddleOfHouse(houseJson.get());
 }
 
@@ -71,7 +71,7 @@ void HouseMakerStateMachine::elaborateHouseCallback( std::vector<std::string>& _
 
 void HouseMakerStateMachine::showIMHouse() {
     HouseService::guessFittings(houseJson.get(), furnitureMap);
-    asg.showIMHouse(houseJson.get(), ims);
+    asg.showIMHouse(houseJson.get(), arc);
 }
 
 void HouseMakerStateMachine::activatePostLoad() {
@@ -125,13 +125,6 @@ void HouseMakerStateMachine::finaliseBespoke() {
     HouseService::mergePoints( houseJson.get(), rb->bespokeriseWalls());
     HouseMakerBitmap::makeFromWalls( houseJson.get(), hmbBSData, sourceImages );
     showIMHouse();
-}
-
-void imguiTreeOpenAtStart( bool& _bOpen ) {
-    if ( _bOpen ) {
-        ImGui::SetNextTreeNodeOpen(true);
-        _bOpen = false;
-    }
 }
 
 void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
@@ -203,14 +196,10 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
     ImGui::End();
 
     ImGui::Begin("House Structure");
-    static bool lbStructureOpen = false;
-    imguiTreeOpenAtStart(lbStructureOpen);
-    if ( ImGui::CollapsingHeader("House") ) {
-        houseJson->visit<ImGUIJson>();
-    }
+    houseJson->visit<ImGUIJson>();
     ImGui::End();
 
-    auto selected = ims.selectionFront();
+    auto selected = arc.selectionFront();
     if ( selected ) {
         ImGui::Begin("Selection");
         auto *room = HouseService::find<RoomBSData>(houseJson.get(), selected->hash);
