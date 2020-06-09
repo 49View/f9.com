@@ -99,8 +99,9 @@ void HouseMakerStateMachine::activatePostLoad() {
 
     rsg.setDragAndDropFunction(std::bind(&HouseMakerStateMachine::elaborateHouseCallback, this, std::placeholders::_1));
 
-    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/visionhouse-apt1.png");
-//    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/visionhouse-apt2.png");
+//    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/visionhouse-apt1.png");
+
+    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/visionhouse-apt2.png");
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/asr2bedroomflat.png");
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/canbury_park_road.jpg");
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/halterA7-11.png");
