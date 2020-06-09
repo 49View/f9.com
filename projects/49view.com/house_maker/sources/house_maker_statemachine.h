@@ -38,9 +38,6 @@ public:
     SourceImages& SI();
     ArchOrchestrator& ASG();
 
-    void set2dMode();
-    void set3dMode();
-
 protected:
     void activatePostLoad() override;
     void luaFunctionsSetup() override;

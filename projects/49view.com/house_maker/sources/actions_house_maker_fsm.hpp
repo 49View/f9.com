@@ -12,15 +12,25 @@ struct ClearEverthing {
     }
 };
 
+struct ActivateBrowsing3d {
+    void operator()( HouseMakerStateMachine& hm, RenderOrchestrator& rsg ) noexcept {
+        rsg.RR().showBucket(CommandBufferLimits::UI2dStart, false);
+        rsg.RR().showBucket(CommandBufferLimits::GridStart, false);
+        rsg.RR().showBucket(CommandBufferLimits::PBRStart, true);
+        rsg.setRigCameraController(CameraControlType::Walk);
+        rsg.DC()->setQuatAngles(V3f{ 0.0f, 0.0f, 0.0f });
+        if ( hm.H() ) {
+            Timeline::play(rsg.DC()->PosAnim(), 0,
+                           KeyFramePair{ 0.1f, V3f{ hm.H()->center.x(), 1.45f, hm.H()->center.y() } });
+        }
+        rsg.useSkybox(true);
+        hm.ASG().show3dHouse(hm.H());
+    }
+};
+
 struct KeyToggleHouseMaker {
     void operator()( HouseMakerStateMachine& hm, OnKeyToggleEvent keyEvent ) noexcept {
 
-        if ( keyEvent.keyCode == GMK_2 ) {
-            hm.set2dMode();
-        }
-        if ( keyEvent.keyCode == GMK_3 ) {
-            hm.set3dMode();
-        }
         if ( keyEvent.keyCode == GMK_R ) {
             HouseMakerBitmap::makeFromWalls(hm.H(), hm.HMB(), hm.SI() );
             hm.showIMHouse();

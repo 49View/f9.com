@@ -44,7 +44,7 @@ void HouseMakerStateMachine::elaborateHouseStage1( const std::string& filename )
     sg.addRawImageIM(hmbBSData.filename, hmbBSData.image);
     updateHMB();
     houseJson = HouseMakerBitmap::makeEmpty(hmbBSData);
-    asg.showIMHouse(houseJson, ims);
+    asg.showIMHouse(houseJson.get(), ims);
     asg.centerCameraMiddleOfHouse(houseJson.get());
 }
 
@@ -69,33 +69,9 @@ void HouseMakerStateMachine::elaborateHouseCallback( std::vector<std::string>& _
     _paths.clear();
 }
 
-void HouseMakerStateMachine::set2dMode() {
-    auto pos = houseJson ? V3f{ houseJson->center.x(), 5.0f, houseJson->center.y() } : V3f::UP_AXIS * 5.0f;
-    rsg.RR().showBucket(CommandBufferLimits::UI2dStart, true);
-    rsg.RR().showBucket(CommandBufferLimits::PBRStart, false);
-    rsg.setRigCameraController(CameraControlType::Edit2d);
-    rsg.DC()->LockAtWalkingHeight(false);
-    rsg.DC()->setPosition(pos);
-    rsg.DC()->setQuatAngles(V3f{ M_PI_2, 0.0f, 0.0f });
-    rsg.useSkybox(false);
-}
-
-void HouseMakerStateMachine::set3dMode() {
-    rsg.RR().showBucket(CommandBufferLimits::UI2dStart, false);
-    rsg.RR().showBucket(CommandBufferLimits::PBRStart, true);
-    rsg.setRigCameraController(CameraControlType::Walk);
-    rsg.DC()->setQuatAngles(V3f{ 0.0f, 0.0f, 0.0f });
-    if ( houseJson ) {
-        Timeline::play(rsg.DC()->PosAnim(), 0,
-                       KeyFramePair{ 0.1f, V3f{ houseJson->center.x(), 1.45f, houseJson->center.y() } });
-    }
-    rsg.useSkybox(true);
-    asg.show3dHouse(houseJson);
-}
-
 void HouseMakerStateMachine::showIMHouse() {
     HouseService::guessFittings(houseJson.get(), furnitureMap);
-    asg.showIMHouse(houseJson, ims);
+    asg.showIMHouse(houseJson.get(), ims);
 }
 
 void HouseMakerStateMachine::activatePostLoad() {
@@ -108,7 +84,7 @@ void HouseMakerStateMachine::activatePostLoad() {
         }
     });
 
-    rsg.RR().createGrid(CommandBufferLimits::UnsortedStart + 1, 1.0f, ( Color4f::PASTEL_GRAYLIGHT ),
+    rsg.RR().createGrid(CommandBufferLimits::GridStart, 1.0f, ( Color4f::PASTEL_GRAYLIGHT ),
                         ( Color4f::DARK_GRAY ), V2f{ 15.0f }, 0.015f);
     rsg.createSkybox(SkyBoxInitParams{ SkyBoxMode::CubeProcedural });
     rsg.changeTime("summer 14:00");
@@ -120,8 +96,6 @@ void HouseMakerStateMachine::activatePostLoad() {
     rsg.useSSAO(true);
 
     luaFunctionsSetup();
-
-    set2dMode();
 
     rsg.setDragAndDropFunction(std::bind(&HouseMakerStateMachine::elaborateHouseCallback, this, std::placeholders::_1));
 
@@ -303,12 +277,14 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
     if ( _aid.TI().checkKeyToggleOn(GMK_D) ) {
         backEnd->process_event(OnKeyToggleEvent{ GMK_D, _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC()) });
     }
+
     if ( _aid.TI().checkKeyToggleOn(GMK_2) ) {
-        backEnd->process_event(OnKeyToggleEvent{ GMK_2 });
+        backEnd->process_event(OnHouseMakerToggleEvent{});
     }
     if ( _aid.TI().checkKeyToggleOn(GMK_3) ) {
-        backEnd->process_event(OnKeyToggleEvent{ GMK_3 });
+        backEnd->process_event(OnBrowser3dToggleEvent{});
     }
+
     if ( _aid.TI().checkKeyToggleOn(GMK_Z) ) {
         backEnd->process_event(OnKeyToggleEvent{ GMK_Z });
     }

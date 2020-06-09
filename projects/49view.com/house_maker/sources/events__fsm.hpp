@@ -10,6 +10,9 @@ struct OnClearEvent {};
 struct OnDoubleTapEvent {};
 struct OnUndoEvent {};
 
+struct OnBrowser3dToggleEvent{};
+struct OnHouseMakerToggleEvent{};
+
 struct OnFirstTimeTouchDownEvent {
     V2f mousePos{V2fc::HUGE_VALUE_NEG};
 };
