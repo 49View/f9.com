@@ -12,12 +12,6 @@ struct ClearEverthing {
     }
 };
 
-struct QuickZoomIn {
-    void operator()( HouseMakerStateMachine& hm ) noexcept {
-        hm.quickZoomIn();
-    }
-};
-
 struct KeyToggleHouseMaker {
     void operator()( HouseMakerStateMachine& hm, OnKeyToggleEvent keyEvent ) noexcept {
 
@@ -30,6 +24,21 @@ struct KeyToggleHouseMaker {
         if ( keyEvent.keyCode == GMK_R ) {
             HouseMakerBitmap::makeFromWalls(hm.H(), hm.HMB(), hm.SI() );
             hm.showIMHouse();
+        }
+    }
+};
+
+struct GlobalRescale {
+    void operator()( HouseMakerStateMachine& hm, OnGlobalRescaleEvent event ) {
+        float oldScaleFactor = event.oldScaleFactor;
+        float currentScaleFactorMeters = event.currentScaleFactorMeters;
+        auto houseJson = hm.H();
+        if ( houseJson ) {
+            HouseMakerBitmap::rescale(houseJson, 1.0f/oldScaleFactor, metersToCentimeters(1.0f/oldScaleFactor));
+            hm.HMB().rescaleFactor = metersToCentimeters(currentScaleFactorMeters);
+            HouseMakerBitmap::rescale(houseJson, hm.HMB().rescaleFactor, centimetersToMeters(hm.HMB().rescaleFactor));
+            hm.showIMHouse();
+            hm.ASG().centerCameraMiddleOfHouse(houseJson);
         }
     }
 };

@@ -41,3 +41,7 @@ struct OnEscapeEvent {};
 struct OnSpaceEvent {};
 struct OnSpecialSpaceEvent {};
 struct OnDeleteEvent {};
+struct OnGlobalRescaleEvent {
+    float oldScaleFactor = 1.0f;
+    float currentScaleFactorMeters = 1.0f;
+};

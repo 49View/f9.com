@@ -36,8 +36,7 @@ void HouseMakerStateMachine::luaFunctionsSetup() {
 
 void HouseMakerStateMachine::elaborateHouseBitmap() {
     houseJson = HouseMakerBitmap::make(hmbBSData, sourceImages);
-    HouseService::guessFittings(houseJson.get(), furnitureMap);
-    asg.showIMHouse(houseJson, ims);
+    showIMHouse();
 }
 
 void HouseMakerStateMachine::elaborateHouseStage1( const std::string& filename ) {
@@ -46,14 +45,7 @@ void HouseMakerStateMachine::elaborateHouseStage1( const std::string& filename )
     updateHMB();
     houseJson = HouseMakerBitmap::makeEmpty(hmbBSData);
     asg.showIMHouse(houseJson, ims);
-    if ( houseJson->bbox.isValid() ) {
-        rsg.DC()->setPosition(rsg.DC()->center(houseJson->bbox, 0.0f));
-    }
-}
-
-void HouseMakerStateMachine::elaborateHouseStageWalls( const V2fVectorOfVector& wallPoints ) {
-    HouseMakerBitmap::makeFromWalls(houseJson, wallPoints, hmbBSData, sourceImages);
-    HouseService::guessFittings(houseJson.get(), furnitureMap);
+    asg.centerCameraMiddleOfHouse(houseJson.get());
 }
 
 void HouseMakerStateMachine::updateHMB() {
@@ -102,6 +94,7 @@ void HouseMakerStateMachine::set3dMode() {
 }
 
 void HouseMakerStateMachine::showIMHouse() {
+    HouseService::guessFittings(houseJson.get(), furnitureMap);
     asg.showIMHouse(houseJson, ims);
 }
 
@@ -139,7 +132,7 @@ void HouseMakerStateMachine::activatePostLoad() {
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/halterA7-11.png");
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/test_lightingpw.png");
 
-//    rb->loadSegments(FM::readLocalFileC("/home/dado/Documents/GitHub/f9.com/builds/house_maker/debug/bespoke_segments12355083106397132608") );
+//    rb->loadSegments(FM::readLocalFileC("/home/dado/Documents/GitHub/f9.com/builds/house_maker/debug/bespoke_segments529417476917197912") );
 //    finaliseBespoke();
 
     backEnd->process_event(OnActivateEvent{});
@@ -154,21 +147,10 @@ void HouseMakerStateMachine::clear() {
     bespokeWalls.clear();
 }
 
-void HouseMakerStateMachine::appendBespokeWalls( const V2fVectorOfVector& bwalls ) {
-    bespokeWalls.insert(bespokeWalls.end(), bwalls.begin(), bwalls.end());
-}
-
 void HouseMakerStateMachine::finaliseBespoke() {
-    appendBespokeWalls(rb->bespokeriseWalls(1.0f));
-    elaborateHouseStageWalls(bespokeWalls);
-    rb->clear();
+    HouseService::mergePoints( houseJson.get(), rb->bespokeriseWalls());
+    HouseMakerBitmap::makeFromWalls( houseJson.get(), hmbBSData, sourceImages );
     showIMHouse();
-}
-
-void HouseMakerStateMachine::quickZoomIn() {
-    auto cpos = rsg.DC()->getPosition();
-    Timeline::play(rsg.DC()->PosAnim(), 0,
-                   KeyFramePair{ 0.2f, V3f{ cpos.x(), lerp(0.5f, 0.0f, cpos.y()), cpos.z() } });
 }
 
 void imguiTreeOpenAtStart( bool& _bOpen ) {
@@ -208,16 +190,10 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
     ImGui::Text("Winning Strategy: %d", hmbBSData.winningStrategy);
     ImGui::Text("Winning Margin: %f", hmbBSData.winningMargin);
     static float oldScaleFactor = hmbBSData.rescaleFactor;
-    static float currentScaleFactormeters = centimetersToMeters(hmbBSData.rescaleFactor);
-    if ( ImGui::InputFloat("Scale Factor", &currentScaleFactormeters, 0.001f, 0.01f, 5) ) {
-        if ( houseJson ) {
-            HouseMakerBitmap::rescale(houseJson.get(), 1.0f/oldScaleFactor, metersToCentimeters(1.0f/oldScaleFactor));
-            hmbBSData.rescaleFactor = metersToCentimeters(currentScaleFactormeters);
-            HouseMakerBitmap::rescale(houseJson.get(), hmbBSData.rescaleFactor, centimetersToMeters(hmbBSData.rescaleFactor));
-            HouseService::guessFittings(houseJson.get(), furnitureMap);
-            oldScaleFactor = hmbBSData.rescaleFactor;
-            showIMHouse();
-        }
+    static float currentScaleFactorMeters = centimetersToMeters(hmbBSData.rescaleFactor);
+    if ( ImGui::InputFloat("Scale Factor", &currentScaleFactorMeters, 0.001f, 0.01f, 5) ) {
+        backEnd->process_event( OnGlobalRescaleEvent{ oldScaleFactor, currentScaleFactorMeters} );
+        oldScaleFactor = hmbBSData.rescaleFactor;
     }
     if ( ImGui::Button("Elaborate") ) {
         elaborateHouseBitmap();
@@ -234,11 +210,10 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
     ImGui::Begin("SourceImages");
     ImGui::Text("Source");
     if ( !hmbBSData.filename.empty() ) {
-        float tSize = 1000.0f;
+        float tSize = 500.0f;
         auto tex = rsg.RR().TM()->get(hmbBSData.filename);
         auto ar = tex->getAspectRatioVector();
         ImGui::Image(reinterpret_cast<ImTextureID *>(tex->getHandle()), ImVec2{ tSize, tSize / ar.y() });
-
         auto texBin = rsg.RR().TM()->get(hmbBSData.filename + "_bin");
         ImGui::Image(reinterpret_cast<ImTextureID *>(texBin->getHandle()), ImVec2{ tSize, tSize / ar.y() });
     }
@@ -282,7 +257,6 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
                             RoomService::addRoomType(room, ASType::GenericRoom);
                         }
                     }
-                    HouseService::guessFittings(houseJson.get(), furnitureMap);
                     showIMHouse();
                 }
             }
@@ -301,15 +275,11 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
         backEnd->process_event(OnClearEvent{});
     }
 
-    if ( _aid.isMouseDoubleTap(TOUCH_ZERO) ) {
-        backEnd->process_event(OnDoubleTapEvent{});
-    }
-
     if ( _aid.TI().checkModKeyPressed(GMK_LEFT_CONTROL) ) {
         if ( _aid.TI().checkKeyToggleOn(GMK_Z) ) {
             backEnd->process_event(OnUndoEvent{});
         }
-        if ( _aid.TI().checkKeyToggleOn(GMK_COMMA) ) {
+        if ( _aid.TI().checkKeyToggleOn(GMK_T) ) {
             backEnd->process_event(OnSpecialSpaceEvent{});
         }
     }
@@ -374,4 +344,7 @@ HMBBSData& HouseMakerStateMachine::HMB() {
 }
 SourceImages& HouseMakerStateMachine::SI() {
     return sourceImages;
+}
+ArchOrchestrator& HouseMakerStateMachine::ASG() {
+    return asg;
 }

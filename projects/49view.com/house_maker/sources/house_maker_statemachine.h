@@ -30,13 +30,13 @@ public:
     void elaborateHouseCallback( std::vector<std::string>& _paths );
 
     void clear();
-    void quickZoomIn();
     void finaliseBespoke();
     void showIMHouse();
 
     HouseBSData *H();
     HMBBSData& HMB();
     SourceImages& SI();
+    ArchOrchestrator& ASG();
 
     void set2dMode();
     void set3dMode();
@@ -46,8 +46,6 @@ protected:
     void luaFunctionsSetup() override;
     void elaborateHouseStage1( const std::string& filename );
     void elaborateHouseBitmap();
-    void elaborateHouseStageWalls( const V2fVectorOfVector& wallPoints );
-    void appendBespokeWalls( const V2fVectorOfVector& bwalls );
 
     void updateHMB();
 
