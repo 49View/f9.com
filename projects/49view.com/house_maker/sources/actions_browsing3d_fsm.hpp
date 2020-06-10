@@ -16,5 +16,7 @@ struct ActivateHouseMaker {
         rsg.DC()->setQuatAngles(V3f{ M_PI_2, 0.0f, 0.0f });
         rsg.useSkybox(false);
         hm.ASG().centerCameraMiddleOfHouse(hm.H());
+//        fader( 3.0f, 1.0f, rsg.RR().CL()[CommandBufferLimits::GridStart].mVList );
+//        fader( 3.0f, 1.0f, rsg.RR().CL()[CommandBufferLimits::GridStart].mVListTransparent );
     }
 };

@@ -23,7 +23,7 @@ HouseMakerStateMachine::HouseMakerStateMachine( SceneGraph& _sg, RenderOrchestra
         ScenePreLoader(_sg, _rsg),
         asg(_asg), arc(_ims) {
     arc.renderMode(FloorPlanRenderMode::Debug3d);
-    rb = std::make_shared<RoomBuilder>(_sg, _rsg, houseJson);
+    rb = std::make_shared<RoomBuilder>(_sg, _rsg);
     backEnd = std::make_unique<FrontEnd>(*this, rb.get(), _asg, _sg, _rsg, houseJson.get(), _ims);
 }
 
@@ -76,10 +76,11 @@ void HouseMakerStateMachine::showIMHouse() {
 
 void HouseMakerStateMachine::activatePostLoad() {
 
-    RoomServiceFurniture::addDefaultFurnitureSet("uk_default");
+//    RoomServiceFurniture::addDefaultFurnitureSet("uk_default");
     Http::get(Url{ "/furnitureset/uk_default" }, [&, this]( HttpResponeParams& res ) {
         FurnitureSetContainer fset{ res.bufferString };
         for ( const auto& f : fset.set ) {
+            sg.loadProfile(f.symbol);
             furnitureMap.addIndex(f);
         }
     });
@@ -100,10 +101,13 @@ void HouseMakerStateMachine::activatePostLoad() {
     rsg.setDragAndDropFunction(std::bind(&HouseMakerStateMachine::elaborateHouseCallback, this, std::placeholders::_1));
 
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/visionhouse-apt1.png");
+//    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/visionhouse-apt2.png");
+//    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/visionhouse-apt3.png");
+//    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/visionhouse-apt4.png");
+//    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/visionhouse-apt5.png");
 
-    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/visionhouse-apt2.png");
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/asr2bedroomflat.png");
-//    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/canbury_park_road.jpg");
+    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/canbury_park_road.jpg");
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/halterA7-11.png");
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/test_lightingpw.png");
 
