@@ -206,6 +206,13 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
     ImGui::End();
 
     if ( houseJson ) {
+        ImGui::Begin("House Properties");
+        ImGui::Text("Walkable Area: %s", sqmToString(houseJson->walkableArea).c_str());
+        ImGui::Text("Num floors: %lu", houseJson->mFloors.size());
+        ImGui::InputFloat3("Best viewing position", &houseJson->bestInternalViewingPosition[0]);
+        ImGui::InputFloat3("Best viewing angle", &houseJson->bestInternalViewingAngle[0]);
+        ImGui::End();
+
         ImGui::Begin("House Structure");
         houseJson->visit<ImGUIJson>();
         ImGui::End();
@@ -250,6 +257,8 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
 
         ImGui::End();
     }
+
+//    ImGui::ShowDemoWindow();
 
 #endif
 
