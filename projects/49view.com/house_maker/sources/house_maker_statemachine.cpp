@@ -106,7 +106,7 @@ void HouseMakerStateMachine::activatePostLoad() {
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/visionhouse-apt4.png");
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/visionhouse-apt5.png");
 
-//    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/asr2bedroomflat.png");
+    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/asr2bedroomflat.png");
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/canbury_park_road.jpg");
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/halterA7-11.png");
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/test_lightingpw.png");
@@ -167,6 +167,11 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
         backEnd->process_event( OnGlobalRescaleEvent{ oldScaleFactor, currentScaleFactorMeters} );
         oldScaleFactor = hmbBSData.rescaleFactor;
     }
+
+    if ( ImGui::SliderFloat("floorPlanTransparencyFactor", &arc.getFloorPlanTransparencyFactor(), 0.0f, 1.0f) ) {
+        showIMHouse();
+    }
+
     if ( ImGui::Button("Elaborate") ) {
         elaborateHouseBitmap();
     }
