@@ -136,6 +136,13 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
     // Debug control panel using imgui
 #ifdef _USE_IMGUI_
 
+    ImGui::Begin("SceneGraph");
+    ImGui::Text("Scene nodes: %lu", sg.Nodes().size());
+    sg.visitNodes([]( const GeomSPConst elem ) {
+        ImGui::Text("%s", elem->Name().c_str());
+    });
+    ImGui::End();
+
     ImGui::Begin("Control");
     if ( ImGui::SliderFloat("Contrast", &hmbBSData.sourceContrast, 0.0f, 20.0f) ) {
         updateHMB();
