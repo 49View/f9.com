@@ -107,7 +107,7 @@ void HouseMakerStateMachine::activatePostLoad() {
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/visionhouse-apt5.png");
 
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/asr2bedroomflat.png");
-    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/canbury_park_road.jpg");
+//    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/canbury_park_road.jpg");
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/halterA7-11.png");
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/test_lightingpw.png");
 
@@ -200,15 +200,18 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
     }
     ImGui::End();
 
-    ImGui::Begin("House Structure");
-    houseJson->visit<ImGUIJson>();
-    ImGui::End();
+    if ( houseJson ) {
+        ImGui::Begin("House Structure");
+        houseJson->visit<ImGUIJson>();
+        ImGui::End();
+    }
 
     auto selected = arc.selectionFront();
     if ( selected ) {
         ImGui::Begin("Selection");
         auto *room = HouseService::find<RoomBSData>(houseJson.get(), selected->hash);
         if ( room ) {
+            ImGui::ColorPicker3("Wall Color", &room->wallColor[0] );
             static std::array<bool, ASType::LastRoom> hasRoomV{};
             auto startIndex = ASType::GenericRoom;
             for ( auto rn = startIndex; rn < ASType::LastRoom; rn++ ) {
@@ -228,7 +231,18 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
                     showIMHouse();
                 }
             }
+        } else {
+            auto *wall = HouseService::find<WallBSData>(houseJson.get(), selected->hash);
+            if ( wall ) {
+                LOGRS("Wall selected: " << wall->epoints[selected->index] << " " << wall->epoints[selected->index+1] );
+                auto aci = HouseService::findRoomArchSegmentWithWallHash( houseJson.get(), wall->hash, selected->index );
+                if ( aci ) {
+                    ImGui::Text("Wall index: %d", static_cast<int>(*aci));
+                }
+
+            }
         }
+
         ImGui::End();
     }
 
@@ -278,6 +292,9 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
     if ( _aid.TI().checkKeyToggleOn(GMK_3) ) {
         backEnd->process_event(OnBrowser3dToggleEvent{});
     }
+    if ( _aid.TI().checkKeyToggleOn(GMK_4) ) {
+        backEnd->process_event(OnBrowserDollyHouseToggleEvent{});
+    }
 
     if ( _aid.TI().checkKeyToggleOn(GMK_Z) ) {
         backEnd->process_event(OnKeyToggleEvent{ GMK_Z });
@@ -290,6 +307,12 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
     }
     if ( _aid.TI().checkKeyToggleOn(GMK_R) ) {
         backEnd->process_event(OnKeyToggleEvent{ GMK_R });
+    }
+    if ( _aid.TI().checkKeyToggleOn(GMK_O) ) {
+        backEnd->process_event(OnKeyToggleEvent{ GMK_O });
+    }
+    if ( _aid.TI().checkKeyToggleOn(GMK_P) ) {
+        backEnd->process_event(OnKeyToggleEvent{ GMK_P });
     }
     if ( _aid.TI().checkKeyToggleOn(GMK_ENTER) ) {
         backEnd->process_event(OnFinaliseEvent{});
