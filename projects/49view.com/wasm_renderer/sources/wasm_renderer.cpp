@@ -26,18 +26,22 @@ Showcaser::Showcaser( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchOrchestrato
                                                                                                                         ScenePreLoader(_sg, _rsg),
                                                                                                                         asg(_asg), arc(_ims) {}
 
-void Showcaser::postLoadHouseCallback(std::shared_ptr<HouseBSData> houseJson) {
-    floorplanNavigationMatrix = asg.calcFloorplanNavigationTransform(houseJson, 3.5f, 0.02f);
-    arc.pm(RDSPreMult(floorplanNavigationMatrix));
-    arc.renderMode(FloorPlanRenderMode::Normal2d);
-    HouseRender::IMHouseRender(rsg.RR(), sg, houseJson.get(), arc);
+void Showcaser::postLoadHouseCallback(std::shared_ptr<HouseBSData> _houseJson) {
 
-    V2f cobr = HouseService::centerOfBiggestRoom(houseJson.get());
-    V3f lngp = V3f{ cobr.x(), 1.48f, cobr.y() };
-    sg.setLastKnownGoodPosition(lngp);
-    rsg.setRigCameraController(CameraControlType::Walk);
-    rsg.DC()->setQuatAngles(V3f{ 0.08f, -0.70f, 0.0f });
-    rsg.DC()->setPosition(lngp);
+    houseJson = _houseJson;
+    asg.show3dHouse(houseJson.get(), [&](HouseBSData* _houseJson) {
+        floorplanNavigationMatrix = asg.calcFloorplanNavigationTransform(houseJson, 3.5f, 0.02f);
+        arc.pm(RDSPreMult(floorplanNavigationMatrix));
+        arc.renderMode(FloorPlanRenderMode::Normal2d);
+        HouseRender::IMHouseRender(rsg.RR(), sg, houseJson.get(), arc);
+
+        V2f cobr = HouseService::centerOfBiggestRoom(houseJson.get());
+        V3f lngp = V3f{ cobr.x(), 1.48f, cobr.y() };
+        sg.setLastKnownGoodPosition(lngp);
+        rsg.setRigCameraController(CameraControlType::Walk);
+        rsg.DC()->setQuatAngles(V3f{ 0.08f, -0.70f, 0.0f });
+        rsg.DC()->setPosition(lngp);
+    });
 }
 
 void Showcaser::activatePostLoad() {
@@ -45,7 +49,6 @@ void Showcaser::activatePostLoad() {
     rsg.createSkybox(SkyBoxInitParams{ SkyBoxMode::CubeProcedural });
 
     Renderer::clearColor(C4f::XTORGBA("8ae9e9"));
-    rsg.RR().setLoadingFlag( true );
     rsg.useSkybox(false);
     rsg.RR().useVignette(true);
     rsg.RR().useFilmGrain(true);
@@ -74,7 +77,7 @@ void Showcaser::activateImpl() {
 }
 
 void Showcaser::updatePersonLocator() {
-    if ( rsg.getRigCameraController() == CameraControlType::Walk ) {
+    if ( houseJson && rsg.getRigCameraController() == CameraControlType::Walk && floorplanNavigationMatrix != Matrix4f::IDENTITY ) {
         rsg.drawCameraLocator(floorplanNavigationMatrix);
     }
 }
