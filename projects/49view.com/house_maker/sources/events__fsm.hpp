@@ -10,6 +10,10 @@ struct OnClearEvent {};
 struct OnDoubleTapEvent {};
 struct OnUndoEvent {};
 
+struct OnHouseMakerToggleEvent{};
+struct OnBrowser3dToggleEvent{};
+struct OnBrowserDollyHouseToggleEvent{};
+
 struct OnFirstTimeTouchDownEvent {
     V2f mousePos{V2fc::HUGE_VALUE_NEG};
 };
@@ -33,6 +37,7 @@ struct OnTouchUpViewportSpaceEvent {
 
 struct OnKeyToggleEvent{
     int keyCode = 0;
+    V2f viewportPos{V2fc::HUGE_VALUE_NEG};
 };
 
 struct OnFinaliseEvent {};
@@ -40,3 +45,7 @@ struct OnEscapeEvent {};
 struct OnSpaceEvent {};
 struct OnSpecialSpaceEvent {};
 struct OnDeleteEvent {};
+struct OnGlobalRescaleEvent {
+    float oldScaleFactor = 1.0f;
+    float currentScaleFactorMeters = 1.0f;
+};

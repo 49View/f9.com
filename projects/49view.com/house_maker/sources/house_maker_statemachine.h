@@ -30,24 +30,20 @@ public:
     void elaborateHouseCallback( std::vector<std::string>& _paths );
 
     void clear();
-    void quickZoomIn();
     void finaliseBespoke();
     void showIMHouse();
 
     HouseBSData *H();
     HMBBSData& HMB();
     SourceImages& SI();
+    ArchOrchestrator& ASG();
+    ArchRenderController& ARC();
 
 protected:
     void activatePostLoad() override;
     void luaFunctionsSetup() override;
     void elaborateHouseStage1( const std::string& filename );
     void elaborateHouseBitmap();
-    void elaborateHouseStageWalls( const V2fVectorOfVector& wallPoints );
-    void appendBespokeWalls( const V2fVectorOfVector& bwalls );
-
-    void set2dMode( const V3f& pos );
-    void set3dMode();
 
     void updateHMB();
 
@@ -59,7 +55,7 @@ protected:
     std::shared_ptr<RoomBuilder> rb;
     FurnitureMapStorage furnitureMap;
     std::shared_ptr<HouseBSData> houseJson;
-    ArchRenderController& ims;
+    ArchRenderController& arc;
 
     // Bespoke state
     V2fVectorOfVector bespokeWalls;

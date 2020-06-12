@@ -10,6 +10,12 @@ struct UndoBespoke {
     }
 };
 
+struct ClearBespoke {
+    void operator()( RoomBuilder* rb ) noexcept {
+        rb->clear();
+    }
+};
+
 struct TouchMoveBespoke {
     void operator()( RoomBuilder* rb, const OnTouchMoveEvent& mouseEvent ) noexcept {
         rb->setCurrentPointerPos(mouseEvent.mousePos);
@@ -45,7 +51,7 @@ struct FinaliseBespoke {
 };
 
 struct ExitBespoke {
-    void operator()( RoomBuilder* rb ) noexcept {
+    void operator()( [[maybe_unused]] RoomBuilder* rb ) noexcept {
         // On Exit, we might need to save some states, cache or whatever, do it here
     }
 };

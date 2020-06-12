@@ -15,9 +15,8 @@ import {DivDropZone, DivReports, DivWasm, ExcaliburGrid} from "./Excalibur.style
 import {Badge, Button, FormControl, InputGroup, Spinner} from "react-bootstrap";
 import {getFileNameOnlyNoExt} from "../../futuremodules/utils/utils";
 import {useEffect} from "reactn";
-import {connect, sendChatMessage} from "../../futuremodules/webrtc/client";
+import {connect} from "../../futuremodules/webrtc/client";
 import {useAlertDangerNoMovie} from "../../futuremodules/alerts/alerts";
-import {PropertyRightMenu} from "../PropertyPage/Property.styled";
 
 const WasmGridCell = () => {
   const {canvasContainer} = useWasmContext(true);

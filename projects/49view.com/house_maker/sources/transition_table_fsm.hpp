@@ -12,14 +12,24 @@
 struct FrontEndStateMachineSML {
     auto operator()() const noexcept {
         return make_transition_table(
-            *state<class Initial> + event<OnActivateEvent> / []{} = state<class HouseMaker>
+            *state<class Initial> + event<OnActivateEvent> / ActivateHouseMaker{} = state<class HouseMaker>
 
             ,state<class HouseMaker> + event<OnAltPressedEvent> / []{} = state<class Bespoke>
-            ,state<class HouseMaker> + event<OnDoubleTapEvent> / QuickZoomIn{}
+            ,state<class HouseMaker> + event<OnGlobalRescaleEvent> / GlobalRescale{}
             ,state<class HouseMaker> + event<OnClearEvent> / ClearEverthing{}
+            ,state<class HouseMaker> + event<OnBrowser3dToggleEvent> / ActivateBrowsing3d{} = state<class Browsing3d>
+            ,state<class HouseMaker> + event<OnBrowserDollyHouseToggleEvent> / ActivateBrowsingDollyHouse{} = state<class BrowsingDollyHouse>
+            ,state<class HouseMaker> + event<OnKeyToggleEvent> / KeyToggleHouseMaker{}
             ,state<class HouseMaker> + event<OnFirstTimeTouchDownViewportSpaceEvent>[TouchedDownFirstTimeFeatureManipulationGuard{}] / EnterFeatureManipulation{} = state<class FeatureManipulation>
 
+            ,state<class Browsing3d> + event<OnHouseMakerToggleEvent> / ActivateHouseMaker{} = state<class HouseMaker>
+            ,state<class Browsing3d> + event<OnBrowserDollyHouseToggleEvent> / ActivateBrowsingDollyHouse{} = state<class BrowsingDollyHouse>
+
+            ,state<class BrowsingDollyHouse> + event<OnHouseMakerToggleEvent> / ActivateHouseMaker{} = state<class HouseMaker>
+            ,state<class BrowsingDollyHouse> + event<OnBrowser3dToggleEvent> / ActivateBrowsing3d{} = state<class Browsing3d>
+
             ,state<class Bespoke> + event<OnUndoEvent> / UndoBespoke{}
+            ,state<class Bespoke> + event<OnClearEvent> / ClearBespoke{}
             ,state<class Bespoke> + event<OnTouchMoveEvent> / TouchMoveBespoke{}
             ,state<class Bespoke> + event<OnTouchUpEvent> / TouchUpEventBespoke{}
             ,state<class Bespoke> + event<OnKeyToggleEvent> / KeyToggleBespoke{}
