@@ -9,6 +9,7 @@ struct OnAltPressedEvent {};
 struct OnClearEvent {};
 struct OnDoubleTapEvent {};
 struct OnUndoEvent {};
+struct OnMakeHouse3dEvent {};
 
 struct OnHouseMakerToggleEvent{};
 struct OnBrowser3dToggleEvent{};

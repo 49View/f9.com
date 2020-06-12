@@ -29,7 +29,7 @@ Showcaser::Showcaser( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchOrchestrato
 void Showcaser::postLoadHouseCallback(std::shared_ptr<HouseBSData> _houseJson) {
 
     houseJson = _houseJson;
-    asg.show3dHouse(houseJson.get(), [&](HouseBSData* _houseJson) {
+    asg.make3dHouse(houseJson.get(), [&](HouseBSData* _houseJson) {
         floorplanNavigationMatrix = asg.calcFloorplanNavigationTransform(houseJson, 3.5f, 0.02f);
         arc.pm(RDSPreMult(floorplanNavigationMatrix));
         arc.renderMode(FloorPlanRenderMode::Normal2d);
