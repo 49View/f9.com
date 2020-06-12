@@ -41,7 +41,6 @@ public:
 
 protected:
     void activatePostLoad() override;
-    void luaFunctionsSetup() override;
     void elaborateHouseStage1( const std::string& filename );
     void elaborateHouseBitmap();
 

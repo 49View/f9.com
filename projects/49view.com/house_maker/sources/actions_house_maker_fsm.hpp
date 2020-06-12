@@ -12,51 +12,85 @@ struct ClearEverthing {
     }
 };
 
+struct ActivateHouseMaker {
+    void operator()( HouseMakerStateMachine& hm, RenderOrchestrator& rsg ) noexcept {
+        hm.ARC().setViewingMode(ArchViewingMode::AVM_TopDown2d);
+        rsg.setRigCameraController(CameraControlType::Edit2d);
+        rsg.DC()->LockAtWalkingHeight(false);
+        auto quatAngles = V3f{ M_PI_2, 0.0f, 0.0f };
+        rsg.DC()->setIncrementQuatAngles(quatAngles);
+        rsg.useSkybox(false);
+        if ( hm.H() ) {
+            auto quat = quatCompose(quatAngles);
+            Timeline::play(rsg.DC()->QAngleAnim(), 0, KeyFramePair{ 0.9f, quat });
+            hm.ASG().centerCameraMiddleOfHouse(hm.H());
+        }
+        fader(0.9f, 1.0f, rsg.RR().CLI(CommandBufferLimits::UI2dStart));
+        fader(0.9f, 1.0f, rsg.RR().CLI(CommandBufferLimits::GridStart));
+        fader(0.9f, 0.0f, rsg.RR().CLI(CommandBufferLimits::PBRStart));
+    }
+};
+
+struct ActivateHouseMakerWithTopDown3d {
+    void operator()( HouseMakerStateMachine& hm, RenderOrchestrator& rsg ) noexcept {
+        hm.ARC().setViewingMode(ArchViewingMode::AVM_TopDown3d);
+        rsg.setRigCameraController(CameraControlType::Edit2d);
+        rsg.DC()->LockAtWalkingHeight(false);
+        auto quatAngles = V3f{ M_PI_2, 0.0f, 0.0f };
+        rsg.DC()->setIncrementQuatAngles(quatAngles);
+        rsg.useSkybox(false);
+        if ( hm.H() ) {
+            auto quat = quatCompose(quatAngles);
+            Timeline::play(rsg.DC()->QAngleAnim(), 0, KeyFramePair{ 0.9f, quat });
+            hm.ASG().centerCameraMiddleOfHouse(hm.H(), 2.0f);
+            rsg.RR().setVisibilityOnTags(ArchType::CeilingT, false);
+        }
+        fader(0.9f, 1.0f, rsg.RR().CLI(CommandBufferLimits::UI2dStart));
+        fader(0.9f, 0.0f, rsg.RR().CLI(CommandBufferLimits::GridStart));
+        fader(0.9f, 1.0f, rsg.RR().CLI(CommandBufferLimits::PBRStart));
+    }
+};
+
 struct ActivateBrowsing3d {
     void operator()( HouseMakerStateMachine& hm, RenderOrchestrator& rsg ) noexcept {
+        hm.ARC().setViewingMode(ArchViewingMode::AVM_Walk);
         rsg.setRigCameraController(CameraControlType::Walk);
         rsg.useSkybox(true);
         if ( hm.H() ) {
-            hm.ASG().show3dHouse(hm.H() , [&]( HouseBSData *house ) {
-                V3f pos = V3f::ZERO;
-                V3f quatAngles = V3f::ZERO;
-                HouseService::bestStartingPositionAndAngle(house, pos, quatAngles);
-                auto quat = quatCompose(quatAngles);
-                rsg.DC()->setIncrementQuatAngles(quatAngles);
-                Timeline::play(rsg.DC()->PosAnim(), 0,
-                               KeyFramePair{ 0.9f, pos });
-                Timeline::play(rsg.DC()->QAngleAnim(), 0, KeyFramePair{ 0.9f, quat });
-                rsg.RR().setVisibilityOnTags(ArchType::CeilingT, true);
-                fader(0.9f, 0.0f, rsg.RR().CLI(CommandBufferLimits::UI2dStart));
-                fader(0.9f, 0.0f, rsg.RR().CLI(CommandBufferLimits::GridStart));
-                fader(0.9f, 1.0f, rsg.RR().CLI(CommandBufferLimits::PBRStart));
-            });
+            V3f pos = V3f::ZERO;
+            V3f quatAngles = V3f::ZERO;
+            HouseService::bestStartingPositionAndAngle(hm.H(), pos, quatAngles);
+            auto quat = quatCompose(quatAngles);
+            rsg.DC()->setIncrementQuatAngles(quatAngles);
+            Timeline::play(rsg.DC()->PosAnim(), 0,
+                           KeyFramePair{ 0.9f, pos });
+            Timeline::play(rsg.DC()->QAngleAnim(), 0, KeyFramePair{ 0.9f, quat });
+            rsg.RR().setVisibilityOnTags(ArchType::CeilingT, true);
+            fader(0.9f, 0.0f, rsg.RR().CLI(CommandBufferLimits::UI2dStart));
+            fader(0.9f, 0.0f, rsg.RR().CLI(CommandBufferLimits::GridStart));
+            fader(0.9f, 1.0f, rsg.RR().CLI(CommandBufferLimits::PBRStart));
         }
     }
 };
 
 struct ActivateBrowsingDollyHouse {
     void operator()( HouseMakerStateMachine& hm, RenderOrchestrator& rsg ) noexcept {
-//        rsg.RR().showBucket(CommandBufferLimits::UI2dStart, false);
-//        rsg.RR().showBucket(CommandBufferLimits::GridStart, false);
-//        rsg.RR().showBucket(CommandBufferLimits::PBRStart, true);
+        hm.ARC().setViewingMode(ArchViewingMode::AVM_DollHouse);
         rsg.setRigCameraController(CameraControlType::Fly);
         rsg.useSkybox(true);
         if ( hm.H() ) {
-            hm.ASG().show3dHouse(hm.H(), [&]( HouseBSData *house ) {
-                V3f pos = V3f::ZERO;
-                V3f quatAngles = V3f::ZERO;
-                HouseService::bestDollyPositionAndAngle(house, pos, quatAngles);
-                auto quat = quatCompose(quatAngles);
-                rsg.DC()->setIncrementQuatAngles(quatAngles);
-                Timeline::play(rsg.DC()->PosAnim(), 0, KeyFramePair{ 0.9f, pos} );
-                Timeline::play(rsg.DC()->QAngleAnim(), 0, KeyFramePair{ 0.9f, quat });
-                fader(0.9f, 0.0f, rsg.RR().CLI(CommandBufferLimits::UI2dStart));
-                fader(0.9f, 0.0f, rsg.RR().CLI(CommandBufferLimits::GridStart));
-                fader(0.9f, 1.0f, rsg.RR().CLI(CommandBufferLimits::PBRStart));
+            V3f pos = V3f::ZERO;
+            V3f quatAngles = V3f::ZERO;
+            HouseService::bestDollyPositionAndAngle(hm.H(), pos, quatAngles);
+            auto quat = quatCompose(quatAngles);
+            rsg.DC()->setIncrementQuatAngles(quatAngles);
+            Timeline::play(rsg.DC()->PosAnim(), 0, KeyFramePair{ 0.9f, pos });
+            Timeline::play(rsg.DC()->QAngleAnim(), 0, KeyFramePair{ 0.9f, quat });
+            fader(0.9f, 0.0f, rsg.RR().CLI(CommandBufferLimits::UI2dStart));
+            fader(0.9f, 0.0f, rsg.RR().CLI(CommandBufferLimits::GridStart));
+            fader(0.9f, 1.0f, rsg.RR().CLI(CommandBufferLimits::PBRStart));
 
-                rsg.RR().setVisibilityOnTags(ArchType::CeilingT, false);
-            });
+            rsg.RR().setVisibilityOnTags(ArchType::CeilingT, false);
         }
     }
 };
@@ -76,6 +110,16 @@ struct KeyToggleHouseMaker {
             rsg.RR().showBucket(CommandBufferLimits::PBRStart, false);
         }
 
+    }
+};
+
+struct MakeHouse3d {
+    void operator()(HouseMakerStateMachine& hm, RenderOrchestrator& rsg) {
+        hm.ASG().make3dHouse( hm.H(), [&](HouseBSData* house) {
+            if ( hm.ARC().getViewingMode() == ArchViewingMode::AVM_DollHouse || hm.ARC().getViewingMode() == ArchViewingMode::AVM_TopDown3d ) {
+                rsg.RR().setVisibilityOnTags(ArchType::CeilingT, false);
+            }
+        } );
     }
 };
 

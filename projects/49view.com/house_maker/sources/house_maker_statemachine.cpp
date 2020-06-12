@@ -18,20 +18,17 @@
 #include "transition_table_fsm.hpp"
 
 HouseMakerStateMachine::HouseMakerStateMachine( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchOrchestrator& _asg,
-                                                ArchRenderController& _ims ) :
+                                                ArchRenderController& _arc ) :
         RunLoopBackEndBase(_sg, _rsg),
         ScenePreLoader(_sg, _rsg),
-        asg(_asg), arc(_ims) {
+        asg(_asg), arc(_arc) {
     arc.renderMode(FloorPlanRenderMode::Debug3d);
     rb = std::make_shared<RoomBuilder>(_sg, _rsg);
-    backEnd = std::make_unique<FrontEnd>(*this, rb.get(), _asg, _sg, _rsg, houseJson.get(), _ims);
+    backEnd = std::make_unique<FrontEnd>(*this, rb.get(), _asg, _sg, _rsg, houseJson.get(), _arc);
 }
 
 void HouseMakerStateMachine::activateImpl() {
     loadSceneEntities();
-}
-
-void HouseMakerStateMachine::luaFunctionsSetup() {
 }
 
 void HouseMakerStateMachine::elaborateHouseBitmap() {
@@ -44,7 +41,7 @@ void HouseMakerStateMachine::elaborateHouseStage1( const std::string& filename )
     sg.addRawImageIM(hmbBSData.filename, hmbBSData.image);
     updateHMB();
     houseJson = HouseMakerBitmap::makeEmpty(hmbBSData);
-    asg.showIMHouse(houseJson.get(), arc);
+    asg.showIMHouse(houseJson.get());
     asg.centerCameraMiddleOfHouse(houseJson.get());
 }
 
@@ -71,7 +68,7 @@ void HouseMakerStateMachine::elaborateHouseCallback( std::vector<std::string>& _
 
 void HouseMakerStateMachine::showIMHouse() {
     HouseService::guessFittings(houseJson.get(), furnitureMap);
-    asg.showIMHouse(houseJson.get(), arc);
+    asg.showIMHouse(houseJson.get());
 }
 
 void HouseMakerStateMachine::activatePostLoad() {
@@ -106,10 +103,10 @@ void HouseMakerStateMachine::activatePostLoad() {
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/visionhouse-apt4.png");
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/visionhouse-apt5.png");
 
-    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/asr2bedroomflat.png");
+//    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/asr2bedroomflat.png");
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/canbury_park_road.jpg");
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/halterA7-11.png");
-//    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/test_lightingpw.png");
+    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/test_lightingpw.png");
 
 //    rb->loadSegments(FM::readLocalFileC("/home/dado/Documents/GitHub/f9.com/builds/house_maker/debug/bespoke_segments529417476917197912") );
 //    finaliseBespoke();
@@ -175,13 +172,19 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
         oldScaleFactor = hmbBSData.rescaleFactor;
     }
 
-    if ( ImGui::SliderFloat("floorPlanTransparencyFactor", &arc.getFloorPlanTransparencyFactor(), 0.0f, 1.0f) ) {
+    static float fptf = arc.getFloorPlanTransparencyFactor();
+    if ( ImGui::SliderFloat("floorPlanTransparencyFactor", &fptf, 0.0f, 1.0f) ) {
+        arc.setFloorPlanTransparencyFactor(fptf);
         showIMHouse();
     }
 
     if ( ImGui::Button("Elaborate") ) {
         elaborateHouseBitmap();
     }
+    if ( ImGui::Button("Elaborate 3d") ) {
+        backEnd->process_event(OnMakeHouse3dEvent{});
+    }
+
     if ( ImGui::Button("Publish") ) {
         FM::writeLocalFile("./asr2bed.json", houseJson->serialize());
         Http::post(Url{ "/propertybim/5ea45ffeb06b0cfc7488ec45" }, houseJson->serialize(),
@@ -238,7 +241,9 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
         ImGui::Begin("Selection");
         auto *room = HouseService::find<RoomBSData>(houseJson.get(), selected->hash);
         if ( room ) {
-            ImGui::ColorPicker3("Wall Color", &room->wallColor[0] );
+            if ( ImGui::ColorPicker3("Wall Color", &room->wallColor[0] ) ) {
+                backEnd->process_event(OnMakeHouse3dEvent{});
+            }
             static std::array<bool, ASType::LastRoom> hasRoomV{};
             auto startIndex = ASType::GenericRoom;
             for ( auto rn = startIndex; rn < ASType::LastRoom; rn++ ) {
@@ -278,12 +283,15 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
 #endif
 
     bool isLeftAltPressed = _aid.TI().checkKeyPressed(GMK_LEFT_ALT);
+    bool isShiftPressed = _aid.TI().checkKeyPressed(GMK_LEFT_SHIFT);
 
     if ( isLeftAltPressed ) {
         backEnd->process_event(OnAltPressedEvent{});
     }
-    if ( _aid.TI().checkModKeyPressed(GMK_LEFT_SHIFT) && _aid.TI().checkKeyToggleOn(GMK_DELETE) ) {
-        backEnd->process_event(OnClearEvent{});
+    if ( isShiftPressed ) {
+        if ( _aid.TI().checkKeyToggleOn(GMK_DELETE) ) {
+            backEnd->process_event(OnClearEvent{});
+        }
     }
 
     if ( _aid.TI().checkModKeyPressed(GMK_LEFT_CONTROL) ) {
@@ -315,8 +323,11 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
         backEnd->process_event(OnKeyToggleEvent{ GMK_D, _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC()) });
     }
 
-    if ( _aid.TI().checkKeyToggleOn(GMK_2) ) {
+    if ( _aid.TI().checkKeyToggleOn(GMK_1) ) {
         backEnd->process_event(OnHouseMakerToggleEvent{});
+    }
+    if ( _aid.TI().checkKeyToggleOn(GMK_2) ) {
+        backEnd->process_event(OnBrowserTopDown3dToggleEvent{});
     }
     if ( _aid.TI().checkKeyToggleOn(GMK_3) ) {
         backEnd->process_event(OnBrowser3dToggleEvent{});
