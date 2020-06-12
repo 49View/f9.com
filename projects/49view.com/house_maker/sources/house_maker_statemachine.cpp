@@ -238,7 +238,9 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
         ImGui::Begin("Selection");
         auto *room = HouseService::find<RoomBSData>(houseJson.get(), selected->hash);
         if ( room ) {
-            ImGui::ColorPicker3("Wall Color", &room->wallColor[0] );
+            if ( ImGui::ColorPicker3("Wall Color", &room->wallColor[0] ) ) {
+                asg.show3dHouse( houseJson.get() );
+            }
             static std::array<bool, ASType::LastRoom> hasRoomV{};
             auto startIndex = ASType::GenericRoom;
             for ( auto rn = startIndex; rn < ASType::LastRoom; rn++ ) {
@@ -278,12 +280,18 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
 #endif
 
     bool isLeftAltPressed = _aid.TI().checkKeyPressed(GMK_LEFT_ALT);
+    bool isShiftPressed = _aid.TI().checkKeyPressed(GMK_LEFT_SHIFT);
 
     if ( isLeftAltPressed ) {
         backEnd->process_event(OnAltPressedEvent{});
     }
-    if ( _aid.TI().checkModKeyPressed(GMK_LEFT_SHIFT) && _aid.TI().checkKeyToggleOn(GMK_DELETE) ) {
-        backEnd->process_event(OnClearEvent{});
+    if ( isShiftPressed ) {
+        if ( _aid.TI().checkKeyToggleOn(GMK_DELETE) ) {
+            backEnd->process_event(OnClearEvent{});
+        }
+        if ( _aid.TI().checkKeyToggleOn(GMK_2) ) {
+            backEnd->process_event(OnBrowserTopDown3dToggleEvent{});
+        }
     }
 
     if ( _aid.TI().checkModKeyPressed(GMK_LEFT_CONTROL) ) {

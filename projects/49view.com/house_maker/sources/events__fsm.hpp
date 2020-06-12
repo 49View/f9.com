@@ -12,6 +12,7 @@ struct OnUndoEvent {};
 
 struct OnHouseMakerToggleEvent{};
 struct OnBrowser3dToggleEvent{};
+struct OnBrowserTopDown3dToggleEvent{};
 struct OnBrowserDollyHouseToggleEvent{};
 
 struct OnFirstTimeTouchDownEvent {

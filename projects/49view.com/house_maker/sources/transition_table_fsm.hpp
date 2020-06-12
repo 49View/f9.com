@@ -17,6 +17,7 @@ struct FrontEndStateMachineSML {
             ,state<class HouseMaker> + event<OnAltPressedEvent> / []{} = state<class Bespoke>
             ,state<class HouseMaker> + event<OnGlobalRescaleEvent> / GlobalRescale{}
             ,state<class HouseMaker> + event<OnClearEvent> / ClearEverthing{}
+            ,state<class HouseMaker> + event<OnBrowserTopDown3dToggleEvent> / ActivateHouseMakerWithTopDown3d{}
             ,state<class HouseMaker> + event<OnBrowser3dToggleEvent> / ActivateBrowsing3d{} = state<class Browsing3d>
             ,state<class HouseMaker> + event<OnBrowserDollyHouseToggleEvent> / ActivateBrowsingDollyHouse{} = state<class BrowsingDollyHouse>
             ,state<class HouseMaker> + event<OnKeyToggleEvent> / KeyToggleHouseMaker{}
