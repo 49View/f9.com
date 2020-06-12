@@ -35,12 +35,13 @@ void Showcaser::postLoadHouseCallback(std::shared_ptr<HouseBSData> _houseJson) {
         arc.renderMode(FloorPlanRenderMode::Normal2d);
         HouseRender::IMHouseRender(rsg.RR(), sg, houseJson.get(), arc);
 
-        V2f cobr = HouseService::centerOfBiggestRoom(houseJson.get());
-        V3f lngp = V3f{ cobr.x(), 1.48f, cobr.y() };
-        sg.setLastKnownGoodPosition(lngp);
+        V3f pos{0.0f, 1.48f, 0.0f};
+        V3f rot{ 0.08f, -0.70f, 0.0f };
+        HouseService::bestStartingPositionAndAngle(houseJson.get(), pos, rot);
         rsg.setRigCameraController(CameraControlType::Walk);
-        rsg.DC()->setQuatAngles(V3f{ 0.08f, -0.70f, 0.0f });
-        rsg.DC()->setPosition(lngp);
+        sg.setLastKnownGoodPosition(pos);
+        rsg.DC()->setQuatAngles(rot);
+        rsg.DC()->setPosition(pos);
     });
 }
 

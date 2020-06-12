@@ -37,6 +37,7 @@ public:
     HMBBSData& HMB();
     SourceImages& SI();
     ArchOrchestrator& ASG();
+    ArchRenderController& ARC();
 
 protected:
     void activatePostLoad() override;

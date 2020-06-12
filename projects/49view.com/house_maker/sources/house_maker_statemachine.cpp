@@ -218,6 +218,14 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
         ImGui::Text("Num floors: %lu", houseJson->mFloors.size());
         ImGui::InputFloat3("Best viewing position", &houseJson->bestInternalViewingPosition[0]);
         ImGui::InputFloat3("Best viewing angle", &houseJson->bestInternalViewingAngle[0]);
+        if ( ImGui::Button("Set Starting Position") ) {
+            houseJson->bestInternalViewingPosition = rsg.DC()->getPosition();
+            houseJson->bestInternalViewingAngle = rsg.DC()->getIncrementQuatAngles();
+        }
+        if ( ImGui::Button("Set Dolly Position") ) {
+            houseJson->bestDollyViewingPosition = rsg.DC()->getPosition();
+            houseJson->bestDollyViewingAngle = rsg.DC()->getIncrementQuatAngles();
+        }
         ImGui::End();
 
         ImGui::Begin("House Structure");
@@ -361,4 +369,7 @@ SourceImages& HouseMakerStateMachine::SI() {
 }
 ArchOrchestrator& HouseMakerStateMachine::ASG() {
     return asg;
+}
+ArchRenderController& HouseMakerStateMachine::ARC() {
+    return arc;
 }
