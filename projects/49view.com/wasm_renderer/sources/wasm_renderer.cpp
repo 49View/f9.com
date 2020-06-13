@@ -51,9 +51,17 @@ void Showcaser::activatePostLoad() {
 
     Renderer::clearColor(C4f::XTORGBA("8ae9e9"));
     rsg.useSkybox(false);
+//    rsgl.RR().setShadowOverBurnCofficient( appData.getRenderSettings().shadowOverBurnCofficient );
+//    rsgl.RR().setIndoorSceneCoeff(appData.getRenderSettings().indoorSceneCoeff);
+//    rsgl.RR().setShadowZFightCofficient(appData.getRenderSettings().shadowZFightCofficient);
+    rsg.RR().setShadowZFightCofficient(0.002f*0.15f*0.5f);
     rsg.RR().useVignette(true);
-    rsg.RR().useFilmGrain(true);
     rsg.useSSAO(true);
+    rsg.RR().useFilmGrain(false);
+
+//    rsg.RR().useMotionBlur(true);
+//    rsg.RR().useDOF(true);
+
     rsg.changeTime("14:00");
     rsg.setRigCameraController(CameraControlType::Walk);
     rsg.DC()->setQuatAngles(V3f{ 0.08f, -0.00f, 0.0f });
@@ -101,14 +109,14 @@ void Showcaser::updateImpl( const AggregatedInputData& _aid ) {
     });
     ImGui::End();
 
-    ImGui::Begin("Camera");
-    std::ostringstream camDump;
-    camDump << *sg.DC().get();
-    auto lines = split(camDump.str(), '\n');
-    for ( const auto& line : lines ) {
-        ImGui::Text("%s", line.c_str());
-    }
-    ImGui::End();
+//    ImGui::Begin("Camera");
+//    std::ostringstream camDump;
+//    camDump << *sg.DC().get();
+//    auto lines = split(camDump.str(), '\n');
+//    for ( const auto& line : lines ) {
+//        ImGui::Text("%s", line.c_str());
+//    }
+//    ImGui::End();
 
     ImGuiLuaConsole(rsg);
 #endif
