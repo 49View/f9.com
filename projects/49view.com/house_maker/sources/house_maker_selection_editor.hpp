@@ -19,6 +19,8 @@ static ImTextureID ImGuiRenderTexture( const T& im ) {
     return reinterpret_cast<ImTextureID *>(im);
 };
 
+static constexpr int thumbSize = 128;
+
 class RemoteEntitySelector {
 public:
     RemoteEntitySelector( std::string& target ) : target(target) {}
@@ -59,20 +61,32 @@ public:
                                             });
             }
             if ( !metadataList.empty() ) {
-                for ( const auto& meta : metadataList ) {
-                    auto imr = sg.get<RawImage>(meta.thumb);
-                    if ( !imr ) {
-                        sg.addRawImageIM(meta.thumb, RawImage{ FM::readLocalFileC(
-                                "/home/dado/media/media/entities/" + meta.group + "/" + meta.thumb) });
-                    }
-                    auto im = rsg.TH(meta.thumb);
-                    if ( im ) {
-                        if ( ImGui::ImageButton(ImGuiRenderTexture(im), ImVec2(128, 128)) ) {
-                            target = meta.hash;
-                            backEnd->process_event(OnMakeHouse3dEvent{});
+                int grouping = 3;
+                for ( auto m = 0u; m < metadataList.size(); m+= 3 ) {
+                    ImGui::NewLine();
+                    for ( int t = 0; t < grouping; t++ ) {
+                        if ( m + t >= metadataList.size() ) break;
+                        const auto& meta = metadataList[m + t];
+                        auto imr = sg.get<RawImage>(meta.thumb);
+                        if ( !imr ) {
+                            sg.addRawImageIM(meta.thumb, RawImage{ FM::readLocalFileC(
+                                    "/home/dado/media/media/entities/" + meta.group + "/" + meta.thumb) });
                         }
-                        auto santizedTags = tagsSanitisedFor(query, meta.group, meta.tags);
-                        ImGui::Text("%s", arrayToStringCompact(santizedTags).c_str());
+                        auto im = rsg.TH(meta.thumb);
+                        if ( im ) {
+                            if ( ImGui::ImageButton(ImGuiRenderTexture(im), ImVec2(thumbSize, thumbSize)) ) {
+                                target = meta.hash;
+                                backEnd->process_event(OnMakeHouse3dEvent{});
+                            }
+                            auto santizedTags = tagsSanitisedFor(query, meta.group, meta.tags);
+                            if (ImGui::IsItemHovered()) {
+                                ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+                                ImGui::BeginTooltip();
+                                ImGui::Text("%s", arrayToStringCompact(santizedTags).c_str());
+                                ImGui::EndTooltip();
+                            }
+                        }
+                        ImGui::SameLine();
                     }
                 }
             }
@@ -105,31 +119,68 @@ public:
 
             std::vector<std::pair<std::string, C4f>> colors;
 
+            ImGui::Text("Color Family");
+
             colors.emplace_back("red",   C4f::INDIAN_RED );
             colors.emplace_back("green", C4f::FOREST_GREEN );
+            colors.emplace_back("black", C4f::DARK_GRAY );
 
-            for ( const auto& color : colors ) {
-                if ( ImGui::ColorButton(color.first.c_str(), ImVec4(color.second.x(), color.second.y(), color.second.z(), 1.0f), 0, ImVec2(128,128)) ) {
-                ResourceMetaData::getListOf(ResourceGroup::Color, color.first,
-                                            [&]( CRefResourceMetadataList el ) {
-                                                metadataList = el;
-                                            });
+            colors.emplace_back("blue", C4f::SKY_BLUE );
+            colors.emplace_back("cream", C4f::SAND );
+            colors.emplace_back("grey", C4f::PASTEL_GRAY );
+
+            colors.emplace_back("orange", C4f::PASTEL_ORANGE );
+            colors.emplace_back("pink", C4f::HOT_PINK );
+            colors.emplace_back("purple", C4f::DARK_PURPLE );
+
+            colors.emplace_back("teal", C4f::PASTEL_CYAN );
+            colors.emplace_back("white", C4f::LIGHT_GREY );
+            colors.emplace_back("yellow", C4f::PASTEL_YELLOW );
+
+            int grouping = 3;
+            for ( auto m = 0u; m < colors.size(); m+= 3 ) {
+                ImGui::NewLine();
+                for ( int t = 0; t < grouping; t++ ) {
+                    if ( m + t >= colors.size() ) break;
+                    const auto& color = colors[m + t];
+                    if ( ImGui::ColorButton(color.first.c_str(),
+                                            ImVec4(color.second.x(), color.second.y(), color.second.z(), 1.0f), 0,
+                                            ImVec2(thumbSize, thumbSize)) ) {
+                        ResourceMetaData::getListOf(ResourceGroup::Color, color.first,
+                                                    [&]( CRefResourceMetadataList el ) {
+                                                        metadataList = el;
+                                                    });
+                    }
+                    if (ImGui::IsItemHovered()) {
+                        ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+                        ImGui::SetTooltip("%s", color.first.c_str() );
+                    }
+                    ImGui::SameLine();
                 }
             }
 
+            ImGui::Separator();
+            ImGui::NewLine();
+            ImGui::Text("Colors");
+
             if ( !metadataList.empty() ) {
-                int grouping = 3;
                 for ( auto m = 0u; m < metadataList.size(); m+= 3 ) {
                     ImGui::NewLine();
                     for ( int t = 0; t < grouping; t++ ) {
                         if (m+t >= metadataList.size() ) break;
                         const auto& meta = metadataList[m+t];
-                        if ( ImGui::ColorButton(meta.color.toString().c_str(), ImVec4(meta.color.x(), meta.color.y(), meta.color.z(), 1.0f), 0, ImVec2(128, 128)) ) {
+                        if ( ImGui::ColorButton(meta.color.toString().c_str(), ImVec4(meta.color.x(), meta.color.y(), meta.color.z(), 1.0f), 0, ImVec2(thumbSize, thumbSize)) ) {
                             target = meta.color;
                             backEnd->process_event(OnMakeHouse3dEvent{});
                         }
+                        if (ImGui::IsItemHovered()) {
+                            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+                            ImGui::BeginTooltip();
+                            ImGui::Text("Color Name:");
+                            ImGui::Text("%s",meta.name.c_str());
+                            ImGui::EndTooltip();
+                        }
                         ImGui::SameLine();
-//                        ImGui::Text("%s", meta.name.c_str());
                     }
                 }
             }
@@ -172,25 +223,7 @@ public:
             if ( room ) {
                 colorChange("Walls color", room->wallColor );
                 materialChange("Floor", room->floorMaterial);
-                static std::array<bool, ASType::LastRoom> hasRoomV{};
-                auto startIndex = ASType::GenericRoom;
-                for ( auto rn = startIndex; rn < ASType::LastRoom; rn++ ) {
-                    hasRoomV[rn - startIndex] = RoomService::hasRoomType(room, rn);
-                }
-                for ( auto rn = startIndex; rn < ASType::LastRoom; rn++ ) {
-                    if ( ImGui::Checkbox(RoomService::roomTypeToName1to1(rn).c_str(), &hasRoomV[rn - startIndex]) ) {
-                        if ( hasRoomV[rn - startIndex] ) {
-                            RoomService::addRoomType(room, rn);
-                            RoomService::removeRoomType(room, ASType::GenericRoom);
-                        } else {
-                            RoomService::removeRoomType(room, rn);
-                            if ( room->roomTypes.empty() ) {
-                                RoomService::addRoomType(room, ASType::GenericRoom);
-                            }
-                        }
-                        asg.showIMHouse();
-                    }
-                }
+                roomType(room);
             } else {
                 auto *wall = HouseService::find<WallBSData>(asg.H(), selected->hash);
                 if ( wall ) {
@@ -213,25 +246,13 @@ private:
     void colorChange( const std::string& label, C4f& target ) {
         ImGui::Separator();
         ImGui::Text("%s", label.c_str());
-        if ( ImGui::ColorButton(target.toString().c_str(), ImVec4(target.x(), target.y(), target.z(), 1.0f))) {
+        if ( ImGui::ColorButton(target.toString().c_str(), ImVec4(target.x(), target.y(), target.z(), 1.0f), 0, ImVec2(thumbSize,thumbSize))) {
             rcs = std::make_shared<RemoteColorSelector>(target);
         }
+        if (ImGui::IsItemHovered()) {
+            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+        }
 
-//        std::vector<std::pair<std::string, C4f>> colors;
-//
-//        colors.emplace_back("Reds",   C4f::INDIAN_RED );
-//        colors.emplace_back("Greens", C4f::FOREST_GREEN );
-//
-//        for ( const auto& color : colors ) {
-//            ImGui::ColorButton(color.first.c_str(), ImVec4(color.second.x(), color.second.y(), color.second.z(), 1.0f));
-//        }
-//        auto imr = sg.get<Material>(target);
-//        if ( imr ) {
-//            auto im = rsg.TH(imr->getDiffuseTexture());
-//            if ( ImGui::ImageButton(ImGuiRenderTexture(im), ImVec2(128, 128)) ) {
-//                res = std::make_shared<RemoteEntitySelector>(target);
-//            }
-//        }
     }
 
     void materialChange( const std::string& label, std::string& target ) {
@@ -240,8 +261,35 @@ private:
         auto imr = sg.get<Material>(target);
         if ( imr ) {
             auto im = rsg.TH(imr->getDiffuseTexture());
-            if ( ImGui::ImageButton(ImGuiRenderTexture(im), ImVec2(128, 128)) ) {
+            if ( ImGui::ImageButton(ImGuiRenderTexture(im), ImVec2(thumbSize, thumbSize)) ) {
                 res = std::make_shared<RemoteEntitySelector>(target);
+            }
+            if (ImGui::IsItemHovered()) {
+                ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+            }
+        }
+    }
+
+    void roomType( RoomBSData* room ) {
+        ImGui::Separator();
+        ImGui::Text("Room type");
+        static std::array<bool, ASType::LastRoom> hasRoomV{};
+        auto startIndex = ASType::GenericRoom;
+        for ( auto rn = startIndex; rn < ASType::LastRoom; rn++ ) {
+            hasRoomV[rn - startIndex] = RoomService::hasRoomType(room, rn);
+        }
+        for ( auto rn = startIndex; rn < ASType::LastRoom; rn++ ) {
+            if ( ImGui::Checkbox(RoomService::roomTypeToName1to1(rn).c_str(), &hasRoomV[rn - startIndex]) ) {
+                if ( hasRoomV[rn - startIndex] ) {
+                    RoomService::addRoomType(room, rn);
+                    RoomService::removeRoomType(room, ASType::GenericRoom);
+                } else {
+                    RoomService::removeRoomType(room, rn);
+                    if ( room->roomTypes.empty() ) {
+                        RoomService::addRoomType(room, ASType::GenericRoom);
+                    }
+                }
+                asg.showIMHouse();
             }
         }
     }

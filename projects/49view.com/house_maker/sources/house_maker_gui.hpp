@@ -214,6 +214,8 @@ public:
         }
 
         selectionEditor.update(this->BackEnd());
+
+//        ImGui::ShowDemoWindow();
     }
 
 private:
