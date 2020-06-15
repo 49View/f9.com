@@ -33,34 +33,29 @@ router.get("/:group/:tags", async (req, res, next) => {
   }
 });
 
-// router.post(
-//   "/:filename/:filenameFSID/:project/:group/:username/:useremail",
-//   async (req, res, next) => {
-//     try {
-//       logger.info("Post from daemon...");
-//
-//       const entity = await entityController.createEntity(
-//         req.params.filenameFSID,
-//         req.params.filename,
-//         decodeURIComponent(req.params.project),
-//         req.params.group,
-//         decodeURIComponent(req.params.username),
-//         decodeURIComponent(req.params.useremail)
-//       );
-//
-//       if (entity !== null) {
-//         res
-//           .status(201)
-//           .json(entity)
-//           .end();
-//       } else {
-//         throw "[post.entity] Entity created is null";
-//       }
-//     } catch (ex) {
-//       console.log("[POST] Entity error: ", ex);
-//       res.sendStatus(400);
-//     }
-//   }
-// );
+router.get("/list/:group/:tags", async (req, res, next) => {
+  try {
+    logger.info(req.url);
+    const group = req.params.group;
+    const tags = metaAssistant.splitTags(req.params.tags);
+    const project = "49View";//req.user.project;
+    //Check existing entity for use project (or public)
+    const foundEntities = await entityController.getEntitiesByProjectGroupTags(
+      project,
+      group,
+      tags,
+      req.params.tags
+    );
+    if (foundEntities !== null && foundEntities.length > 0) {
+      res.send( foundEntities );
+    } else {
+      res.sendStatus(204);
+    }
+  } catch (ex) {
+    console.log("ERROR GETTING ENTITY LIST BYGROUPTAGS: ", ex);
+    res.status(400).send(ex);
+  }
+});
+
 
 module.exports = router;

@@ -12,7 +12,7 @@
 struct FrontEndStateMachineSML {
     auto operator()() const noexcept {
         return make_transition_table(
-            *state<class Initial> + event<OnActivateEvent> / ActivateHouseMaker{} = state<class HouseMaker>
+            *state<class Initial> + event<OnActivateEvent> / InitializeHouseMaker{} = state<class HouseMaker>
 
             ,state<class HouseMaker> + event<OnAltPressedEvent> / []{} = state<class Bespoke>
             ,state<class HouseMaker> + event<OnGlobalRescaleEvent> / GlobalRescale{}

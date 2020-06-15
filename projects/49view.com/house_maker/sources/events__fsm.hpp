@@ -4,7 +4,11 @@
 
 #pragma once
 
-struct OnActivateEvent {};
+#include <core/math/vector2f.h>
+
+struct OnActivateEvent {
+    std::function<void()> ccf = nullptr;
+};
 struct OnAltPressedEvent {};
 struct OnClearEvent {};
 struct OnDoubleTapEvent {};

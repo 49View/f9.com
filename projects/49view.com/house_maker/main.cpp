@@ -263,8 +263,6 @@
 
 #include "sources/house_maker_statemachine.h"
 #include "sources/transition_table_fsm.hpp"
-
-#include <graphics/opengl/gl_headers.hpp>
 #include "render_scene_graph/event_horizon.h"
 
 #ifndef ANDROID
