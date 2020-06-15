@@ -23,7 +23,7 @@ static constexpr int thumbSize = 128;
 
 class RemoteEntitySelector {
 public:
-    RemoteEntitySelector( std::string& target ) : target(target) {}
+    RemoteEntitySelector( HouseMaterialProperty& target ) : target(target) {}
 
     void activate() {
         bActive = true;
@@ -52,9 +52,9 @@ public:
             ImGui::Begin("Entity");
             static char query[256] = { '\0' };
             if ( query[0] == '\0' ) {
-                std::strcpy(query, target.c_str());
+                std::strcpy(query, target.materialName.c_str());
             }
-            if ( ImGui::InputText("Floor", query, 256, ImGuiInputTextFlags_EnterReturnsTrue) ) {
+            if ( ImGui::InputText("Material", query, 256, ImGuiInputTextFlags_EnterReturnsTrue) ) {
                 ResourceMetaData::getListOf(ResourceGroup::Material, query,
                                             [&]( CRefResourceMetadataList el ) {
                                                 metadataList = el;
@@ -75,7 +75,8 @@ public:
                         auto im = rsg.TH(meta.thumb);
                         if ( im ) {
                             if ( ImGui::ImageButton(ImGuiRenderTexture(im), ImVec2(thumbSize, thumbSize)) ) {
-                                target = meta.hash;
+                                target.materialHash = meta.hash;
+                                target.materialName = meta.name;
                                 backEnd->process_event(OnMakeHouse3dEvent{});
                             }
                             auto santizedTags = tagsSanitisedFor(query, meta.group, meta.tags);
@@ -96,14 +97,14 @@ public:
     }
 
 private:
-    std::string& target;
+    HouseMaterialProperty& target;
     ResourceMetadataList metadataList{};
     bool bActive = true;
 };
 
 class RemoteColorSelector {
 public:
-    RemoteColorSelector( C4f& target ) : target(target) {}
+    RemoteColorSelector( HouseMaterialProperty& target ) : target(target) {}
 
     void activate() {
         bActive = true;
@@ -170,7 +171,9 @@ public:
                         if (m+t >= metadataList.size() ) break;
                         const auto& meta = metadataList[m+t];
                         if ( ImGui::ColorButton(meta.color.toString().c_str(), ImVec4(meta.color.x(), meta.color.y(), meta.color.z(), 1.0f), 0, ImVec2(thumbSize, thumbSize)) ) {
-                            target = meta.color;
+                            target.color = meta.color;
+                            target.colorHash = meta.hash;
+                            target.colorName = meta.name;
                             backEnd->process_event(OnMakeHouse3dEvent{});
                         }
                         if (ImGui::IsItemHovered()) {
@@ -190,7 +193,7 @@ public:
     }
 
 private:
-    C4f& target;
+    HouseMaterialProperty& target;
     ResourceMetadataList metadataList{};
     bool bActive = true;
 };
@@ -221,7 +224,7 @@ public:
         if ( selected ) {
             auto *room = HouseService::find<RoomBSData>(asg.H(), selected->hash);
             if ( room ) {
-                colorChange("Walls color", room->wallColor );
+                colorChange("Walls color", room->wallsMaterial );
                 materialChange("Floor", room->floorMaterial);
                 roomType(room);
             } else {
@@ -243,11 +246,12 @@ public:
     }
 
 private:
-    void colorChange( const std::string& label, C4f& target ) {
+    void colorChange( const std::string& label, HouseMaterialProperty& targetMP ) {
         ImGui::Separator();
         ImGui::Text("%s", label.c_str());
+        C4f target = targetMP.color;
         if ( ImGui::ColorButton(target.toString().c_str(), ImVec4(target.x(), target.y(), target.z(), 1.0f), 0, ImVec2(thumbSize,thumbSize))) {
-            rcs = std::make_shared<RemoteColorSelector>(target);
+            rcs = std::make_shared<RemoteColorSelector>(targetMP);
         }
         if (ImGui::IsItemHovered()) {
             ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
@@ -255,14 +259,14 @@ private:
 
     }
 
-    void materialChange( const std::string& label, std::string& target ) {
+    void materialChange( const std::string& label, HouseMaterialProperty& targetMP ) {
         ImGui::Separator();
         ImGui::Text("%s", label.c_str());
-        auto imr = sg.get<Material>(target);
+        auto imr = sg.get<Material>(targetMP.materialHash);
         if ( imr ) {
             auto im = rsg.TH(imr->getDiffuseTexture());
             if ( ImGui::ImageButton(ImGuiRenderTexture(im), ImVec2(thumbSize, thumbSize)) ) {
-                res = std::make_shared<RemoteEntitySelector>(target);
+                res = std::make_shared<RemoteEntitySelector>(targetMP);
             }
             if (ImGui::IsItemHovered()) {
                 ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
