@@ -1,5 +1,6 @@
 import * as asyncModelOperations from "../assistants/asyncModelOperations";
 import {entityModel} from "../../models/entity";
+import {colorModel} from "../../models/color";
 
 const mongoose = require("mongoose");
 const zlib = require("zlib");
@@ -945,7 +946,14 @@ module.exports = {
     // const result = await entityModel.aggregate(aggregationQueries).exec();
     return result;
   },
-
+  getColorsInCategory: async category => {
+    const result = await colorModel.find({category});
+    return result;
+  },
+  getColorCategories: async () => {
+    const result = await colorModel.distinct("category");
+    return result;
+  },
   getEntitiesRemap: getEntitiesRemap,
   remap: remap
 }

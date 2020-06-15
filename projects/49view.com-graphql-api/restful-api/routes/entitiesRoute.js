@@ -1,11 +1,25 @@
 import * as metaAssistant from "../assistants/metadataAssistant";
 import * as fsController from "../controllers/fsController";
-import {furnitureSetModel} from "../../models/furniture_set";
 
 const entityController = require("../controllers/entityController");
 const express = require("express");
 const router = express.Router();
 const logger = require('eh_logger');
+
+router.get("/color/list", async (req, res, next) => {
+  try {
+    logger.info(req.url);
+    const foundEntities = await entityController.getColorCategories();
+    if (foundEntities !== null && foundEntities.length > 0) {
+      res.send(foundEntities);
+    } else {
+      res.sendStatus(204);
+    }
+  } catch (ex) {
+    console.log("ERROR GETTING FAMILY category: ", ex);
+    res.status(400).send(ex);
+  }
+});
 
 router.get("/:group/:tags", async (req, res, next) => {
   try {
@@ -33,6 +47,22 @@ router.get("/:group/:tags", async (req, res, next) => {
   }
 });
 
+router.get("/list/color/:category", async (req, res, next) => {
+  try {
+    logger.info(req.url);
+    const category = req.params.category;
+    const foundEntities = await entityController.getColorsInCategory(category);
+    if (foundEntities !== null && foundEntities.length > 0) {
+      res.send(foundEntities);
+    } else {
+      res.sendStatus(204);
+    }
+  } catch (ex) {
+    console.log("ERROR GETTING FAMILY category: ", ex);
+    res.status(400).send(ex);
+  }
+});
+
 router.get("/list/:group/:tags", async (req, res, next) => {
   try {
     logger.info(req.url);
@@ -47,7 +77,7 @@ router.get("/list/:group/:tags", async (req, res, next) => {
       req.params.tags
     );
     if (foundEntities !== null && foundEntities.length > 0) {
-      res.send( foundEntities );
+      res.send(foundEntities);
     } else {
       res.sendStatus(204);
     }
