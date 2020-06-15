@@ -224,8 +224,10 @@ public:
         if ( selected ) {
             auto *room = HouseService::find<RoomBSData>(asg.H(), selected->hash);
             if ( room ) {
-                colorChange("Walls color", room->wallsMaterial );
+                materialChange("Walls", room->wallsMaterial );
                 materialChange("Floor", room->floorMaterial);
+                materialChange("Skirting", room->skirtingMaterial);
+                materialChange("Covingg", room->covingMaterial);
                 roomType(room);
             } else {
                 auto *wall = HouseService::find<WallBSData>(asg.H(), selected->hash);
@@ -246,20 +248,8 @@ public:
     }
 
 private:
-    void colorChange( const std::string& label, HouseMaterialProperty& targetMP ) {
-        ImGui::Separator();
-        ImGui::Text("%s", label.c_str());
-        C4f target = targetMP.color;
-        if ( ImGui::ColorButton(target.toString().c_str(), ImVec4(target.x(), target.y(), target.z(), 1.0f), 0, ImVec2(thumbSize,thumbSize))) {
-            rcs = std::make_shared<RemoteColorSelector>(targetMP);
-        }
-        if (ImGui::IsItemHovered()) {
-            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-        }
-
-    }
-
     void materialChange( const std::string& label, HouseMaterialProperty& targetMP ) {
+        ImGui::Separator();
         ImGui::Separator();
         ImGui::Text("%s", label.c_str());
         auto imr = sg.get<Material>(targetMP.materialHash);
@@ -272,6 +262,16 @@ private:
                 ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
             }
         }
+        ImGui::SameLine();
+        C4f target = targetMP.color;
+        auto colorButtonId = label + target.toString();
+        if ( ImGui::ColorButton(colorButtonId.c_str(), ImVec4(target.x(), target.y(), target.z(), 1.0f), 0, ImVec2(thumbSize/2,thumbSize/2))) {
+            rcs = std::make_shared<RemoteColorSelector>(targetMP);
+        }
+        if (ImGui::IsItemHovered()) {
+            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+        }
+
     }
 
     void roomType( RoomBSData* room ) {
