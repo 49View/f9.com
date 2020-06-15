@@ -71,7 +71,48 @@ public:
         }
     }
 
+    void ShowExampleAppDockSpace(bool* p_open)
+    {
+        static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_PassthruCentralNode;
+
+        // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
+        // because it would be confusing to have two docking targets within each others.
+        ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+        ImGuiViewport* viewport = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos(viewport->GetWorkPos());
+        ImGui::SetNextWindowSize(viewport->GetWorkSize());
+        ImGui::SetNextWindowViewport(viewport->ID);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+        window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground;
+        window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+
+        // Important: note that we proceed even if Begin() returns false (aka window is collapsed).
+        // This is because we want to keep our DockSpace() active. If a DockSpace() is inactive,
+        // all active windows docked into it will lose their parent and become undocked.
+        // We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
+        // any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+        ImGui::Begin("DockSpace Demo", p_open, window_flags);
+        ImGui::PopStyleVar();
+
+        ImGui::PopStyleVar(2);
+
+        // DockSpace
+        ImGuiIO& io = ImGui::GetIO();
+        if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
+        {
+            ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+            ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+        }
+
+        ImGui::End();
+    }
+
     void update() {
+        static bool doc = true;
+        ShowExampleAppDockSpace(&doc);
+
         ImGui::Begin("SceneGraph");
         ImGui::Text("Scene nodes: %lu", sg.Nodes().size());
         sg.visitNodes([]( const GeomSPConst elem ) {
@@ -79,7 +120,15 @@ public:
         });
         ImGui::End();
 
-        ImGui::Begin("Control");
+        static bool boControl = true;
+        ImGui::Begin("Control", &boControl, ImGuiWindowFlags_NoDecoration|ImGuiWindowFlags_NoTitleBar );
+        if ( ImGui::Button("Elaborate") ) {
+            elaborateHouseBitmap();
+        }
+        ImGui::SameLine();
+        if ( ImGui::Button("Elaborate 3d") ) {
+            this->backEnd->process_event(OnMakeHouse3dEvent{});
+        }
         if ( ImGui::SliderFloat("Contrast", &HouseMakerBitmap::HMB().sourceContrast, 0.0f, 20.0f) ) {
             updateHMB();
         }
@@ -123,13 +172,6 @@ public:
         if ( ImGui::SliderFloat("floorPlanTransparencyFactor", &fptf, 0.0f, 1.0f) ) {
             arc.setFloorPlanTransparencyFactor(fptf);
             asg.showIMHouse();
-        }
-
-        if ( ImGui::Button("Elaborate") ) {
-            elaborateHouseBitmap();
-        }
-        if ( ImGui::Button("Elaborate 3d") ) {
-            this->backEnd->process_event(OnMakeHouse3dEvent{});
         }
 
         if ( ImGui::Button("Publish") ) {

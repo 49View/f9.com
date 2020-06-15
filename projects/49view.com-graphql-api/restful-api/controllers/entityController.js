@@ -918,6 +918,7 @@ module.exports = {
                   }
                 },
                 {"name": tags[0]},
+                {"hash": tags[0]},
                 {"name": fullName},
                 {
                   _id:
