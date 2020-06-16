@@ -26,66 +26,36 @@
 #include <eh_arch/controller/arch_render_controller.hpp>
 #include <eh_arch/makers/image/house_maker_bitmap.hpp>
 
-template <typename T>
+template<typename T>
 class HouseMakerGUI : public BackEndService<T> {
 public:
     HouseMakerGUI( SceneGraph& sg, RenderOrchestrator& rsg, ArchOrchestrator& asg, ArchRenderController& arc,
-                                  HouseMakerSelectionEditor& selectionEditor ) : sg(sg), rsg(rsg), asg(asg), arc(arc),
-                                                                                 selectionEditor(selectionEditor) {
+                   HouseMakerSelectionEditor& selectionEditor ) : sg(sg), rsg(rsg), asg(asg), arc(arc),
+                                                                  selectionEditor(selectionEditor) {
         rsg.setDragAndDropFunction(std::bind(&HouseMakerGUI::elaborateHouseCallback, this, std::placeholders::_1));
     }
 
     void elaborateHouseCallback( std::vector<std::string>& _paths ) {
         if ( _paths.empty() ) return;
-        elaborateHouseStage1(_paths[0]);
+        this->backEnd->process_event(OnLoadFloorPlanEvent{_paths[0]});
         _paths.clear();
     }
 
-    void elaborateHouseBitmap() {
-        asg.setHouse(HouseMakerBitmap::make(asg.FurnitureMap()));
-        asg.showIMHouse();
-    }
-
-    void elaborateHouseStage1( const std::string& filename ) {
-        auto newHMB = HMBBSData{ getFileNameOnly(filename), RawImage{ FM::readLocalFileC(filename) } };
-        HouseMakerBitmap::updateHMB(newHMB );
-        updateHMB();
-        sg.addRawImageIM(newHMB.filename, newHMB.image);
-        asg.setHouse(HouseMakerBitmap::makeEmpty());
-        asg.showIMHouse();
-        asg.centerCameraMiddleOfHouse();
-    }
-
-    void updateHMB() {
-        auto sourceImages = HouseMakerBitmap::prepareImages();
-
-        auto sourceBim = sg.get<RawImage>(HouseMakerBitmap::HMB().filename + "_bin");
-        if ( sourceBim ) {
-            memcpy(sourceBim->data(), sourceImages.sourceFileImageBin.data, sourceBim->size());
-            sg.updateRawImage(HouseMakerBitmap::HMB().filename + "_bin");
-        } else {
-            auto sourceBinParams = getImageParamsFromMat(sourceImages.sourceFileImageBin);
-            auto sourceBinImage = RawImage{ sourceBinParams.width, sourceBinParams.height, sourceBinParams.channels,
-                                            sourceImages.sourceFileImageBin.data };
-            sg.addRawImageIM(HouseMakerBitmap::HMB().filename + "_bin", sourceBinImage);
-        }
-    }
-
-    void ShowExampleAppDockSpace(bool* p_open)
-    {
+    void dockSpaceStartUp( bool *p_open ) {
         static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_PassthruCentralNode;
 
         // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
         // because it would be confusing to have two docking targets within each others.
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
-        ImGuiViewport* viewport = ImGui::GetMainViewport();
+        ImGuiViewport *viewport = ImGui::GetMainViewport();
         ImGui::SetNextWindowPos(viewport->GetWorkPos());
         ImGui::SetNextWindowSize(viewport->GetWorkSize());
         ImGui::SetNextWindowViewport(viewport->ID);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-        window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground;
-        window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+        window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
+                        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground |
+                        ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 
         // Important: note that we proceed even if Begin() returns false (aka window is collapsed).
         // This is because we want to keep our DockSpace() active. If a DockSpace() is inactive,
@@ -100,8 +70,7 @@ public:
 
         // DockSpace
         ImGuiIO& io = ImGui::GetIO();
-        if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
-        {
+        if ( checkBitWiseFlag(io.ConfigFlags, ImGuiConfigFlags_DockingEnable) ) {
             ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
             ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
         }
@@ -111,45 +80,45 @@ public:
 
     void update() {
         static bool doc = true;
-        ShowExampleAppDockSpace(&doc);
+        dockSpaceStartUp(&doc);
 
         ImGui::Begin("SceneGraph");
         ImGui::Text("Scene nodes: %lu", sg.Nodes().size());
-        sg.visitNodes([]( const GeomSPConst elem ) {
+        sg.visitNodes([]( const GeomSPConst& elem ) {
             ImGui::Text("%s", elem->Name().c_str());
         });
         ImGui::End();
 
         static bool boControl = true;
-        ImGui::Begin("Control", &boControl, ImGuiWindowFlags_NoDecoration|ImGuiWindowFlags_NoTitleBar );
+        ImGui::Begin("Control", &boControl, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoTitleBar);
         if ( ImGui::Button("Elaborate") ) {
-            elaborateHouseBitmap();
+            this->backEnd->process_event(OnElaborateHouseBitmapEvent{});
         }
         ImGui::SameLine();
         if ( ImGui::Button("Elaborate 3d") ) {
             this->backEnd->process_event(OnMakeHouse3dEvent{});
         }
         if ( ImGui::SliderFloat("Contrast", &HouseMakerBitmap::HMB().sourceContrast, 0.0f, 20.0f) ) {
-            updateHMB();
+            this->backEnd->process_event(OnUpdateHMBEvent{});
         }
         if ( ImGui::SliderFloat("Brightness", &HouseMakerBitmap::HMB().sourceBrightness, 0.0f, 255.0f) ) {
-            updateHMB();
+            this->backEnd->process_event(OnUpdateHMBEvent{});
         }
         if ( ImGui::SliderFloat("Gaussian", &HouseMakerBitmap::HMB().sourceGuassian, 1.0f, 5.0f) ) {
-            updateHMB();
+            this->backEnd->process_event(OnUpdateHMBEvent{});
         }
         if ( ImGui::SliderInt("Gaussian Sigma", &HouseMakerBitmap::HMB().sourceGuassianSigma, 1, 21) ) {
             if ( !isOdd(HouseMakerBitmap::HMB().sourceGuassianSigma) ) HouseMakerBitmap::HMB().sourceGuassianSigma++;
-            updateHMB();
+            this->backEnd->process_event(OnUpdateHMBEvent{});
         }
         if ( ImGui::SliderFloat("Gaussian Beta", &HouseMakerBitmap::HMB().sourceGuassianBeta, -5.0f, 5.0f) ) {
-            updateHMB();
+            this->backEnd->process_event(OnUpdateHMBEvent{});
         }
         if ( ImGui::SliderFloat("minBinThreshold", &HouseMakerBitmap::HMB().minBinThreshold, 0.0f, 255.0f) ) {
-            updateHMB();
+            this->backEnd->process_event(OnUpdateHMBEvent{});
         }
         if ( ImGui::SliderFloat("maxBinThreshold", &HouseMakerBitmap::HMB().maxBinThreshold, 0.0f, 255.0f) ) {
-            updateHMB();
+            this->backEnd->process_event(OnUpdateHMBEvent{});
         }
         if ( !HouseMakerBitmap::HMB().filename.empty() ) {
             float tSize = 500.0f;
@@ -164,7 +133,7 @@ public:
         static float currentScaleFactorMeters = centimetersToMeters(HouseMakerBitmap::HMB().rescaleFactor);
 
         if ( ImGui::InputFloat("Scale Factor", &currentScaleFactorMeters, 0.001f, 0.01f, 5) ) {
-            this->backEnd->process_event( OnGlobalRescaleEvent{ oldScaleFactor, currentScaleFactorMeters} );
+            this->backEnd->process_event(OnGlobalRescaleEvent{ oldScaleFactor, currentScaleFactorMeters });
             oldScaleFactor = HouseMakerBitmap::HMB().rescaleFactor;
         }
 
@@ -185,7 +154,7 @@ public:
 
         ImGui::Begin("Camera");
         std::ostringstream camDump;
-        camDump << *sg.DC().get();
+        camDump << *sg.DC();
         auto lines = split(camDump.str(), '\n');
         for ( const auto& line : lines ) {
             ImGui::Text("%s", line.c_str());

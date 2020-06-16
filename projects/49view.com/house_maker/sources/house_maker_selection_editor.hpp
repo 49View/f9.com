@@ -315,7 +315,7 @@ private:
                         RoomService::addRoomType(room, ASType::GenericRoom);
                     }
                 }
-                backEnd->process_event(OnMakeHouse3dEvent{});
+                backEnd->process_event(OnRecalculateFurnitureEvent{});
             }
         }
     }

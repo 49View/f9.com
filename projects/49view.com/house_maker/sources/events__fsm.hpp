@@ -13,7 +13,14 @@ struct OnAltPressedEvent {};
 struct OnClearEvent {};
 struct OnDoubleTapEvent {};
 struct OnUndoEvent {};
+
+struct OnLoadFloorPlanEvent {
+    std::string floorPlanFileName;
+};
+struct OnUpdateHMBEvent {};
 struct OnMakeHouse3dEvent {};
+struct OnElaborateHouseBitmapEvent {};
+struct OnRecalculateFurnitureEvent {};
 
 struct OnHouseMakerToggleEvent{};
 struct OnBrowser3dToggleEvent{};
