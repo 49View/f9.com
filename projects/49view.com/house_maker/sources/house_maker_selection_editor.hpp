@@ -228,6 +228,7 @@ public:
                 materialChange("Floor", room->floorMaterial);
                 materialChange("Skirting", room->skirtingMaterial);
                 materialChange("Covingg", room->covingMaterial);
+                materialChange("Ceiling", room->ceilingMaterial);
                 roomType(room);
             } else {
                 auto *wall = HouseService::find<WallBSData>(asg.H(), selected->hash);
@@ -255,12 +256,15 @@ private:
         auto imr = sg.get<Material>(targetMP.materialHash);
         if ( imr ) {
             auto im = rsg.TH(imr->getDiffuseTexture());
+            auto matButtonId = label + targetMP.materialHash;
+            ImGui::PushID(matButtonId.c_str());
             if ( ImGui::ImageButton(ImGuiRenderTexture(im), ImVec2(thumbSize, thumbSize)) ) {
                 res = std::make_shared<RemoteEntitySelector>(targetMP);
             }
             if (ImGui::IsItemHovered()) {
                 ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
             }
+            ImGui::PopID();
         }
         ImGui::SameLine();
         C4f target = targetMP.color;
