@@ -2,6 +2,7 @@ import styled, {keyframes} from 'styled-components'
 import {HR, My1, My2} from "../../futuremodules/reactComponentStyles/reactCommon.styled";
 import React from "reactn";
 
+export const carouselHeight = "480px";
 const mainPadding = "15px";
 const wasmCanvasSize = {x: "720px", y: "540px"};
 
@@ -111,7 +112,7 @@ export const PropertyStarOfTheShowDiv = styled.div`{
 
 export const PropertyCarouselDiv = styled.div`{
   display: grid;
-  height: 480px;
+  height: ${carouselHeight};
   grid-gap: 10px;
   grid-template-columns: ${wasmCanvasSize.x} calc( var(--body-width) - ${mainPadding}*2 - ${wasmCanvasSize.x} - 10px );
   grid-template-rows: 100%;

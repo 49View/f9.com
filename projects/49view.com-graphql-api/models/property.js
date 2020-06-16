@@ -2,6 +2,7 @@ const mongoose = global.db;
 
 export const propertyModel = mongoose.model("properties", new mongoose.Schema({
   name: {type: String},
+  status: {type: String},
   origin: {type: String, index: true, unique: true},
   buyOrLet: {type: String},
   addressLine1: {type: String},
@@ -18,7 +19,6 @@ export const propertyModel = mongoose.model("properties", new mongoose.Schema({
   images: [{type: String}],
 
   userId: {type: mongoose.Schema.Types.ObjectId, ref: "users", index: true, unique: true},
-  estateAgentId: {type: mongoose.Schema.Types.ObjectId, ref: "properties", index: true, unique: true},
-  propertyBinariesId: {type: mongoose.Schema.Types.ObjectId, ref: "property_binaries", index: true, unique: true},
+  estateAgentId: {type: mongoose.Schema.Types.ObjectId, ref: "properties", index: true, unique: false},
 
 }, {timestamps: true, strict: false}));

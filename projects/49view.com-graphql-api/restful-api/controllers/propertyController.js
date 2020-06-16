@@ -11,20 +11,6 @@ const fetch = require('node-fetch');
 const cheerio = require('cheerio');
 const db = require('eh_db');
 
-// const CryptoJS = require('crypto-js');
-//
-// const encryptWithAES = text => {
-//   const passphrase = globalConfig.mJWTSecret;
-//   return CryptoJS.AES.encrypt(text, passphrase).toString();
-// };
-//
-// const decryptWithAES = ciphertext => {
-//   const passphrase = globalConfig.mJWTSecret;
-//   const bytes = CryptoJS.AES.decrypt(ciphertext, passphrase);
-//   const originalText = bytes.toString(CryptoJS.enc.Utf8);
-//   return originalText;
-// };
-
 const regexMatch = (regex, text, requiredMatches, matchIndex) => {
 
   //console.log("Search for "+matchIndex+" required "+requiredMatches, regex);
@@ -123,7 +109,7 @@ const updatePropertyBinaries = async (result, propertyId) => {
     const imageUrl =
       await saveImageFromUrl( elem.masterUrl, mp,
         ()=> `${propertyId}${elem.caption}_image_${inc}`);
-
+    inc++;
     thumbs.push(thumbUrl);
     images.push(imageUrl);
   }
@@ -152,7 +138,7 @@ const updateEstateAgentFromExcalibur = async (result) => {
 
     return ret;
   }
-  return checkExist;
+  return checkExist.toObject();
 }
 
 export const scrapeExcaliburFloorplan = async (htmlUrl, userId, upsert) => {
@@ -176,6 +162,7 @@ export const scrapeExcaliburFloorplan = async (htmlUrl, userId, upsert) => {
   const result = {
     userId,
     origin: origin,
+    status: "staging",
     estateAgentId: null,
     name: null,
     buyOrLet: forSale,
