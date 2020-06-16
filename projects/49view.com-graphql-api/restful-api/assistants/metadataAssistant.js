@@ -1,7 +1,14 @@
 const md5 = require("md5");
+const logger = require('eh_logger');
 
 const gsplitTags = source => {
   return source.split(/[\s,._-]+/).map(e => {
+    return e.toLowerCase();
+  });
+};
+
+const gsplitTagsUnion = source => {
+  return source.split(/[+]+/).map(e => {
     return e.toLowerCase();
   });
 };
@@ -11,7 +18,19 @@ module.exports = {
     return gsplitTags(decodeURIComponent(source));
   },
 
-  createMetadata: ( filename, username, useremail ) => {
+  splitTagsWithUnion: source => {
+    const dec = decodeURIComponent(source);
+    const andSplit = gsplitTags(dec);
+    const unionSplit = gsplitTagsUnion(dec);
+
+    const splitTypeBool = andSplit.length > unionSplit.length;
+      return {
+        splitType: splitTypeBool ? 0 : 1,
+        elements: splitTypeBool ? andSplit : unionSplit
+      }
+  },
+
+  createMetadata: (filename, username, useremail) => {
     let cleanMetadata = {};
     cleanMetadata.name = filename;
     // if (content.mKey) cleanMetadata.name = content.mKey;
@@ -19,8 +38,8 @@ module.exports = {
     // cleanMetadata.hash = md5(content);
     const idate = new Date();
     cleanMetadata.creator = {
-        name: username,
-        email: useremail
+      name: username,
+      email: useremail
     };
     cleanMetadata.lastUpdatedDate = idate;
     cleanMetadata.creationDate = idate;

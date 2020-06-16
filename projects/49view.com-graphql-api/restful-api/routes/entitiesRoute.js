@@ -26,7 +26,7 @@ router.get("/:group/:tags", async (req, res, next) => {
     logger.info(req.url);
     const group = req.params.group;
     const mainPath = `entities/${group}`;
-    const tags = metaAssistant.splitTags(req.params.tags);
+    const tags = metaAssistant.splitTagsWithUnion(req.params.tags);
     const project = "49View";//req.user.project;
     //Check existing entity for use project (or public)
     const foundEntities = await entityController.getEntitiesByProjectGroupTags(
@@ -67,7 +67,7 @@ router.get("/list/:group/:tags", async (req, res, next) => {
   try {
     logger.info(req.url);
     const group = req.params.group;
-    const tags = metaAssistant.splitTags(req.params.tags);
+    const tags = metaAssistant.splitTagsWithUnion(req.params.tags);
     const project = "49View";//req.user.project;
     //Check existing entity for use project (or public)
     const foundEntities = await entityController.getEntitiesByProjectGroupTags(

@@ -821,8 +821,8 @@ module.exports = {
   checkEntityExistsByFSId: async (fsid) => {
     try {
       const oid = mongoose.Types.ObjectId(fsid);
-      const meta = await entityModel.findOne( { fsid: oid } );
-      logger.info( "Entity with fsid: ", meta );
+      const meta = await entityModel.findOne({fsid: oid});
+      logger.info("Entity with fsid: ", meta);
       return meta !== null;
     } catch (e) {
       return false;
@@ -842,12 +842,12 @@ module.exports = {
   getEntityContent: async (entityId) => {
     try {
       const currentEntity = await module.exports.getEntityById(mongoose.Types.ObjectId(entityId));
-      if ( currentEntity ) {
+      if (currentEntity) {
         return await module.exports.getEntityContentFSId(currentEntity.fsid);
       }
       return currentEntity;
     } catch (e) {
-      logger.error( "GetEntityContent: " + e );
+      logger.error("GetEntityContent: " + e);
     }
   },
 
@@ -888,7 +888,7 @@ module.exports = {
   getEntityByIdProject: getEntityByIdProject,
   getEntitiesIdOfProjectWithGroup: getEntitiesIdOfProjectWithGroup,
   getEntityById: async (entityId) => {
-    const result = await entityModel.findOne( {_id: mongoose.Types.ObjectId(entityId)} );
+    const result = await entityModel.findOne({_id: mongoose.Types.ObjectId(entityId)});
     return result !== null ? result.toObject() : null;
   },
   getEntityByHash: getEntityByHash,
@@ -898,10 +898,19 @@ module.exports = {
   getEntitiesByProjectGroupTags: async (
     project,
     group,
-    tags,
+    tagsWithUnions,
     fullName,
     randomElements
   ) => {
+    const tagsQuery = tagsWithUnions.splitType === 0 ? {
+      tags: {
+        $all: tagsWithUnions.elements
+      }
+    } : {
+      tags: {
+        $elemMatch: { $in: tagsWithUnions.elements }
+      }
+    };
     const aggregationQueries = [
       {
         $match: {
@@ -913,18 +922,14 @@ module.exports = {
             },
             {
               $or: [
-                {
-                  "tags": {
-                    $all: tags
-                  }
-                },
-                {"name": tags[0]},
-                {"hash": tags[0]},
+                tagsQuery,
+                {"name": tagsWithUnions.elements[0]},
+                {"hash": tagsWithUnions.elements[0]},
                 {"name": fullName},
                 {
                   _id:
-                    tags[0].length === 12 || tags[0].length === 24
-                      ? mongoose.Types.ObjectId(tags[0])
+                    tagsWithUnions.elements[0].length === 12 || tagsWithUnions.elements[0].length === 24
+                      ? mongoose.Types.ObjectId(tagsWithUnions.elements[0])
                       : "DDDDDDDDDDDD"
                 }
               ]

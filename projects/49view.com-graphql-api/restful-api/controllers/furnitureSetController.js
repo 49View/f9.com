@@ -17,7 +17,7 @@ exports.getSet = async name => {
   };
   for (const elem of furnitureSet.set) {
     const name = elem.name.toLowerCase();
-    const tags = metadataAssistant.splitTags(name);
+    const tags = metadataAssistant.splitTagsWithUnion(name);
     const elemMeta = await entityController.getEntitiesByProjectGroupTags("", "geom", tags, name);
     if ( elemMeta && elemMeta[0] ) {
       furnitureSetWithBBox.set.push( {
