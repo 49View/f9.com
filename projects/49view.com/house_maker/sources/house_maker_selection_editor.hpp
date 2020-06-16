@@ -23,7 +23,14 @@ static constexpr int thumbSize = 128;
 
 class RemoteEntitySelector {
 public:
-    RemoteEntitySelector( HouseMaterialProperty& target ) : target(target) {}
+    RemoteEntitySelector( HouseMaterialProperty& target, const std::string& presets = {} ) : target(target) {
+        if ( !presets.empty() ) {
+            ResourceMetaData::getListOf(ResourceGroup::Material, presets,
+                                        [&]( CRefResourceMetadataList el ) {
+                                            metadataList = el;
+                                        });
+        }
+    }
 
     void activate() {
         bActive = true;
@@ -51,9 +58,6 @@ public:
         if ( bActive ) {
             ImGui::Begin("Entity");
             static char query[256] = { '\0' };
-            if ( query[0] == '\0' ) {
-                std::strcpy(query, target.materialName.c_str());
-            }
             if ( ImGui::InputText("Material", query, 256, ImGuiInputTextFlags_EnterReturnsTrue) ) {
                 ResourceMetaData::getListOf(ResourceGroup::Material, query,
                                             [&]( CRefResourceMetadataList el ) {
@@ -226,11 +230,11 @@ public:
         if ( selected ) {
             auto *room = HouseService::find<RoomBSData>(asg.H(), selected->hash);
             if ( room ) {
-                materialChange("Walls", room->wallsMaterial);
-                materialChange("Floor", room->floorMaterial);
-                materialChange("Skirting", room->skirtingMaterial);
-                materialChange("Coving", room->covingMaterial);
-                materialChange("Ceiling", room->ceilingMaterial);
+                materialChange("Walls", room->wallsMaterial, "plaster");
+                materialChange("Floor", room->floorMaterial, "wood+tiles+carpet");
+                materialChange("Skirting", room->skirtingMaterial, "wood+tiles");
+                materialChange("Coving", room->covingMaterial, "wood+tiles");
+                materialChange("Ceiling", room->ceilingMaterial, "plaster");
                 roomMiscProperties(room, backEnd);
                 roomType(room, backEnd);
             } else {
@@ -252,7 +256,7 @@ public:
     }
 
 private:
-    void materialChange( const std::string& label, HouseMaterialProperty& targetMP ) {
+    void materialChange( const std::string& label, HouseMaterialProperty& targetMP, const std::string& presets = {} ) {
         ImGui::Separator();
         ImGui::Separator();
         ImGui::Text("%s", label.c_str());
@@ -262,7 +266,7 @@ private:
             auto matButtonId = label + targetMP.materialHash;
             ImGui::PushID(matButtonId.c_str());
             if ( ImGui::ImageButton(ImGuiRenderTexture(im), ImVec2(thumbSize, thumbSize)) ) {
-                res = std::make_shared<RemoteEntitySelector>(targetMP);
+                res = std::make_shared<RemoteEntitySelector>(targetMP, presets);
             }
             if ( ImGui::IsItemHovered() ) {
                 ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
