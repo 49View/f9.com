@@ -62,7 +62,7 @@ public:
             }
             if ( !metadataList.empty() ) {
                 int grouping = 3;
-                for ( auto m = 0u; m < metadataList.size(); m+= 3 ) {
+                for ( auto m = 0u; m < metadataList.size(); m += 3 ) {
                     ImGui::NewLine();
                     for ( int t = 0; t < grouping; t++ ) {
                         if ( m + t >= metadataList.size() ) break;
@@ -80,7 +80,7 @@ public:
                                 backEnd->process_event(OnMakeHouse3dEvent{});
                             }
                             auto santizedTags = tagsSanitisedFor(query, meta.group, meta.tags);
-                            if (ImGui::IsItemHovered()) {
+                            if ( ImGui::IsItemHovered() ) {
                                 ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
                                 ImGui::BeginTooltip();
                                 ImGui::Text("%s", arrayToStringCompact(santizedTags).c_str());
@@ -122,24 +122,24 @@ public:
 
             ImGui::Text("Color Family");
 
-            colors.emplace_back("red",   C4f::INDIAN_RED );
-            colors.emplace_back("green", C4f::FOREST_GREEN );
-            colors.emplace_back("black", C4f::DARK_GRAY );
+            colors.emplace_back("red", C4f::INDIAN_RED);
+            colors.emplace_back("green", C4f::FOREST_GREEN);
+            colors.emplace_back("black", C4f::DARK_GRAY);
 
-            colors.emplace_back("blue", C4f::SKY_BLUE );
-            colors.emplace_back("cream", C4f::SAND );
-            colors.emplace_back("grey", C4f::PASTEL_GRAY );
+            colors.emplace_back("blue", C4f::SKY_BLUE);
+            colors.emplace_back("cream", C4f::SAND);
+            colors.emplace_back("grey", C4f::PASTEL_GRAY);
 
-            colors.emplace_back("orange", C4f::PASTEL_ORANGE );
-            colors.emplace_back("pink", C4f::HOT_PINK );
-            colors.emplace_back("purple", C4f::DARK_PURPLE );
+            colors.emplace_back("orange", C4f::PASTEL_ORANGE);
+            colors.emplace_back("pink", C4f::HOT_PINK);
+            colors.emplace_back("purple", C4f::DARK_PURPLE);
 
-            colors.emplace_back("teal", C4f::PASTEL_CYAN );
-            colors.emplace_back("white", C4f::LIGHT_GREY );
-            colors.emplace_back("yellow", C4f::PASTEL_YELLOW );
+            colors.emplace_back("teal", C4f::PASTEL_CYAN);
+            colors.emplace_back("white", C4f::LIGHT_GREY);
+            colors.emplace_back("yellow", C4f::PASTEL_YELLOW);
 
             int grouping = 3;
-            for ( auto m = 0u; m < colors.size(); m+= 3 ) {
+            for ( auto m = 0u; m < colors.size(); m += 3 ) {
                 ImGui::NewLine();
                 for ( int t = 0; t < grouping; t++ ) {
                     if ( m + t >= colors.size() ) break;
@@ -152,9 +152,9 @@ public:
                                                         metadataList = el;
                                                     });
                     }
-                    if (ImGui::IsItemHovered()) {
+                    if ( ImGui::IsItemHovered() ) {
                         ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-                        ImGui::SetTooltip("%s", color.first.c_str() );
+                        ImGui::SetTooltip("%s", color.first.c_str());
                     }
                     ImGui::SameLine();
                 }
@@ -165,22 +165,24 @@ public:
             ImGui::Text("Colors");
 
             if ( !metadataList.empty() ) {
-                for ( auto m = 0u; m < metadataList.size(); m+= 3 ) {
+                for ( auto m = 0u; m < metadataList.size(); m += 3 ) {
                     ImGui::NewLine();
                     for ( int t = 0; t < grouping; t++ ) {
-                        if (m+t >= metadataList.size() ) break;
-                        const auto& meta = metadataList[m+t];
-                        if ( ImGui::ColorButton(meta.color.toString().c_str(), ImVec4(meta.color.x(), meta.color.y(), meta.color.z(), 1.0f), 0, ImVec2(thumbSize, thumbSize)) ) {
+                        if ( m + t >= metadataList.size() ) break;
+                        const auto& meta = metadataList[m + t];
+                        if ( ImGui::ColorButton(meta.color.toString().c_str(),
+                                                ImVec4(meta.color.x(), meta.color.y(), meta.color.z(), 1.0f), 0,
+                                                ImVec2(thumbSize, thumbSize)) ) {
                             target.color = meta.color;
                             target.colorHash = meta.hash;
                             target.colorName = meta.name;
                             backEnd->process_event(OnMakeHouse3dEvent{});
                         }
-                        if (ImGui::IsItemHovered()) {
+                        if ( ImGui::IsItemHovered() ) {
                             ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
                             ImGui::BeginTooltip();
                             ImGui::Text("Color Name:");
-                            ImGui::Text("%s",meta.name.c_str());
+                            ImGui::Text("%s", meta.name.c_str());
                             ImGui::EndTooltip();
                         }
                         ImGui::SameLine();
@@ -224,12 +226,13 @@ public:
         if ( selected ) {
             auto *room = HouseService::find<RoomBSData>(asg.H(), selected->hash);
             if ( room ) {
-                materialChange("Walls", room->wallsMaterial );
+                materialChange("Walls", room->wallsMaterial);
                 materialChange("Floor", room->floorMaterial);
                 materialChange("Skirting", room->skirtingMaterial);
-                materialChange("Covingg", room->covingMaterial);
+                materialChange("Coving", room->covingMaterial);
                 materialChange("Ceiling", room->ceilingMaterial);
-                roomType(room);
+                roomMiscProperties(room, backEnd);
+                roomType(room, backEnd);
             } else {
                 auto *wall = HouseService::find<WallBSData>(asg.H(), selected->hash);
                 if ( wall ) {
@@ -261,7 +264,7 @@ private:
             if ( ImGui::ImageButton(ImGuiRenderTexture(im), ImVec2(thumbSize, thumbSize)) ) {
                 res = std::make_shared<RemoteEntitySelector>(targetMP);
             }
-            if (ImGui::IsItemHovered()) {
+            if ( ImGui::IsItemHovered() ) {
                 ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
             }
             ImGui::PopID();
@@ -269,16 +272,31 @@ private:
         ImGui::SameLine();
         C4f target = targetMP.color;
         auto colorButtonId = label + target.toString();
-        if ( ImGui::ColorButton(colorButtonId.c_str(), ImVec4(target.x(), target.y(), target.z(), 1.0f), 0, ImVec2(thumbSize/2,thumbSize/2))) {
+        if ( ImGui::ColorButton(colorButtonId.c_str(), ImVec4(target.x(), target.y(), target.z(), 1.0f), 0,
+                                ImVec2(thumbSize / 2, thumbSize / 2)) ) {
             rcs = std::make_shared<RemoteColorSelector>(targetMP);
         }
-        if (ImGui::IsItemHovered()) {
+        if ( ImGui::IsItemHovered() ) {
             ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
         }
 
     }
 
-    void roomType( RoomBSData* room ) {
+    template<typename BE>
+    void roomMiscProperties( RoomBSData *room, BE *backEnd ) {
+        ImGui::Separator();
+        ImGui::NewLine();
+        ImGui::Separator();
+        ImGui::Text("Properties");
+        if ( ImGui::Checkbox("Has Coving", &room->mHasCoving) ) {
+            backEnd->process_event(OnMakeHouse3dEvent{});
+        }
+    }
+
+    template<typename BE>
+    void roomType( RoomBSData *room, BE *backEnd ) {
+        ImGui::Separator();
+        ImGui::NewLine();
         ImGui::Separator();
         ImGui::Text("Room type");
         static std::array<bool, ASType::LastRoom> hasRoomV{};
@@ -297,7 +315,7 @@ private:
                         RoomService::addRoomType(room, ASType::GenericRoom);
                     }
                 }
-                asg.showIMHouse();
+                backEnd->process_event(OnMakeHouse3dEvent{});
             }
         }
     }

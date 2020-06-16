@@ -39,7 +39,6 @@ protected:
 
 protected:
     std::shared_ptr<RoomBuilder> rb;
-    FurnitureMapStorage furnitureMap;
     ArchOrchestrator& asg;
     ArchRenderController& arc;
     std::shared_ptr<HouseMakerGUI<FrontEnd>> gui;

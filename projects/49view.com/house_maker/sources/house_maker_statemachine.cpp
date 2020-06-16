@@ -33,13 +33,7 @@ void HouseMakerStateMachine::activateImpl() {
 void HouseMakerStateMachine::activatePostLoad() {
 
 //    RoomServiceFurniture::addDefaultFurnitureSet("uk_default");
-    Http::get(Url{ "/furnitureset/uk_default" }, [&, this]( HttpResponeParams& res ) {
-        FurnitureSetContainer fset{ res.bufferString };
-        for ( const auto& f : fset.set ) {
-            sg.loadProfile(f.symbol);
-            furnitureMap.addIndex(f);
-        }
-    });
+    asg.loadFurnitureMapStorage("uk_default");
 
     rsg.RR().createGrid(CommandBufferLimits::GridStart, 1.0f, ( Color4f::PASTEL_GRAYLIGHT ),
                         ( Color4f::DARK_GRAY ), V2f{ 15.0f }, 0.015f);

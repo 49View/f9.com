@@ -42,7 +42,7 @@ public:
     }
 
     void elaborateHouseBitmap() {
-        asg.setHouse(HouseMakerBitmap::make());
+        asg.setHouse(HouseMakerBitmap::make(asg.FurnitureMap()));
         asg.showIMHouse();
     }
 
