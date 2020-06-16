@@ -28,16 +28,15 @@ Showcaser::Showcaser( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchOrchestrato
 
 void Showcaser::postLoadHouseCallback(std::shared_ptr<HouseBSData> _houseJson) {
 
-    houseJson = _houseJson;
-    asg.make3dHouse(houseJson.get(), [&](HouseBSData* _houseJson) {
-        floorplanNavigationMatrix = asg.calcFloorplanNavigationTransform(houseJson, 3.5f, 0.02f);
+    asg.make3dHouse( [&](HouseBSData* _houseJson) {
+        floorplanNavigationMatrix = asg.calcFloorplanNavigationTransform(3.5f, 0.02f);
         arc.pm(RDSPreMult(floorplanNavigationMatrix));
         arc.renderMode(FloorPlanRenderMode::Normal2d);
-        HouseRender::IMHouseRender(rsg.RR(), sg, houseJson.get(), arc);
+        HouseRender::IMHouseRender(rsg.RR(), sg, asg.H(), arc);
 
         V3f pos{0.0f, 1.48f, 0.0f};
         V3f rot{ 0.08f, -0.70f, 0.0f };
-        HouseService::bestStartingPositionAndAngle(houseJson.get(), pos, rot);
+        HouseService::bestStartingPositionAndAngle(asg.H(), pos, rot);
         rsg.setRigCameraController(CameraControlType::Walk);
         sg.setLastKnownGoodPosition(pos);
         rsg.DC()->setQuatAngles(rot);
@@ -86,7 +85,7 @@ void Showcaser::activateImpl() {
 }
 
 void Showcaser::updatePersonLocator() {
-    if ( houseJson && rsg.getRigCameraController() == CameraControlType::Walk && floorplanNavigationMatrix != Matrix4f::IDENTITY ) {
+    if ( asg.H() && rsg.getRigCameraController() == CameraControlType::Walk && floorplanNavigationMatrix != Matrix4f::IDENTITY ) {
         rsg.drawCameraLocator(floorplanNavigationMatrix);
     }
 }
