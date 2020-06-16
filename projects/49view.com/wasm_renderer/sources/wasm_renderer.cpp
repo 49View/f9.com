@@ -67,10 +67,10 @@ void Showcaser::activatePostLoad() {
     rsg.DC()->setFoV(60.0f);
 
     // Load default property if passed trough command line
-    LOGRS("CLI params:" << cliParams.printAll());
-    if ( auto pid = cliParams.getParam("pid"); pid ) {
-        asg.loadHouse(*pid, std::bind( &Showcaser::postLoadHouseCallback, this));
-    }
+//    LOGRS("CLI params:" << cliParams.printAll());
+//    if ( auto pid = cliParams.getParam("pid"); pid ) {
+//        asg.loadHouse(*pid, std::bind( &Showcaser::postLoadHouseCallback, this));
+//    }
 }
 
 void Showcaser::luaFunctionsSetup() {

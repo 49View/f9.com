@@ -163,7 +163,7 @@ struct LoadFloorPlan {
 
 struct MakeHouse3d {
     void operator()( ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) {
-        asg.make3dHouse([&]( HouseBSData *house ) {
+        asg.make3dHouse([&]() {
             if ( arc.getViewingMode() == ArchViewingMode::AVM_DollHouse ||
                  arc.getViewingMode() == ArchViewingMode::AVM_TopDown3d ) {
                 rsg.RR().setVisibilityOnTags(ArchType::CeilingT, false);
