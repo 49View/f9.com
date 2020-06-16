@@ -25,7 +25,7 @@ protected:
     void activatePostLoad() override;
     void luaFunctionsSetup() override;
     void updatePersonLocator();
-    void postLoadHouseCallback(std::shared_ptr<HouseBSData> houseJson);
+    void postLoadHouseCallback();
 protected:
     ArchOrchestrator& asg;
     ArchRenderController& arc;

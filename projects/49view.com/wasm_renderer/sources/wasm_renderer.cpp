@@ -26,9 +26,9 @@ Showcaser::Showcaser( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchOrchestrato
                                                                                                                         ScenePreLoader(_sg, _rsg),
                                                                                                                         asg(_asg), arc(_ims) {}
 
-void Showcaser::postLoadHouseCallback(std::shared_ptr<HouseBSData> _houseJson) {
+void Showcaser::postLoadHouseCallback() {
 
-    asg.make3dHouse( [&](HouseBSData* _houseJson) {
+    asg.make3dHouse( [&]() {
         floorplanNavigationMatrix = asg.calcFloorplanNavigationTransform(3.5f, 0.02f);
         arc.pm(RDSPreMult(floorplanNavigationMatrix));
         arc.renderMode(FloorPlanRenderMode::Normal2d);
@@ -69,14 +69,14 @@ void Showcaser::activatePostLoad() {
     // Load default property if passed trough command line
     LOGRS("CLI params:" << cliParams.printAll());
     if ( auto pid = cliParams.getParam("pid"); pid ) {
-        asg.loadHouse(*pid, std::bind( &Showcaser::postLoadHouseCallback, this, std::placeholders::_1));
+        asg.loadHouse(*pid, std::bind( &Showcaser::postLoadHouseCallback, this));
     }
 }
 
 void Showcaser::luaFunctionsSetup() {
     const std::string nsKey = "f9";
     rsg.addLuaFunction(nsKey, "loadHouse", [&]( const std::string _pid ) {
-        asg.loadHouse(_pid, std::bind( &Showcaser::postLoadHouseCallback, this, std::placeholders::_1));
+        asg.loadHouse(_pid, std::bind( &Showcaser::postLoadHouseCallback, this));
     });
 }
 
