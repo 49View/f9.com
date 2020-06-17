@@ -220,23 +220,12 @@ public:
         }
 
         static bool boSelection = false;
-        if ( !ImGui::Begin("Selection", &boSelection) ) {
-            if ( res ) res->deactivate();
-            if ( rcs ) rcs->deactivate();
-            ImGui::End();
-            return;
-        }
+        ImGui::Begin("Selection", &boSelection);
         auto selected = arc.selectionFront();
         if ( selected ) {
             auto *room = HouseService::find<RoomBSData>(asg.H(), selected->hash);
             if ( room ) {
-                materialChange("Walls", room->wallsMaterial, "plaster");
-                materialChange("Floor", room->floorMaterial, "wood+tiles+carpet");
-                materialChange("Skirting", room->skirtingMaterial, "wood+tiles");
-                materialChange("Coving", room->covingMaterial, "wood+tiles");
-                materialChange("Ceiling", room->ceilingMaterial, "plaster");
-                roomMiscProperties(room, backEnd);
-                roomType(room, backEnd);
+                roomSelector(room, backEnd);
             } else {
                 auto *wall = HouseService::find<WallBSData>(asg.H(), selected->hash);
                 if ( wall ) {
@@ -298,7 +287,7 @@ private:
     }
 
     template<typename BE>
-    void roomType( RoomBSData *room, BE *backEnd ) {
+    void roomTypeSelector( RoomBSData *room, BE *backEnd ) {
         ImGui::Separator();
         ImGui::NewLine();
         ImGui::Separator();
@@ -323,6 +312,68 @@ private:
                 backEnd->process_event(OnRecalculateFurnitureEvent{});
             }
         }
+    }
+
+    template<typename BE>
+    void roomTypePersonalisedEditor( RoomBSData *room, BE *backEnd ) {
+        ImGui::Separator();
+        ImGui::NewLine();
+        ImGui::Separator();
+        if ( RoomService::hasRoomType(room, ASType::Kitchen) ) {
+            kitchenSelector(room, backEnd);
+        }
+    }
+
+    template<typename BE>
+    void kitchenSelector( RoomBSData *room, BE *backEnd ) {
+        ImGui::Text("Kitchen Shape");
+        if ( ImGui::RadioButton("Straight", room->kitchenData.kitchenShape == KS_Straight) ) {
+            room->kitchenData.kitchenShape = KS_Straight;
+            backEnd->process_event(OnRecalculateFurnitureEvent{});
+        }
+        ImGui::SameLine();
+        if ( ImGui::RadioButton("L-Shape", room->kitchenData.kitchenShape == KS_LShape) ) {
+            room->kitchenData.kitchenShape = KS_LShape;
+            backEnd->process_event(OnRecalculateFurnitureEvent{});
+        }
+        ImGui::SameLine();
+        if ( ImGui::RadioButton("U-Shape", room->kitchenData.kitchenShape == KS_UShape) ) {
+            room->kitchenData.kitchenShape = KS_UShape;
+            backEnd->process_event(OnRecalculateFurnitureEvent{});
+        }
+        ImGui::SameLine();
+        if ( ImGui::RadioButton("Custom", room->kitchenData.kitchenShape == KS_Custom) ) {
+            room->kitchenData.kitchenShape = KS_Custom;
+            backEnd->process_event(OnRecalculateFurnitureEvent{});
+        }
+
+        if ( ImGui::Button("MainWallToggle") ) {
+            for ( auto t = 0u; t < room->mWallSegmentsSorted.size(); t++ ) {
+                room->kitchenData.kitchenIndexMainWorktop++;
+                if ( room->kitchenData.kitchenIndexMainWorktop >= room->mWallSegmentsSorted.size() ) {
+                    room->kitchenData.kitchenIndexMainWorktop = 0;
+                }
+                if ( room->mWallSegmentsSorted[room->kitchenData.kitchenIndexMainWorktop].length() > 1.5f ) {
+                    backEnd->process_event(OnRecalculateFurnitureEvent{});
+                    break;
+                }
+            }
+        }
+
+        materialChange("Worktop", room->kitchenData.worktopMaterial, "granite+marble");
+        materialChange("Units", room->kitchenData.unitsMaterial, "wood+metal");
+    }
+
+    template<typename BE>
+    void roomSelector( RoomBSData *room, BE *backEnd ) {
+        materialChange("Walls", room->wallsMaterial, "plaster");
+        materialChange("Floor", room->floorMaterial, "wood+tiles+carpet");
+        materialChange("Skirting", room->skirtingMaterial, "wood+tiles");
+        materialChange("Coving", room->covingMaterial, "wood+tiles");
+        materialChange("Ceiling", room->ceilingMaterial, "plaster");
+        roomMiscProperties(room, backEnd);
+        roomTypeSelector(room, backEnd);
+        roomTypePersonalisedEditor(room, backEnd);
     }
 
 private:
