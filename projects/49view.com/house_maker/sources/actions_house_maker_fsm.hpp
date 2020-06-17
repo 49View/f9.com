@@ -7,23 +7,27 @@
 #include "house_maker_statemachine.h"
 
 struct ClearEverthing {
-    void operator()( HouseMakerStateMachine& hm ) noexcept {
-        hm.clear();
+    void operator()( RoomBuilder *rb, ArchOrchestrator& asg ) noexcept {
+        rb->clear();
+        HouseService::clearHouse(asg.H());
+        asg.showIMHouse();
     }
 };
 
 struct ActivateHouseMaker {
-    void operator()( HouseMakerStateMachine& hm, RenderOrchestrator& rsg ) noexcept {
-        hm.ARC().setViewingMode(ArchViewingMode::AVM_TopDown2d);
+    void operator()( ArchRenderController& arc, RenderOrchestrator& rsg, ArchOrchestrator& asg ) noexcept {
+        arc.setViewingMode(ArchViewingMode::AVM_TopDown2d);
         rsg.setRigCameraController(CameraControlType::Edit2d);
         rsg.DC()->LockAtWalkingHeight(false);
         auto quatAngles = V3f{ M_PI_2, 0.0f, 0.0f };
         rsg.DC()->setIncrementQuatAngles(quatAngles);
         rsg.useSkybox(false);
-        if ( hm.H() ) {
+        if ( asg.H() ) {
             auto quat = quatCompose(quatAngles);
             Timeline::play(rsg.DC()->QAngleAnim(), 0, KeyFramePair{ 0.9f, quat });
-            hm.ASG().centerCameraMiddleOfHouse(hm.H());
+            asg.centerCameraMiddleOfHouse();
+            arc.setFloorPlanTransparencyFactor(0.5f);
+            asg.showIMHouse();
         }
         fader(0.9f, 1.0f, rsg.RR().CLI(CommandBufferLimits::UI2dStart));
         fader(0.9f, 1.0f, rsg.RR().CLI(CommandBufferLimits::GridStart));
@@ -31,18 +35,30 @@ struct ActivateHouseMaker {
     }
 };
 
+struct InitializeHouseMaker {
+    void operator()( ArchRenderController& arc, RenderOrchestrator& rsg, ArchOrchestrator& asg,
+                     OnActivateEvent ev ) noexcept {
+        rsg.DC()->setQuatAngles(V3f{ M_PI_2, 0.0f, 0.0f });
+        rsg.DC()->setPosition(V3f::UP_AXIS * 5.0f);
+        ActivateHouseMaker{}(arc, rsg, asg);
+        if ( ev.ccf ) ev.ccf();
+    }
+};
+
 struct ActivateHouseMakerWithTopDown3d {
-    void operator()( HouseMakerStateMachine& hm, RenderOrchestrator& rsg ) noexcept {
+    void operator()( ArchOrchestrator& asg, HouseMakerStateMachine& hm, RenderOrchestrator& rsg ) noexcept {
         hm.ARC().setViewingMode(ArchViewingMode::AVM_TopDown3d);
         rsg.setRigCameraController(CameraControlType::Edit2d);
         rsg.DC()->LockAtWalkingHeight(false);
         auto quatAngles = V3f{ M_PI_2, 0.0f, 0.0f };
         rsg.DC()->setIncrementQuatAngles(quatAngles);
         rsg.useSkybox(false);
-        if ( hm.H() ) {
+        if ( asg.H() ) {
+            hm.ARC().setFloorPlanTransparencyFactor(0.0f);
+            asg.showIMHouse();
             auto quat = quatCompose(quatAngles);
             Timeline::play(rsg.DC()->QAngleAnim(), 0, KeyFramePair{ 0.9f, quat });
-            hm.ASG().centerCameraMiddleOfHouse(hm.H(), 2.0f);
+            asg.centerCameraMiddleOfHouse(2.0f);
             rsg.RR().setVisibilityOnTags(ArchType::CeilingT, false);
         }
         fader(0.9f, 1.0f, rsg.RR().CLI(CommandBufferLimits::UI2dStart));
@@ -52,14 +68,14 @@ struct ActivateHouseMakerWithTopDown3d {
 };
 
 struct ActivateBrowsing3d {
-    void operator()( HouseMakerStateMachine& hm, RenderOrchestrator& rsg ) noexcept {
+    void operator()( ArchOrchestrator& asg, HouseMakerStateMachine& hm, RenderOrchestrator& rsg ) noexcept {
         hm.ARC().setViewingMode(ArchViewingMode::AVM_Walk);
         rsg.setRigCameraController(CameraControlType::Walk);
         rsg.useSkybox(true);
-        if ( hm.H() ) {
+        if ( asg.H() ) {
             V3f pos = V3f::ZERO;
             V3f quatAngles = V3f::ZERO;
-            HouseService::bestStartingPositionAndAngle(hm.H(), pos, quatAngles);
+            HouseService::bestStartingPositionAndAngle(asg.H(), pos, quatAngles);
             auto quat = quatCompose(quatAngles);
             rsg.DC()->setIncrementQuatAngles(quatAngles);
             Timeline::play(rsg.DC()->PosAnim(), 0,
@@ -74,14 +90,14 @@ struct ActivateBrowsing3d {
 };
 
 struct ActivateBrowsingDollyHouse {
-    void operator()( HouseMakerStateMachine& hm, RenderOrchestrator& rsg ) noexcept {
+    void operator()( ArchOrchestrator& asg, HouseMakerStateMachine& hm, RenderOrchestrator& rsg ) noexcept {
         hm.ARC().setViewingMode(ArchViewingMode::AVM_DollHouse);
         rsg.setRigCameraController(CameraControlType::Fly);
         rsg.useSkybox(true);
-        if ( hm.H() ) {
+        if ( asg.H() ) {
             V3f pos = V3f::ZERO;
             V3f quatAngles = V3f::ZERO;
-            HouseService::bestDollyPositionAndAngle(hm.H(), pos, quatAngles);
+            HouseService::bestDollyPositionAndAngle(asg.H(), pos, quatAngles);
             auto quat = quatCompose(quatAngles);
             rsg.DC()->setIncrementQuatAngles(quatAngles);
             Timeline::play(rsg.DC()->PosAnim(), 0, KeyFramePair{ 0.9f, pos });
@@ -97,11 +113,12 @@ struct ActivateBrowsingDollyHouse {
 
 
 struct KeyToggleHouseMaker {
-    void operator()( HouseMakerStateMachine& hm, OnKeyToggleEvent keyEvent, RenderOrchestrator& rsg ) noexcept {
+    void operator()( ArchOrchestrator& asg, HouseMakerStateMachine& hm, OnKeyToggleEvent keyEvent,
+                     RenderOrchestrator& rsg ) noexcept {
 
         if ( keyEvent.keyCode == GMK_R ) {
-            HouseMakerBitmap::makeFromWalls(hm.H(), hm.HMB(), hm.SI());
-            hm.showIMHouse();
+            HouseMakerBitmap::makeFromWalls(asg.H());
+            asg.showIMHouse();
         }
         if ( keyEvent.keyCode == GMK_O ) {
             rsg.RR().showBucket(CommandBufferLimits::PBRStart, true);
@@ -113,27 +130,77 @@ struct KeyToggleHouseMaker {
     }
 };
 
-struct MakeHouse3d {
-    void operator()(HouseMakerStateMachine& hm, RenderOrchestrator& rsg) {
-        hm.ASG().make3dHouse( hm.H(), [&](HouseBSData* house) {
-            if ( hm.ARC().getViewingMode() == ArchViewingMode::AVM_DollHouse || hm.ARC().getViewingMode() == ArchViewingMode::AVM_TopDown3d ) {
-                rsg.RR().setVisibilityOnTags(ArchType::CeilingT, false);
-            }
-        } );
+struct UpdateHMB {
+    void operator()( SceneGraph& sg ) {
+        auto sourceImages = HouseMakerBitmap::prepareImages();
+
+        auto sourceBim = sg.get<RawImage>(HouseMakerBitmap::HMB().propertyId + "_bin");
+        if ( sourceBim ) {
+            memcpy(sourceBim->data(), sourceImages.sourceFileImageBin.data, sourceBim->size());
+            sg.updateRawImage(HouseMakerBitmap::HMB().propertyId + "_bin");
+        } else {
+            auto sourceBinParams = getImageParamsFromMat(sourceImages.sourceFileImageBin);
+            auto sourceBinImage = RawImage{ sourceBinParams.width, sourceBinParams.height, sourceBinParams.channels,
+                                            sourceImages.sourceFileImageBin.data };
+            sg.addRawImageIM(HouseMakerBitmap::HMB().propertyId + "_bin", sourceBinImage);
+        }
     }
 };
 
+struct LoadFloorPlan {
+    void operator()( SceneGraph& sg, ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc,
+                     OnLoadFloorPlanEvent event ) {
+        auto newHMB = HMBBSData{ event.propertyId,
+                                 RawImage{ FM::readLocalFileC(event.floorPlanFileName) } };
+        HouseMakerBitmap::updateHMB(newHMB);
+        UpdateHMB{}(sg);
+        sg.addRawImageIM(newHMB.propertyId, newHMB.image);
+        asg.setHouse(HouseMakerBitmap::makeEmpty());
+        asg.showIMHouse();
+        asg.centerCameraMiddleOfHouse();
+    }
+};
+
+struct MakeHouse3d {
+    void operator()( ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) {
+        asg.make3dHouse([&]() {
+            if ( arc.getViewingMode() == ArchViewingMode::AVM_DollHouse ||
+                 arc.getViewingMode() == ArchViewingMode::AVM_TopDown3d ) {
+                rsg.RR().setVisibilityOnTags(ArchType::CeilingT, false);
+            }
+        });
+    }
+};
+
+struct ElaborateHouseBitmap {
+    void operator()( ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) {
+        auto newHouse = HouseMakerBitmap::make(asg.FurnitureMap());
+        asg.setHouse(newHouse);
+        asg.showIMHouse();
+    }
+};
+
+struct FurnishHouse {
+    void operator()( ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) {
+        HouseService::guessFittings(asg.H(), asg.FurnitureMap());
+        MakeHouse3d{}(asg, rsg, arc);
+        asg.showIMHouse();
+    }
+};
+
+
 struct GlobalRescale {
-    void operator()( HouseMakerStateMachine& hm, OnGlobalRescaleEvent event ) {
+    void operator()( HouseMakerStateMachine& hm, OnGlobalRescaleEvent event, ArchRenderController& arc,
+                     ArchOrchestrator& asg ) {
         float oldScaleFactor = event.oldScaleFactor;
         float currentScaleFactorMeters = event.currentScaleFactorMeters;
-        auto houseJson = hm.H();
-        if ( houseJson ) {
-            HouseMakerBitmap::rescale(houseJson, 1.0f / oldScaleFactor, metersToCentimeters(1.0f / oldScaleFactor));
-            hm.HMB().rescaleFactor = metersToCentimeters(currentScaleFactorMeters);
-            HouseMakerBitmap::rescale(houseJson, hm.HMB().rescaleFactor, centimetersToMeters(hm.HMB().rescaleFactor));
-            hm.showIMHouse();
-            hm.ASG().centerCameraMiddleOfHouse(houseJson);
+        if ( asg.H() ) {
+            HouseMakerBitmap::rescale(asg.H(), 1.0f / oldScaleFactor, metersToCentimeters(1.0f / oldScaleFactor));
+            HouseMakerBitmap::HMB().rescaleFactor = metersToCentimeters(currentScaleFactorMeters);
+            HouseMakerBitmap::rescale(asg.H(), HouseMakerBitmap::HMB().rescaleFactor,
+                                      centimetersToMeters(HouseMakerBitmap::HMB().rescaleFactor));
+            asg.showIMHouse();
+            asg.centerCameraMiddleOfHouse();
         }
     }
 };

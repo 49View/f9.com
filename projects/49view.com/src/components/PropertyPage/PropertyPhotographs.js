@@ -1,6 +1,6 @@
 import {SpanV} from "../../futuremodules/reactComponentStyles/reactCommon";
-import {PHeader, PropertyCarouselDiv} from "./Property.styled";
-import {Div, DivInlineFlex, Img100} from "../../futuremodules/reactComponentStyles/reactCommon.styled";
+import {carouselHeight, PHeader, PropertyCarouselDiv} from "./Property.styled";
+import {Div, DivInlineFlex, ImgCover} from "../../futuremodules/reactComponentStyles/reactCommon.styled";
 import React from "reactn";
 import {useState} from "react";
 import {Carousel} from "react-bootstrap";
@@ -13,8 +13,8 @@ const ControlledCarousel = ({property, index, setIndex}) =>{
       {property.images.map(elem => {
           return (
             <Carousel.Item key={elem}>
-              <img
-                className="d-block w-100 rounded border border-dark"
+              <ImgCover height={carouselHeight}
+                className="rounded border border-dark"
                 src={`https://${process.env.REACT_APP_EH_CLOUD_HOST}/media/${elem}`}
                 alt={elem}
               />
@@ -41,7 +41,7 @@ export const PropertyPhotographs = ({property}) => {
               return (
                 <DivInlineFlex key={thumb} width={"48%"} margin={"1%"} cursor={"pointer"}
                 onClick={() => setIndex(parseInt(k))}>
-                  <Img100
+                  <ImgCover
                     className="d-block w-100 rounded border border-dark"
                     src={`https://${process.env.REACT_APP_EH_CLOUD_HOST}/media/${thumb}`}
                     alt={thumb}

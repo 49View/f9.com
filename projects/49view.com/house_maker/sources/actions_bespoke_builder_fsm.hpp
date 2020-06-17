@@ -45,8 +45,10 @@ struct KeyToggleBespoke {
 };
 
 struct FinaliseBespoke {
-    void operator()( HouseMakerStateMachine& hm ) noexcept {
-        hm.finaliseBespoke();
+    void operator()( HouseMakerStateMachine& hm, RoomBuilder* rb, ArchOrchestrator& asg ) noexcept {
+        HouseService::mergePoints( asg.H(), rb->bespokeriseWalls());
+        HouseMakerBitmap::makeFromWalls( asg.H() );
+        asg.showIMHouse();
     }
 };
 

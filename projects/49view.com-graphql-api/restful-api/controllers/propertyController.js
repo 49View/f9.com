@@ -3,27 +3,11 @@
 import {propertyModel} from "../../models/property";
 import {estateAgentModel} from "../../models/estate_agent";
 import {trimLeft} from "csvtojson/v2/util";
-import {testHtml} from "../routes/excaliburCachedExample";
-import {mkdir, saveImageFromUrl, writeFile} from "./fsController";
-import {getFileNameExt} from "eh_helpers";
+import {saveImageFromUrl} from "./fsController";
 
 const fetch = require('node-fetch');
 const cheerio = require('cheerio');
 const db = require('eh_db');
-
-// const CryptoJS = require('crypto-js');
-//
-// const encryptWithAES = text => {
-//   const passphrase = globalConfig.mJWTSecret;
-//   return CryptoJS.AES.encrypt(text, passphrase).toString();
-// };
-//
-// const decryptWithAES = ciphertext => {
-//   const passphrase = globalConfig.mJWTSecret;
-//   const bytes = CryptoJS.AES.decrypt(ciphertext, passphrase);
-//   const originalText = bytes.toString(CryptoJS.enc.Utf8);
-//   return originalText;
-// };
 
 const regexMatch = (regex, text, requiredMatches, matchIndex) => {
 
@@ -111,19 +95,19 @@ export const propertyForSaleOrToRent = (name) => {
 const updatePropertyBinaries = async (result, propertyId) => {
   const mp = "property"
   const floorplanUrl =
-    await saveImageFromUrl( result.floorplanUrl, mp, ()=> `${propertyId}_floorplan`);
+    await saveImageFromUrl(result.floorplanUrl, mp, () => `${propertyId}_floorplan`);
   const thumbs = [];
   const images = [];
   let inc = 0;
   for (const elem of result.images) {
     const thumbUrl =
-      await saveImageFromUrl( elem.thumbnailUrl, mp,
-        ()=> `${propertyId}${elem.caption}_thumb_${inc}`);
+      await saveImageFromUrl(elem.thumbnailUrl, mp,
+        () => `${propertyId}${elem.caption}_thumb_${inc}`);
 
     const imageUrl =
-      await saveImageFromUrl( elem.masterUrl, mp,
-        ()=> `${propertyId}${elem.caption}_image_${inc}`);
-
+      await saveImageFromUrl(elem.masterUrl, mp,
+        () => `${propertyId}${elem.caption}_image_${inc}`);
+    inc++;
     thumbs.push(thumbUrl);
     images.push(imageUrl);
   }
@@ -148,18 +132,18 @@ const updateEstateAgentFromExcalibur = async (result) => {
     const filename = await saveImageFromUrl(result.estateAgentLogo, "estate_agent", () => `${ret._id}_logo`);
 
     // add logo link to estate agent
-    await db.upsert(estateAgentModel, query, {logo:filename});
+    await db.upsert(estateAgentModel, query, {logo: filename});
 
     return ret;
   }
-  return checkExist;
+  return checkExist.toObject();
 }
 
 export const scrapeExcaliburFloorplan = async (htmlUrl, userId, upsert) => {
 
   const origin = Buffer.from(htmlUrl).toString('base64');
 
-  if ( !(upsert === true) && await propertyModel.findOne({origin}) ) {
+  if (!(upsert === true) && await propertyModel.findOne({origin})) {
     return null;
   }
   const response = await fetch(htmlUrl);
@@ -176,6 +160,7 @@ export const scrapeExcaliburFloorplan = async (htmlUrl, userId, upsert) => {
   const result = {
     userId,
     origin: origin,
+    status: "staging",
     estateAgentId: null,
     name: null,
     buyOrLet: forSale,
@@ -339,10 +324,10 @@ export const scrapeExcaliburFloorplan = async (htmlUrl, userId, upsert) => {
 
   // Update property binaries
   const binaryDoc = await updatePropertyBinaries(binaries, propertyDoc._id);
-  await propertyModel.updateOne({_id:propertyDoc._id}, binaryDoc);
+  await propertyModel.updateOne({_id: propertyDoc._id}, binaryDoc);
 
   // Upsert the estate agent with the new property in its list
-  await estateAgentModel.updateOne({_id:estateAgentDoc._id}, {$addToSet: {properties: propertyDoc._id}});
+  await estateAgentModel.updateOne({_id: estateAgentDoc._id}, {$addToSet: {properties: propertyDoc._id}});
 
   return propertyDoc;
 };
@@ -350,6 +335,25 @@ export const scrapeExcaliburFloorplan = async (htmlUrl, userId, upsert) => {
 const upsert2 = async (model, query, data) => {
   try {
     return await model.findOneAndUpdate(query, data, {new: true, upsert: true});
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
+};
+
+export const listProperties = async (query, page, pageLimit) => {
+  try {
+    return await propertyModel.find(query).skip(Number(page * pageLimit)).limit(Number(pageLimit));
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
+};
+
+export const getProperty = async id => {
+  try {
+    const propO = await propertyModel.findById(id);
+    return propO.toObject();
   } catch (e) {
     console.error(e);
     return null;

@@ -9,26 +9,27 @@
 #include <eh_arch/models/door_service.hpp>
 
 struct EnterFeatureManipulation {
-    void operator()( HouseMakerStateMachine& hm ) noexcept {
-        hm.showIMHouse();
+    void operator()( ArchOrchestrator& asg ) noexcept {
+        asg.showIMHouse();
     }
 };
 
 struct UpdateFeatureManipulation {
-    void operator()( HouseMakerStateMachine& hm ) noexcept {
-        hm.showIMHouse();
+    void operator()( ArchOrchestrator& asg ) noexcept {
+        asg.showIMHouse();
     }
 };
 
 struct ExitFeatureManipulation {
-    void operator()( HouseMakerStateMachine& hm, ArchRenderController& arc ) noexcept {
-        hm.showIMHouse();
+    void operator()( ArchOrchestrator& asg ) noexcept {
+        asg.showIMHouse();
     }
 };
 
 struct TouchedDownFirstTimeFeatureManipulationGuard {
-    bool operator()( const OnFirstTimeTouchDownViewportSpaceEvent& mouseEvent, HouseMakerStateMachine& hm,
+    bool operator()( const OnFirstTimeTouchDownViewportSpaceEvent& mouseEvent, ArchOrchestrator& hm,
                      ArchRenderController& arc ) noexcept {
+        if ( !hm.H() ) return false;
         float aroundDistance = 0.05f;
         auto is = mouseEvent.viewportPos;
         auto afs = WallService::getNearestFeatureToPoint(hm.H(), is, aroundDistance);
@@ -60,7 +61,7 @@ struct TouchedDownFirstTimeFeatureManipulationGuard {
 };
 
 struct TouchMoveFeatureManipulation {
-    bool operator()( const OnTouchMoveViewportSpaceEvent& mouseEvent, HouseMakerStateMachine& hm,
+    bool operator()( const OnTouchMoveViewportSpaceEvent& mouseEvent, ArchOrchestrator& hm,
                      ArchRenderController& arc ) noexcept {
         auto is = mouseEvent.viewportPos;
         arc.moveSelectionList(is, [&]( const ArchStructuralFeatureDescriptor& asf, const V2f& offset ) {
@@ -78,10 +79,10 @@ struct TouchUpEventFeatureManipulation {
 };
 
 struct DeleteFeatureManipulation {
-    bool operator()( ArchRenderController& arc, HouseMakerStateMachine& hm ) noexcept {
+    bool operator()( ArchRenderController& arc, ArchOrchestrator& hm ) noexcept {
         arc.deleteElementsOnSelectionList([&]( const ArchStructuralFeatureDescriptor& asf ) {
             if ( asf.feature == ArchStructuralFeature::ASF_Poly ) {
-                HouseService::removeArch(hm.H(), asf.hash );
+                HouseService::removeArch(hm.H(), asf.hash);
             } else {
                 WallService::deleteFeature(hm.H(), asf);
                 HouseService::recalculateBBox(hm.H());
@@ -92,7 +93,7 @@ struct DeleteFeatureManipulation {
 };
 
 struct SpaceToggleFeatureManipulation {
-    bool operator()( ArchRenderController& arc, HouseMakerStateMachine& hm ) noexcept {
+    bool operator()( ArchRenderController& arc, ArchOrchestrator& hm ) noexcept {
         arc.toggleElementsOnSelectionList([&]( const ArchStructuralFeatureDescriptor& asf ) {
             if ( auto door = HouseService::find<DoorBSData>(hm.H(), asf.hash); door ) {
                 DoorService::toggleOrientations(door);
@@ -104,9 +105,9 @@ struct SpaceToggleFeatureManipulation {
 };
 
 struct SpecialSpaceToggleFeatureManipulation {
-    bool operator()( ArchRenderController& arc, HouseMakerStateMachine& hm ) noexcept {
+    bool operator()( ArchRenderController& arc, HouseMakerStateMachine& hm, ArchOrchestrator& asg ) noexcept {
         arc.toggleElementsOnSelectionList([&]( const ArchStructuralFeatureDescriptor& asf ) {
-            HouseMakerBitmap::makeFromSwapDoorOrWindow(hm.H(), hm.HMB(), hm.SI(), asf.hash);
+            HouseMakerBitmap::makeFromSwapDoorOrWindow(asg.H(), asf.hash);
         });
         return true;
     }
@@ -114,19 +115,20 @@ struct SpecialSpaceToggleFeatureManipulation {
 
 
 struct KeyToggleFeatureManipulation {
-    bool operator()( ArchRenderController& arc, HouseMakerStateMachine& hm, OnKeyToggleEvent keyEvent ) noexcept {
+    bool operator()( ArchRenderController& arc, HouseMakerStateMachine& hm, ArchOrchestrator& asg,
+                     OnKeyToggleEvent keyEvent ) noexcept {
         if ( keyEvent.keyCode == GMK_A ) {
             arc.splitFirstEdgeOnSelectionList([&]( const ArchStructuralFeatureDescriptor& asf, const V2f& offset ) {
-                WallService::splitEdgeAndAddPointInTheMiddle(hm.H(), asf, offset);
-                HouseService::recalculateBBox(hm.H());
+                WallService::splitEdgeAndAddPointInTheMiddle(asg.H(), asf, offset);
+                HouseService::recalculateBBox(asg.H());
             });
             arc.resetSelection();
             return true;
         }
         if ( keyEvent.keyCode == GMK_D ) {
-            auto fus = WallService::createTwoShapeAt(hm.H(), keyEvent.viewportPos);
+            auto fus = WallService::createTwoShapeAt(asg.H(), keyEvent.viewportPos);
             if ( FloorService::isFloorUShapeValid(fus) ) {
-                HouseMakerBitmap::makeAddDoor(hm.H(), hm.HMB(), hm.SI(), fus);
+                HouseMakerBitmap::makeAddDoor(asg.H(), fus);
             }
             return true;
         }

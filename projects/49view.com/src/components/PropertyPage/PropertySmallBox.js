@@ -11,7 +11,7 @@ import React from "reactn";
 
 export const PropertySmallBox = ({property, gotoProperty}) => {
   return (
-    <SmallPropertyBoxContainer width={"700px"} height={"280px"} padding={"10px"}
+    <SmallPropertyBoxContainer width={"700px"} height={"280px"} padding={"10px"} margin={"10px"}
                                onClick={() => gotoProperty(property._id)}
     >
       <Flex height={"100%"} alignItems={"flex-start"} justifyContent={"flex-start"}>

@@ -14,6 +14,7 @@ const entitiesRoute     = require("./restful-api/routes/entitiesRoute");
 const furnitureSetRoute = require("./restful-api/routes/furnitureSetRoute");
 const propertyRoute     = require("./restful-api/routes/propertyRoute");
 const propertyBimRoute  = require("./restful-api/routes/propertyBimRoute");
+const estateAgentRoute  = require("./restful-api/routes/estateAgentRoute");
 
 const init = () => {
   dbi.initDB().then();
@@ -33,6 +34,7 @@ const use = () => {
   app.use(authController.authenticate);
   app.use("/fs", fsRoute);
   app.use("/property", propertyRoute);
+  app.use("/estateAgent", estateAgentRoute);
 };
 
 init();

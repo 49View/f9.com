@@ -4,12 +4,24 @@
 
 #pragma once
 
-struct OnActivateEvent {};
+#include <core/math/vector2f.h>
+
+struct OnActivateEvent {
+    std::function<void()> ccf = nullptr;
+};
 struct OnAltPressedEvent {};
 struct OnClearEvent {};
 struct OnDoubleTapEvent {};
 struct OnUndoEvent {};
+
+struct OnLoadFloorPlanEvent {
+    std::string propertyId;
+    std::string floorPlanFileName;
+};
+struct OnUpdateHMBEvent {};
 struct OnMakeHouse3dEvent {};
+struct OnElaborateHouseBitmapEvent {};
+struct OnRecalculateFurnitureEvent {};
 
 struct OnHouseMakerToggleEvent{};
 struct OnBrowser3dToggleEvent{};

@@ -2,6 +2,7 @@ import globalConfig  from "eh_config";
 import fs from "fs";
 import md5 from "md5"
 import {getFileNameExt, getFileNameOnlyNoExt} from "eh_helpers";
+import fetch from "node-fetch";
 
 exports.writeResFile = (res, entity, data) => {
   res
@@ -43,7 +44,7 @@ export const saveImageFromUrl = async (sourceUrl, mainPath, fileNameRule) => {
 
 export const writeFileComplete = async (data, mainPath, filename) => {
   const filenamepath = `${mainPath}/${filename}`;
-  mkdir(mainPath);
+  if ( mainPath.length > 0 ) mkdir(mainPath);
   writeFile(filenamepath, data);
   return filenamepath;
 }

@@ -13,49 +13,34 @@
 #include <eh_arch/makers/image/house_maker_bitmap.hpp>
 #include <eh_arch/makers/room_builder.hpp>
 #include <eh_arch/controller/arch_render_controller.hpp>
+#include "house_maker_gui.hpp"
 
 struct FrontEndStateMachineSML;
 using FrontEnd = sm<FrontEndStateMachineSML>;
 
 class HouseMakerStateMachine
-        : public RunLoopBackEndBase, public LoginActivation<LoginFieldsPrecached>, public ScenePreLoader {
+        : public RunLoopBackEndBase,
+          public LoginActivation<LoginFieldsPrecached>,
+          public ScenePreLoader,
+          public BackEndService<FrontEnd> {
 public:
     HouseMakerStateMachine( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchOrchestrator& _asg,
-                            ArchRenderController& _ims );
+                            ArchRenderController& _arc, HouseMakerSelectionEditor& );
     ~HouseMakerStateMachine() override = default;
 
     void updateImpl( const AggregatedInputData& _aid ) override;
     void activateImpl() override;
 
-    void elaborateHouseCallback( std::vector<std::string>& _paths );
-
-    void clear();
-    void finaliseBespoke();
-    void showIMHouse();
-
-    HouseBSData *H();
-    HMBBSData& HMB();
-    SourceImages& SI();
     ArchOrchestrator& ASG();
     ArchRenderController& ARC();
 
 protected:
     void activatePostLoad() override;
-    void elaborateHouseStage1( const std::string& filename );
-    void elaborateHouseBitmap();
-
-    void updateHMB();
 
 protected:
-    std::unique_ptr<FrontEnd> backEnd;
-    ArchOrchestrator& asg;
-    HMBBSData hmbBSData{};
-    SourceImages sourceImages;
     std::shared_ptr<RoomBuilder> rb;
-    FurnitureMapStorage furnitureMap;
-    std::shared_ptr<HouseBSData> houseJson;
+    ArchOrchestrator& asg;
     ArchRenderController& arc;
-
-    // Bespoke state
-    V2fVectorOfVector bespokeWalls;
+    std::shared_ptr<HouseMakerGUI<FrontEnd>> gui;
+    HouseMakerSelectionEditor& selectionEditor;
 };
