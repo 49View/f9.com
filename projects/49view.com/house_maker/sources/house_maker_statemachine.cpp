@@ -38,7 +38,7 @@ void HouseMakerStateMachine::activatePostLoad() {
     rsg.RR().createGrid(CommandBufferLimits::GridStart, 1.0f, ( Color4f::PASTEL_GRAYLIGHT ),
                         ( Color4f::DARK_GRAY ), V2f{ 15.0f }, 0.015f);
     rsg.createSkybox(SkyBoxInitParams{ SkyBoxMode::CubeProcedural });
-    rsg.changeTime("summer 14:00");
+    rsg.changeTime("14:00");
 
     rsg.useSkybox(true);
 
@@ -48,7 +48,7 @@ void HouseMakerStateMachine::activatePostLoad() {
     rsg.RR().useFilmGrain(false);
 
     backEnd->process_event(OnActivateEvent{ [&]() {
-        backEnd->process_event(OnLoadFloorPlanEvent{"/home/dado/Downloads/data/floorplans/leos-visionhouse-apt1.png"});
+        backEnd->process_event(OnLoadFloorPlanEvent{"5ee92e42bf40e9d29c759e15", "/home/dado/media/media/property/5ee92e42bf40e9d29c759e15_floorplan.png"});
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/visionhouse-apt2.png");
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/visionhouse-apt3.png");
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/visionhouse-apt4.png");

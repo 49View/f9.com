@@ -134,15 +134,15 @@ struct UpdateHMB {
     void operator()( SceneGraph& sg ) {
         auto sourceImages = HouseMakerBitmap::prepareImages();
 
-        auto sourceBim = sg.get<RawImage>(HouseMakerBitmap::HMB().filename + "_bin");
+        auto sourceBim = sg.get<RawImage>(HouseMakerBitmap::HMB().propertyId + "_bin");
         if ( sourceBim ) {
             memcpy(sourceBim->data(), sourceImages.sourceFileImageBin.data, sourceBim->size());
-            sg.updateRawImage(HouseMakerBitmap::HMB().filename + "_bin");
+            sg.updateRawImage(HouseMakerBitmap::HMB().propertyId + "_bin");
         } else {
             auto sourceBinParams = getImageParamsFromMat(sourceImages.sourceFileImageBin);
             auto sourceBinImage = RawImage{ sourceBinParams.width, sourceBinParams.height, sourceBinParams.channels,
                                             sourceImages.sourceFileImageBin.data };
-            sg.addRawImageIM(HouseMakerBitmap::HMB().filename + "_bin", sourceBinImage);
+            sg.addRawImageIM(HouseMakerBitmap::HMB().propertyId + "_bin", sourceBinImage);
         }
     }
 };
@@ -150,11 +150,11 @@ struct UpdateHMB {
 struct LoadFloorPlan {
     void operator()( SceneGraph& sg, ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc,
                      OnLoadFloorPlanEvent event ) {
-        auto newHMB = HMBBSData{ getFileNameOnly(event.floorPlanFileName),
+        auto newHMB = HMBBSData{ event.propertyId,
                                  RawImage{ FM::readLocalFileC(event.floorPlanFileName) } };
         HouseMakerBitmap::updateHMB(newHMB);
         UpdateHMB{}(sg);
-        sg.addRawImageIM(newHMB.filename, newHMB.image);
+        sg.addRawImageIM(newHMB.propertyId, newHMB.image);
         asg.setHouse(HouseMakerBitmap::makeEmpty());
         asg.showIMHouse();
         asg.centerCameraMiddleOfHouse();

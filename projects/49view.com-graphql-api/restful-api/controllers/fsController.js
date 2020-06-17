@@ -44,7 +44,7 @@ export const saveImageFromUrl = async (sourceUrl, mainPath, fileNameRule) => {
 
 export const writeFileComplete = async (data, mainPath, filename) => {
   const filenamepath = `${mainPath}/${filename}`;
-  mkdir(mainPath);
+  if ( mainPath.length > 0 ) mkdir(mainPath);
   writeFile(filenamepath, data);
   return filenamepath;
 }

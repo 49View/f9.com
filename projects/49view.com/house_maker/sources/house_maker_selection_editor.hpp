@@ -319,6 +319,7 @@ private:
                         RoomService::addRoomType(room, ASType::GenericRoom);
                     }
                 }
+                HouseService::reevaluateDoorsAndWindowsAfterRoomChange(asg.H());
                 backEnd->process_event(OnRecalculateFurnitureEvent{});
             }
         }

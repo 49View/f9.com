@@ -37,16 +37,29 @@ public:
 
     void elaborateHouseCallback( std::vector<std::string>& _paths ) {
         if ( _paths.empty() ) return;
-        this->backEnd->process_event(OnLoadFloorPlanEvent{_paths[0]});
+        this->backEnd->process_event(OnLoadFloorPlanEvent{ getFileNameOnly(_paths[0]),_paths[0] });
         _paths.clear();
     }
 
     void dockSpaceStartUp( bool *p_open ) {
         static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_PassthruCentralNode;
 
+//        if ( ImGui::BeginMainMenuBar() ) {
+//            if ( ImGui::BeginMenu("File") ) {
+//                if ( ImGui::MenuItem("Open Property", "Ctrl+O") ) {
+//                    ResourceMetaData::getListOf(ResourceGroup::Material, query,
+//                                                [&]( CRefResourceMetadataList el ) {
+//                                                    metadataList = el;
+//                                                });
+//                }
+//                ImGui::EndMenu();
+//            }
+//            ImGui::EndMainMenuBar();
+//        }
+
         // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
         // because it would be confusing to have two docking targets within each others.
-        ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+        ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
         ImGuiViewport *viewport = ImGui::GetMainViewport();
         ImGui::SetNextWindowPos(viewport->GetWorkPos());
         ImGui::SetNextWindowSize(viewport->GetWorkSize());
@@ -120,9 +133,9 @@ public:
         if ( ImGui::SliderFloat("maxBinThreshold", &HouseMakerBitmap::HMB().maxBinThreshold, 0.0f, 255.0f) ) {
             this->backEnd->process_event(OnUpdateHMBEvent{});
         }
-        if ( !HouseMakerBitmap::HMB().filename.empty() ) {
+        if ( !HouseMakerBitmap::HMB().propertyId.empty() ) {
             float tSize = 500.0f;
-            auto texBin = rsg.RR().TM()->get(HouseMakerBitmap::HMB().filename + "_bin");
+            auto texBin = rsg.RR().TM()->get(HouseMakerBitmap::HMB().propertyId + "_bin");
             auto ar = texBin->getAspectRatioVector();
             ImGui::Image(reinterpret_cast<ImTextureID *>(texBin->getHandle()), ImVec2{ tSize, tSize / ar.y() });
         }
@@ -145,7 +158,7 @@ public:
 
         if ( ImGui::Button("Publish") ) {
             FM::writeLocalFile("./asr2bed.json", asg.H()->serialize());
-            Http::post(Url{ "/propertybim/5ea45ffeb06b0cfc7488ec45" }, asg.H()->serialize(),
+            Http::post(Url{ "/propertybim/" + asg.H()->propertyId }, asg.H()->serialize(),
                        []( HttpResponeParams params ) {
                            LOGRS("Published")
                        });

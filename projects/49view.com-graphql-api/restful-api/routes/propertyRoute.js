@@ -1,6 +1,4 @@
-import {scrapeExcaliburFloorplan} from "../controllers/propertyController";
-import {getFileName} from "eh_helpers";
-import {saveImageFromUrl} from "../controllers/fsController";
+import {listProperties, scrapeExcaliburFloorplan} from "../controllers/propertyController";
 
 const express = require("express");
 const router = express.Router();
@@ -21,10 +19,13 @@ router.post("/fetch/floorplan/excalibur", async (req, res, next) => {
   }
 });
 
-router.post("/upload", async (req, res, next) => {
+router.get("/list/:status/:page/:pageSize", async (req, res, next) => {
 
   try {
-    const ret = await saveImageFromUrl(req.body.url, "uploads", () => getFileName(req.body.url));
+    const query = {
+      status : req.params.status
+    }
+    const ret = await listProperties( query, req.params.page, req.params.pageSize);
     res.send(ret);
   } catch (ex) {
     logger.error("Error uploading: ", ex);
