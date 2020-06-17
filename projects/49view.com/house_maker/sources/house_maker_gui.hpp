@@ -33,6 +33,9 @@ public:
                    HouseMakerSelectionEditor& selectionEditor ) : sg(sg), rsg(rsg), asg(asg), arc(arc),
                                                                   selectionEditor(selectionEditor) {
         rsg.setDragAndDropFunction(std::bind(&HouseMakerGUI::elaborateHouseCallback, this, std::placeholders::_1));
+        Http::get(Url{"/property/list/staging/0/40"}, [&](HttpResponeParams params) {
+            propertyList = deserializeVector<PropertyListing>(params.bufferString);
+        });
     }
 
     void elaborateHouseCallback( std::vector<std::string>& _paths ) {
@@ -174,6 +177,12 @@ public:
         }
         ImGui::End();
 
+        ImGui::Begin("Listing");
+        for ( const auto& property : propertyList ) {
+            ImGui::Text("%s", property.addressLine1.c_str());
+        }
+        ImGui::End();
+
         if ( asg.H() ) {
             ImGui::Begin("House Properties");
             ImGui::Text("Walkable Area: %s", sqmToString(asg.H()->walkableArea).c_str());
@@ -206,4 +215,5 @@ private:
     ArchOrchestrator& asg;
     ArchRenderController& arc;
     HouseMakerSelectionEditor& selectionEditor;
+    std::vector<PropertyListing> propertyList;
 };

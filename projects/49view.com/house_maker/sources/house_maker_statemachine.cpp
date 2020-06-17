@@ -47,8 +47,18 @@ void HouseMakerStateMachine::activatePostLoad() {
     rsg.useSSAO(true);
     rsg.RR().useFilmGrain(false);
 
+
     backEnd->process_event(OnActivateEvent{ [&]() {
-        backEnd->process_event(OnLoadFloorPlanEvent{"5ee92e42bf40e9d29c759e15", "/home/dado/media/media/property/5ee92e42bf40e9d29c759e15_floorplan.png"});
+
+//        asg.loadHouse("5ee92fe7bf40e9d29c75a296", [&]() {
+//            backEnd->process_event(OnActivateEvent{});
+//        });
+
+//        backEnd->process_event(OnLoadFloorPlanEvent{"5ee92e42bf40e9d29c759e15", "/home/dado/media/media/property/5ee92e42bf40e9d29c759e15_floorplan.png"});
+//        backEnd->process_event(OnLoadFloorPlanEvent{"5eea159c2c7cc890569cd6b9", "/home/dado/media/media/property/5eea159c2c7cc890569cd6b9_floorplan.jpg"});
+//        Load houseBSData directly, come on!
+//        backEnd->process_event(OnLoadFloorPlanEvent{"5ee92fe7bf40e9d29c75a296", "/home/dado/media/media/property/5ee92fe7bf40e9d29c75a296_floorplan.png"});
+
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/visionhouse-apt2.png");
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/visionhouse-apt3.png");
 //    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/visionhouse-apt4.png");
