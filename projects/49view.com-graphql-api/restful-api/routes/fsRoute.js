@@ -43,7 +43,7 @@ router.post("/updateFloorplan/:propertyId/:fext", async (req, res, next) => {
       property.floorplanUrl = newFloorplanFilename;
       await upsert(propertyModel, {_id:property._id}, property );
     }
-    res.send("ok");
+    res.send(newFloorplanFilename);
   } catch (ex) {
     logger.error("Error fetching excalibur: ", ex);
     res.status(400).send(ex);

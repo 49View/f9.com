@@ -3,11 +3,13 @@
 import {propertyModel} from "../../models/property";
 import {estateAgentModel} from "../../models/estate_agent";
 import {trimLeft} from "csvtojson/v2/util";
-import {saveImageFromUrl} from "./fsController";
+import {saveImageFromUrl, writeImageFromData} from "./fsController";
+import {getFileNameOnlyNoExt} from "eh_helpers";
 
 const fetch = require('node-fetch');
 const cheerio = require('cheerio');
 const db = require('eh_db');
+const md5 = require("md5");
 
 const regexMatch = (regex, text, requiredMatches, matchIndex) => {
 
@@ -92,10 +94,15 @@ export const propertyForSaleOrToRent = (name) => {
   return forSale;
 }
 
+const mainPropertyPath = () => {
+  return "property";
+}
+
+const floorPlanUrlNameRule = (propertyId) => `${propertyId}_floorplan`;
+
 const updatePropertyBinaries = async (result, propertyId) => {
-  const mp = "property"
-  const floorplanUrl =
-    await saveImageFromUrl(result.floorplanUrl, mp, () => `${propertyId}_floorplan`);
+  const mp = mainPropertyPath();
+  const floorplanUrl = await saveImageFromUrl(result.floorplanUrl, mp, floorPlanUrlNameRule(propertyId));
   const thumbs = [];
   const images = [];
   let inc = 0;
@@ -340,6 +347,45 @@ const upsert2 = async (model, query, data) => {
     return null;
   }
 };
+
+export const upsertProperty = async (data) => {
+  try {
+    return await db.upsert(propertyModel, {_id: data._id}, data );
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
+}
+
+export const createNewPropertyFromImage = async (data, filename, userId) => {
+  const ea = await estateAgentModel.find().limit(1);
+  const defaultProperty = new propertyModel({
+    name: getFileNameOnlyNoExt(filename),
+    status: "defaults",
+    origin: filename + md5(data),
+    buyOrLet: "for sale",
+    addressLine1: "49",
+    addressLine2: "View",
+    addressLine3: "London",
+    description: "A new property on the market",
+    keyFeatures: ["Great location"],
+    location: {type: "point", coordinates: [50.8, 0.08]},
+    price: [437000],
+    priceReadable: "437,000",
+    priceUnity: "pound",
+    floorplanUrl: "",
+    thumbs: [""],
+    images: [""],
+
+    userId: userId,
+    estateAgentId: ea[0].id,
+  });
+  const property = await propertyModel.create(defaultProperty);
+  const floorplanUrl = await writeImageFromData(filename, mainPropertyPath(), data, floorPlanUrlNameRule(property._id) );
+  const finalProperty = await db.upsert(propertyModel, {_id: property._id}, {floorplanUrl});
+
+  return finalProperty.toObject();
+}
 
 export const listProperties = async (query, page, pageLimit) => {
   try {

@@ -49,30 +49,8 @@ void HouseMakerStateMachine::activatePostLoad() {
 
 
     backEnd->process_event(OnActivateEvent{ [&]() {
-
-//        asg.loadHouse("5ee92fe7bf40e9d29c75a296", [&]() {
-//            backEnd->process_event(OnActivateEvent{});
-//        });
-
-//        backEnd->process_event(OnLoadFloorPlanEvent{"5ee92e42bf40e9d29c759e15", "/home/dado/media/media/property/5ee92e42bf40e9d29c759e15_floorplan.png"});
-//        backEnd->process_event(OnLoadFloorPlanEvent{"5eea159c2c7cc890569cd6b9", "/home/dado/media/media/property/5eea159c2c7cc890569cd6b9_floorplan.jpg"});
-//        Load houseBSData directly, come on!
-//        backEnd->process_event(OnLoadFloorPlanEvent{"5ee92fe7bf40e9d29c75a296", "/home/dado/media/media/property/5ee92fe7bf40e9d29c75a296_floorplan.png"});
-
-//    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/visionhouse-apt2.png");
-//    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/visionhouse-apt3.png");
-//    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/visionhouse-apt4.png");
-//    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/visionhouse-apt5.png");
-
-//    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/asr2bedroomflat.png");
-//    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/canbury_park_road.jpg");
-//    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/halterA7-11.png");
-
-//    backEnd->process_event(OnLoadFloorPlanEvent{"/home/dado/Downloads/data/floorplans/test_lightingpw.png"});
-
 //    rb->loadSegments(FM::readLocalFileC("/home/dado/Documents/GitHub/f9.com/builds/house_maker/debug/bespoke_segments529417476917197912") );
 //    finaliseBespoke();
-
     }});
 }
 

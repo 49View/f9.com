@@ -147,17 +147,34 @@ struct UpdateHMB {
     }
 };
 
+static inline void prepareProperty( const PropertyListing& property, SceneGraph& sg, ArchOrchestrator& asg ) {
+    auto newHMB = HMBBSData{ property._id,
+                             RawImage{ FM::readLocalFileC("/home/dado/media/media/" + property.floorplanUrl) } };
+    HouseMakerBitmap::updateHMB(newHMB);
+    UpdateHMB{}(sg);
+    sg.addRawImageIM(newHMB.propertyId, newHMB.image);
+    asg.loadHouse(property._id, [&]() {
+//        asg.setHouse(HouseMakerBitmap::makeEmpty());
+        asg.showIMHouse();
+        asg.centerCameraMiddleOfHouse();
+    });
+}
+
+struct CreateNewPropertyFromFloorplanImage {
+    void operator()( SceneGraph& sg, ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc,
+                     OnCreateNewPropertyFromFloorplanImageEvent event ) {
+        Http::post(Url{"/property/newFromImage/" + url_encode(getFileName(event.floorplanFileName))}, FM::readLocalFileC(event.floorplanFileName), [&](HttpResponeParams params) {
+            PropertyListing property{params.bufferString};
+            prepareProperty(property, sg, asg);
+            asg.saveHouse();
+        });
+    }
+};
+
 struct LoadFloorPlan {
     void operator()( SceneGraph& sg, ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc,
                      OnLoadFloorPlanEvent event ) {
-        auto newHMB = HMBBSData{ event.propertyId,
-                                 RawImage{ FM::readLocalFileC(event.floorPlanFileName) } };
-        HouseMakerBitmap::updateHMB(newHMB);
-        UpdateHMB{}(sg);
-        sg.addRawImageIM(newHMB.propertyId, newHMB.image);
-        asg.setHouse(HouseMakerBitmap::makeEmpty());
-        asg.showIMHouse();
-        asg.centerCameraMiddleOfHouse();
+        prepareProperty(event.property, sg, asg);
     }
 };
 

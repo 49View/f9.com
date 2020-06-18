@@ -15,9 +15,12 @@ struct OnDoubleTapEvent {};
 struct OnUndoEvent {};
 
 struct OnLoadFloorPlanEvent {
-    std::string propertyId;
-    std::string floorPlanFileName;
+    PropertyListing property;
 };
+struct OnCreateNewPropertyFromFloorplanImageEvent {
+    std::string floorplanFileName;
+};
+
 struct OnUpdateHMBEvent {};
 struct OnMakeHouse3dEvent {};
 struct OnElaborateHouseBitmapEvent {};

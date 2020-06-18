@@ -33,32 +33,22 @@ public:
                    HouseMakerSelectionEditor& selectionEditor ) : sg(sg), rsg(rsg), asg(asg), arc(arc),
                                                                   selectionEditor(selectionEditor) {
         rsg.setDragAndDropFunction(std::bind(&HouseMakerGUI::elaborateHouseCallback, this, std::placeholders::_1));
-        Http::get(Url{"/property/list/staging/0/40"}, [&](HttpResponeParams params) {
+        Http::get(Url{ "/property/list/0/40" }, [&]( HttpResponeParams params ) {
             propertyList = deserializeVector<PropertyListing>(params.bufferString);
         });
     }
 
     void elaborateHouseCallback( std::vector<std::string>& _paths ) {
         if ( _paths.empty() ) return;
-        this->backEnd->process_event(OnLoadFloorPlanEvent{ getFileNameOnly(_paths[0]),_paths[0] });
-        _paths.clear();
+        if ( !asg.H() ) {
+            this->backEnd->process_event(OnCreateNewPropertyFromFloorplanImageEvent{ _paths[0] });
+//            this->backEnd->process_event(OnLoadFloorPlanEvent{ getFileNameOnly(_paths[0]), _paths[0] });
+            _paths.clear();
+        }
     }
 
     void dockSpaceStartUp( bool *p_open ) {
         static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_PassthruCentralNode;
-
-//        if ( ImGui::BeginMainMenuBar() ) {
-//            if ( ImGui::BeginMenu("File") ) {
-//                if ( ImGui::MenuItem("Open Property", "Ctrl+O") ) {
-//                    ResourceMetaData::getListOf(ResourceGroup::Material, query,
-//                                                [&]( CRefResourceMetadataList el ) {
-//                                                    metadataList = el;
-//                                                });
-//                }
-//                ImGui::EndMenu();
-//            }
-//            ImGui::EndMainMenuBar();
-//        }
 
         // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
         // because it would be confusing to have two docking targets within each others.
@@ -70,8 +60,7 @@ public:
         ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
         window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
-                        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground |
-                        ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+                        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground;
 
         // Important: note that we proceed even if Begin() returns false (aka window is collapsed).
         // This is because we want to keep our DockSpace() active. If a DockSpace() is inactive,
@@ -92,6 +81,12 @@ public:
         }
 
         ImGui::End();
+    }
+
+    void postProperty() {
+        FM::writeLocalFile("./propertylatest.json", asg.H()->serialize());
+        Http::post(Url{"/property"}, activeProperty.serialize());
+        asg.saveHouse();
     }
 
     void update() {
@@ -159,12 +154,16 @@ public:
             asg.showIMHouse();
         }
 
-        if ( ImGui::Button("Publish") ) {
-            FM::writeLocalFile("./asr2bed.json", asg.H()->serialize());
-            Http::post(Url{ "/propertybim/" + asg.H()->propertyId }, asg.H()->serialize(),
-                       []( HttpResponeParams params ) {
-                           LOGRS("Published")
-                       });
+        if ( asg.H() ) {
+            if ( ImGui::Button("Save") ) {
+                activeProperty.status = "staging";
+                postProperty();
+            }
+            ImGui::SameLine();
+            if ( ImGui::Button("Publish") ) {
+                activeProperty.status = "live";
+                postProperty();
+            }
         }
         ImGui::End();
 
@@ -179,7 +178,21 @@ public:
 
         ImGui::Begin("Listing");
         for ( const auto& property : propertyList ) {
-            ImGui::Text("%s", property.addressLine1.c_str());
+            C4f color = C4f::DARK_BLUE;
+            if ( property.status == "live" ) color = C4f::DARK_RED;
+            if ( property.status == "defaults" ) color = C4f::FOREST_GREEN;
+
+            ImGui::PushID(property.status.c_str());
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(color.x(),color.y(),color.z(),1.0f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(color.x(),color.y(),color.z(),0.7f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(color.x(),color.y(),color.z(),0.5f));
+
+            if ( ImGui::Button(( property.addressLine1 + property.name + property._id ).c_str()) ) {
+                activeProperty = property;
+                this->backEnd->process_event(OnLoadFloorPlanEvent{ activeProperty });
+            }
+            ImGui::PopStyleColor(3);
+            ImGui::PopID();
         }
         ImGui::End();
 
@@ -207,6 +220,33 @@ public:
         selectionEditor.update(this->BackEnd());
 
 //        ImGui::ShowDemoWindow();
+
+        // Modal callbacks
+        if ( !rsg.CallbackPaths().empty() ) {
+            ImGui::OpenPopup("qeqwew");
+            if ( ImGui::BeginPopupModal("qeqwew", nullptr, ImGuiWindowFlags_AlwaysAutoResize) ) {
+                if ( ImGui::Button("Import as new") ) {
+                    this->backEnd->process_event(OnCreateNewPropertyFromFloorplanImageEvent{ rsg.CallbackPaths()[0] });
+                    rsg.CallbackPaths().clear();
+                }
+                if ( ImGui::Button("Update floorplan") ) {
+                    auto fext = getFileNameExt(rsg.CallbackPaths()[0], true);
+                    Http::post(Url{ "/fs/updateFloorplan/" + asg.H()->propertyId + "/" + fext },
+                               FM::readLocalFileC(rsg.CallbackPaths()[0]),
+                               [&]( HttpResponeParams params ) {
+                                   activeProperty.floorplanUrl = std::string{
+                                           reinterpret_cast<const char *>(params.buffer.get()), params.length };
+                                   sg.addGenericCallback([&]() {
+                                       this->backEnd->process_event(
+                                               OnLoadFloorPlanEvent{ activeProperty });
+                                   });
+                               });
+                    rsg.CallbackPaths().clear();
+                }
+                ImGui::EndPopup();
+            }
+        }
+
     }
 
 private:
@@ -216,4 +256,5 @@ private:
     ArchRenderController& arc;
     HouseMakerSelectionEditor& selectionEditor;
     std::vector<PropertyListing> propertyList;
+    PropertyListing activeProperty{};
 };

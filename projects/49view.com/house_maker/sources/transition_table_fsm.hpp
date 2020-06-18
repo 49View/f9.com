@@ -19,6 +19,7 @@ struct FrontEndStateMachineSML {
             ,state<class HouseMaker> + event<OnClearEvent> / ClearEverthing{}
             ,state<class HouseMaker> + event<OnHouseMakerToggleEvent> / ActivateHouseMaker{}
             ,state<class HouseMaker> + event<OnLoadFloorPlanEvent> / LoadFloorPlan{}
+            ,state<class HouseMaker> + event<OnCreateNewPropertyFromFloorplanImageEvent> / CreateNewPropertyFromFloorplanImage{}
             ,state<class HouseMaker> + event<OnUpdateHMBEvent> / UpdateHMB{}
             ,state<class HouseMaker> + event<OnMakeHouse3dEvent> / MakeHouse3d{}
             ,state<class HouseMaker> + event<OnElaborateHouseBitmapEvent> / ElaborateHouseBitmap{}
