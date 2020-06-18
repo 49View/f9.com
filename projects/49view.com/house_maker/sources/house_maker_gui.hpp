@@ -85,7 +85,7 @@ public:
 
     void postProperty() {
         FM::writeLocalFile("./propertylatest.json", asg.H()->serialize());
-        Http::post(Url{"/property"}, activeProperty.serialize());
+        Http::post(Url{ "/property" }, activeProperty.serialize());
         asg.saveHouse();
     }
 
@@ -102,59 +102,59 @@ public:
 
         static bool boControl = true;
         ImGui::Begin("Control", &boControl, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoTitleBar);
-        if ( ImGui::Button("Elaborate") ) {
-            this->backEnd->process_event(OnElaborateHouseBitmapEvent{});
-        }
-        ImGui::SameLine();
-        if ( ImGui::Button("Elaborate 3d") ) {
-            this->backEnd->process_event(OnMakeHouse3dEvent{});
-        }
-        if ( ImGui::SliderFloat("Contrast", &HouseMakerBitmap::HMB().sourceContrast, 0.0f, 20.0f) ) {
-            this->backEnd->process_event(OnUpdateHMBEvent{});
-        }
-        if ( ImGui::SliderFloat("Brightness", &HouseMakerBitmap::HMB().sourceBrightness, 0.0f, 255.0f) ) {
-            this->backEnd->process_event(OnUpdateHMBEvent{});
-        }
-        if ( ImGui::SliderFloat("Gaussian", &HouseMakerBitmap::HMB().sourceGuassian, 1.0f, 5.0f) ) {
-            this->backEnd->process_event(OnUpdateHMBEvent{});
-        }
-        if ( ImGui::SliderInt("Gaussian Sigma", &HouseMakerBitmap::HMB().sourceGuassianSigma, 1, 21) ) {
-            if ( !isOdd(HouseMakerBitmap::HMB().sourceGuassianSigma) ) HouseMakerBitmap::HMB().sourceGuassianSigma++;
-            this->backEnd->process_event(OnUpdateHMBEvent{});
-        }
-        if ( ImGui::SliderFloat("Gaussian Beta", &HouseMakerBitmap::HMB().sourceGuassianBeta, -5.0f, 5.0f) ) {
-            this->backEnd->process_event(OnUpdateHMBEvent{});
-        }
-        if ( ImGui::SliderFloat("minBinThreshold", &HouseMakerBitmap::HMB().minBinThreshold, 0.0f, 255.0f) ) {
-            this->backEnd->process_event(OnUpdateHMBEvent{});
-        }
-        if ( ImGui::SliderFloat("maxBinThreshold", &HouseMakerBitmap::HMB().maxBinThreshold, 0.0f, 255.0f) ) {
-            this->backEnd->process_event(OnUpdateHMBEvent{});
-        }
-        if ( !HouseMakerBitmap::HMB().propertyId.empty() ) {
-            float tSize = 500.0f;
-            auto texBin = rsg.RR().TM()->get(HouseMakerBitmap::HMB().propertyId + "_bin");
-            auto ar = texBin->getAspectRatioVector();
-            ImGui::Image(reinterpret_cast<ImTextureID *>(texBin->getHandle()), ImVec2{ tSize, tSize / ar.y() });
-        }
-
-        ImGui::Text("Winning Strategy: %d", HouseMakerBitmap::HMB().winningStrategy);
-        ImGui::Text("Winning Margin: %f", HouseMakerBitmap::HMB().winningMargin);
-        static float oldScaleFactor = HouseMakerBitmap::HMB().rescaleFactor;
-        static float currentScaleFactorMeters = centimetersToMeters(HouseMakerBitmap::HMB().rescaleFactor);
-
-        if ( ImGui::InputFloat("Scale Factor", &currentScaleFactorMeters, 0.001f, 0.01f, 5) ) {
-            this->backEnd->process_event(OnGlobalRescaleEvent{ oldScaleFactor, currentScaleFactorMeters });
-            oldScaleFactor = HouseMakerBitmap::HMB().rescaleFactor;
-        }
-
-        static float fptf = arc.getFloorPlanTransparencyFactor();
-        if ( ImGui::SliderFloat("floorPlanTransparencyFactor", &fptf, 0.0f, 1.0f) ) {
-            arc.setFloorPlanTransparencyFactor(fptf);
-            asg.showIMHouse();
-        }
-
         if ( asg.H() ) {
+            if ( ImGui::Button("Elaborate") ) {
+                this->backEnd->process_event(OnElaborateHouseBitmapEvent{});
+            }
+            ImGui::SameLine();
+            if ( ImGui::Button("Elaborate 3d") ) {
+                this->backEnd->process_event(OnMakeHouse3dEvent{});
+            }
+            if ( ImGui::SliderFloat("Contrast", &asg.H()->sourceData.sourceContrast, 0.0f, 20.0f) ) {
+                this->backEnd->process_event(OnUpdateHMBEvent{});
+            }
+            if ( ImGui::SliderFloat("Brightness", &asg.H()->sourceData.sourceBrightness, 0.0f, 255.0f) ) {
+                this->backEnd->process_event(OnUpdateHMBEvent{});
+            }
+            if ( ImGui::SliderFloat("Gaussian", &asg.H()->sourceData.sourceGuassian, 1.0f, 5.0f) ) {
+                this->backEnd->process_event(OnUpdateHMBEvent{});
+            }
+            if ( ImGui::SliderInt("Gaussian Sigma", &asg.H()->sourceData.sourceGuassianSigma, 1, 21) ) {
+                if ( !isOdd(asg.H()->sourceData.sourceGuassianSigma) ) asg.H()->sourceData.sourceGuassianSigma++;
+                this->backEnd->process_event(OnUpdateHMBEvent{});
+            }
+            if ( ImGui::SliderFloat("Gaussian Beta", &asg.H()->sourceData.sourceGuassianBeta, -5.0f, 5.0f) ) {
+                this->backEnd->process_event(OnUpdateHMBEvent{});
+            }
+            if ( ImGui::SliderFloat("minBinThreshold", &asg.H()->sourceData.minBinThreshold, 0.0f, 255.0f) ) {
+                this->backEnd->process_event(OnUpdateHMBEvent{});
+            }
+            if ( ImGui::SliderFloat("maxBinThreshold", &asg.H()->sourceData.maxBinThreshold, 0.0f, 255.0f) ) {
+                this->backEnd->process_event(OnUpdateHMBEvent{});
+            }
+            if ( !asg.H()->propertyId.empty() ) {
+                float tSize = 500.0f;
+                auto texBin = rsg.RR().TM()->get(asg.H()->propertyId + "_bin");
+                auto ar = texBin->getAspectRatioVector();
+                ImGui::Image(reinterpret_cast<ImTextureID *>(texBin->getHandle()), ImVec2{ tSize, tSize / ar.y() });
+            }
+
+            ImGui::Text("Winning Strategy: %d", asg.H()->sourceData.winningStrategy);
+            ImGui::Text("Winning Margin: %f", asg.H()->sourceData.winningMargin);
+            static float oldScaleFactor = asg.H()->sourceData.rescaleFactor;
+            static float currentScaleFactorMeters = centimetersToMeters(asg.H()->sourceData.rescaleFactor);
+
+            if ( ImGui::InputFloat("Scale Factor", &currentScaleFactorMeters, 0.001f, 0.01f, 5) ) {
+                this->backEnd->process_event(OnGlobalRescaleEvent{ oldScaleFactor, currentScaleFactorMeters });
+                oldScaleFactor = asg.H()->sourceData.rescaleFactor;
+            }
+
+            static float fptf = arc.getFloorPlanTransparencyFactor();
+            if ( ImGui::SliderFloat("floorPlanTransparencyFactor", &fptf, 0.0f, 1.0f) ) {
+                arc.setFloorPlanTransparencyFactor(fptf);
+                asg.showIMHouse();
+            }
+
             if ( ImGui::Button("Save") ) {
                 activeProperty.status = "staging";
                 postProperty();
@@ -183,9 +183,9 @@ public:
             if ( property.status == "defaults" ) color = C4f::FOREST_GREEN;
 
             ImGui::PushID(property.status.c_str());
-            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(color.x(),color.y(),color.z(),1.0f));
-            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(color.x(),color.y(),color.z(),0.7f));
-            ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(color.x(),color.y(),color.z(),0.5f));
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(color.x(), color.y(), color.z(), 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(color.x(), color.y(), color.z(), 0.7f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(color.x(), color.y(), color.z(), 0.5f));
 
             if ( ImGui::Button(( property.addressLine1 + property.name + property._id ).c_str()) ) {
                 activeProperty = property;

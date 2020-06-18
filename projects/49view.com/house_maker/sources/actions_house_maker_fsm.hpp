@@ -130,34 +130,37 @@ struct KeyToggleHouseMaker {
     }
 };
 
-struct UpdateHMB {
-    void operator()( SceneGraph& sg ) {
-        auto sourceImages = HouseMakerBitmap::prepareImages();
+static inline void updateSourceImagesIntoScene( SceneGraph& sg, ArchOrchestrator& asg, const SourceImages& sourceImages) {
+    auto binPropertyId = asg.H()->propertyId + "_bin";
+    auto sourceBim = sg.get<RawImage>(binPropertyId);
+    if ( sourceBim ) {
+        memcpy(sourceBim->data(), sourceImages.sourceFileImageBin.data, sourceBim->size());
+        sg.updateRawImage(binPropertyId);
+    } else {
+        auto sourceBinParams = getImageParamsFromMat(sourceImages.sourceFileImageBin);
+        auto sourceBinImage = RawImage{ sourceBinParams.width, sourceBinParams.height, sourceBinParams.channels,
+                                        sourceImages.sourceFileImageBin.data };
+        sg.addRawImageIM(binPropertyId, sourceBinImage);
+    }
+}
 
-        auto sourceBim = sg.get<RawImage>(HouseMakerBitmap::HMB().propertyId + "_bin");
-        if ( sourceBim ) {
-            memcpy(sourceBim->data(), sourceImages.sourceFileImageBin.data, sourceBim->size());
-            sg.updateRawImage(HouseMakerBitmap::HMB().propertyId + "_bin");
-        } else {
-            auto sourceBinParams = getImageParamsFromMat(sourceImages.sourceFileImageBin);
-            auto sourceBinImage = RawImage{ sourceBinParams.width, sourceBinParams.height, sourceBinParams.channels,
-                                            sourceImages.sourceFileImageBin.data };
-            sg.addRawImageIM(HouseMakerBitmap::HMB().propertyId + "_bin", sourceBinImage);
-        }
+struct UpdateHMB {
+    void operator()( SceneGraph& sg, ArchOrchestrator& asg ) {
+        updateSourceImagesIntoScene(sg, asg, HouseMakerBitmap::prepareImages( asg.H() ));
     }
 };
 
 static inline void prepareProperty( const PropertyListing& property, SceneGraph& sg, ArchOrchestrator& asg ) {
-    auto newHMB = HMBBSData{ property._id,
-                             RawImage{ FM::readLocalFileC("/home/dado/media/media/" + property.floorplanUrl) } };
-    HouseMakerBitmap::updateHMB(newHMB);
-    UpdateHMB{}(sg);
-    sg.addRawImageIM(newHMB.propertyId, newHMB.image);
-    asg.loadHouse(property._id, [&]() {
-//        asg.setHouse(HouseMakerBitmap::makeEmpty());
-        asg.showIMHouse();
-        asg.centerCameraMiddleOfHouse();
-    });
+//    asg.loadHouse(property._id, [&]() {
+//        asg.showIMHouse();
+//        asg.centerCameraMiddleOfHouse();
+//    });
+    asg.setHouse(HouseMakerBitmap::makeEmpty(property));
+    updateSourceImagesIntoScene(sg, asg, HouseMakerBitmap::getSourceImages());
+    sg.addRawImageIM(asg.H()->propertyId, asg.H()->sourceData.image);
+
+    asg.showIMHouse();
+    asg.centerCameraMiddleOfHouse();
 }
 
 struct CreateNewPropertyFromFloorplanImage {
@@ -191,7 +194,7 @@ struct MakeHouse3d {
 
 struct ElaborateHouseBitmap {
     void operator()( ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) {
-        auto newHouse = HouseMakerBitmap::make(asg.FurnitureMap());
+        auto newHouse = HouseMakerBitmap::make(asg.H(), asg.FurnitureMap());
         asg.setHouse(newHouse);
         asg.showIMHouse();
     }
@@ -213,9 +216,9 @@ struct GlobalRescale {
         float currentScaleFactorMeters = event.currentScaleFactorMeters;
         if ( asg.H() ) {
             HouseMakerBitmap::rescale(asg.H(), 1.0f / oldScaleFactor, metersToCentimeters(1.0f / oldScaleFactor));
-            HouseMakerBitmap::HMB().rescaleFactor = metersToCentimeters(currentScaleFactorMeters);
-            HouseMakerBitmap::rescale(asg.H(), HouseMakerBitmap::HMB().rescaleFactor,
-                                      centimetersToMeters(HouseMakerBitmap::HMB().rescaleFactor));
+            asg.H()->sourceData.rescaleFactor = metersToCentimeters(currentScaleFactorMeters);
+            HouseMakerBitmap::rescale(asg.H(), asg.H()->sourceData.rescaleFactor,
+                                      centimetersToMeters(asg.H()->sourceData.rescaleFactor));
             asg.showIMHouse();
             asg.centerCameraMiddleOfHouse();
         }
