@@ -21,6 +21,7 @@ struct OnCreateNewPropertyFromFloorplanImageEvent {
     std::string floorplanFileName;
 };
 
+struct OnCreateHouseTexturesEvent {};
 struct OnUpdateHMBEvent {};
 struct OnMakeHouse3dEvent {};
 struct OnElaborateHouseBitmapEvent {};

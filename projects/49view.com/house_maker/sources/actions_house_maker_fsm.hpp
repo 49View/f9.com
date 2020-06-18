@@ -130,7 +130,8 @@ struct KeyToggleHouseMaker {
     }
 };
 
-static inline void updateSourceImagesIntoScene( SceneGraph& sg, ArchOrchestrator& asg, const SourceImages& sourceImages) {
+static inline void
+updateSourceImagesIntoScene( SceneGraph& sg, ArchOrchestrator& asg, const SourceImages& sourceImages ) {
     auto binPropertyId = asg.H()->propertyId + "_bin";
     auto sourceBim = sg.get<RawImage>(binPropertyId);
     if ( sourceBim ) {
@@ -146,31 +147,43 @@ static inline void updateSourceImagesIntoScene( SceneGraph& sg, ArchOrchestrator
 
 struct UpdateHMB {
     void operator()( SceneGraph& sg, ArchOrchestrator& asg ) {
-        updateSourceImagesIntoScene(sg, asg, HouseMakerBitmap::prepareImages( asg.H() ));
+        updateSourceImagesIntoScene(sg, asg, HouseMakerBitmap::prepareImages(asg.H()));
     }
 };
 
-static inline void prepareProperty( const PropertyListing& property, SceneGraph& sg, ArchOrchestrator& asg ) {
-//    asg.loadHouse(property._id, [&]() {
-//        asg.showIMHouse();
-//        asg.centerCameraMiddleOfHouse();
-//    });
-    asg.setHouse(HouseMakerBitmap::makeEmpty(property));
-    updateSourceImagesIntoScene(sg, asg, HouseMakerBitmap::getSourceImages());
-    sg.addRawImageIM(asg.H()->propertyId, asg.H()->sourceData.image);
 
-    asg.showIMHouse();
-    asg.centerCameraMiddleOfHouse();
+
+static inline void prepareProperty( const PropertyListing& property, SceneGraph& sg, ArchOrchestrator& asg ) {
+    asg.loadHouse(property._id, [&, property]() {
+        HouseMakerBitmap::createSourceDataImage(asg.H(), property);
+        asg.centerCameraMiddleOfHouse();
+        asg.onEvent(ArchIOEvents::AIOE_OnLoad);
+    }, [&, property]() {
+        asg.setHouse(HouseMakerBitmap::makeEmpty(property));
+        asg.centerCameraMiddleOfHouse();
+        asg.onEvent(ArchIOEvents::AIOE_OnLoad);
+    });
+
 }
+
+struct CreateHouseTextures {
+    void operator()( SceneGraph& sg, ArchOrchestrator& asg ) {
+        updateSourceImagesIntoScene(sg, asg, HouseMakerBitmap::getSourceImages());
+        sg.addRawImageIM(asg.H()->propertyId, asg.H()->sourceData.image);
+        asg.showIMHouse();
+        asg.onEvent(ArchIOEvents::AIOE_OnLoadComplete);
+    }
+};
 
 struct CreateNewPropertyFromFloorplanImage {
     void operator()( SceneGraph& sg, ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc,
                      OnCreateNewPropertyFromFloorplanImageEvent event ) {
-        Http::post(Url{"/property/newFromImage/" + url_encode(getFileName(event.floorplanFileName))}, FM::readLocalFileC(event.floorplanFileName), [&](HttpResponeParams params) {
-            PropertyListing property{params.bufferString};
-            prepareProperty(property, sg, asg);
-            asg.saveHouse();
-        });
+        Http::post(Url{ "/property/newFromImage/" + url_encode(getFileName(event.floorplanFileName)) },
+                   FM::readLocalFileC(event.floorplanFileName), [&]( HttpResponeParams params ) {
+                    PropertyListing property{ params.bufferString };
+                    prepareProperty(property, sg, asg);
+                    asg.saveHouse();
+                });
     }
 };
 

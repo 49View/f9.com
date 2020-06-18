@@ -103,6 +103,9 @@ public:
         static bool boControl = true;
         ImGui::Begin("Control", &boControl, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoTitleBar);
         if ( asg.H() ) {
+            if ( asg.hasEvent(ArchIOEvents::AIOE_OnLoad) ) {
+                this->backEnd->process_event(OnCreateHouseTexturesEvent{});
+            }
             if ( ImGui::Button("Elaborate") ) {
                 this->backEnd->process_event(OnElaborateHouseBitmapEvent{});
             }
@@ -132,9 +135,9 @@ public:
             if ( ImGui::SliderFloat("maxBinThreshold", &asg.H()->sourceData.maxBinThreshold, 0.0f, 255.0f) ) {
                 this->backEnd->process_event(OnUpdateHMBEvent{});
             }
-            if ( !asg.H()->propertyId.empty() ) {
+            auto texBin = rsg.RR().TM()->get(asg.H()->propertyId + "_bin");
+            if ( texBin ) {
                 float tSize = 500.0f;
-                auto texBin = rsg.RR().TM()->get(asg.H()->propertyId + "_bin");
                 auto ar = texBin->getAspectRatioVector();
                 ImGui::Image(reinterpret_cast<ImTextureID *>(texBin->getHandle()), ImVec2{ tSize, tSize / ar.y() });
             }
