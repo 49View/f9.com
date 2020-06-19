@@ -264,6 +264,7 @@ private:
         ImGui::LabelText("Geo location", "%f, %f", plo.ActiveProperty().location.coordinates.x(), plo.ActiveProperty().location.coordinates.y());
         int imgCounter = 0;
         for ( const auto& thumb : plo.ActiveProperty().thumbs ) {
+            if ( thumb.empty() ) continue;
             if (!sg.exists(ResourceGroup::Image, thumb)) {
                 sg.addRawImage(thumb, RawImage{FM::readLocalFileC("/home/dado/media/media/" + thumb)});
             } else {
