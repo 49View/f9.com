@@ -247,10 +247,20 @@ struct GlobalRescale {
         float oldScaleFactor = event.oldScaleFactor;
         float currentScaleFactorMeters = event.currentScaleFactorMeters;
         if ( asg.H() ) {
+            // We do 2 re-scale because we do not want to have accuracy problems on chaining floating point operations
+            // and we also want an absolute number as a scale factor that we can easily serialize.
+            // The reason why we need to do 2 rescale is that we do not have a "1.0" scale factor as that depends
+            // on the result of the ocr scan of the floorplan, so first we need to invert the current scale
+            // then apply the new scale. It's a bit awkard but works.
             HouseMakerBitmap::rescale(asg.H(), 1.0f / oldScaleFactor, metersToCentimeters(1.0f / oldScaleFactor));
             asg.H()->sourceData.rescaleFactor = metersToCentimeters(currentScaleFactorMeters);
             HouseMakerBitmap::rescale(asg.H(), asg.H()->sourceData.rescaleFactor,
                                       centimetersToMeters(asg.H()->sourceData.rescaleFactor));
+            // We need a full rebuild of the fittings because scaling doesn't go well with furnitures, IE we cannot
+            // scale a sofa, hence only scaling the position will move the sofa away from it's desired location
+            // which for example would be "against a wall". So because we cannot apply "scale" to furnitures we need
+            // to re-run the complete algorithm to refit everything with the new scale.
+            HouseService::guessFittings(asg.H(), asg.FurnitureMap());
             asg.showIMHouse();
             asg.centerCameraMiddleOfHouse();
         }

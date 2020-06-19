@@ -35,6 +35,7 @@ struct FrontEndStateMachineSML {
             ,state<class Browsing3d> + event<OnBrowserTopDown3dToggleEvent> / ActivateHouseMakerWithTopDown3d{} = state<class HouseMaker>
             ,state<class Browsing3d> + event<OnHouseMakerToggleEvent> / ActivateHouseMaker{} = state<class HouseMaker>
             ,state<class Browsing3d> + event<OnBrowserDollyHouseToggleEvent> / ActivateBrowsingDollyHouse{} = state<class BrowsingDollyHouse>
+            ,state<class Browsing3d> + event<OnWhichRoomAmIEvent> / WhichRoomAmI{}
             ,state<class Browsing3d> + event<OnLoadFloorPlanEvent> / LoadFloorPlan{}
             ,state<class Browsing3d> + event<OnMakeHouse3dEvent> / MakeHouse3d{}
             ,state<class Browsing3d> + event<OnElaborateHouseBitmapEvent> / ElaborateHouseBitmap{}

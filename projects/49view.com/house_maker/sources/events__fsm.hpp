@@ -14,6 +14,7 @@ struct OnClearEvent {};
 struct OnDoubleTapEvent {};
 struct OnUndoEvent {};
 
+struct OnWhichRoomAmIEvent{};
 struct OnLoadFloorPlanEvent {
     PropertyListing property;
 };
