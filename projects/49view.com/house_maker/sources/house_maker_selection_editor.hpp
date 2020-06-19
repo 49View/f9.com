@@ -13,6 +13,7 @@
 #include <eh_arch/controller/arch_render_controller.hpp>
 
 #include "events__fsm.hpp"
+#include "property_listing_orchestrator.hpp"
 
 template<typename T>
 static ImTextureID ImGuiRenderTexture( const T& im ) {
@@ -207,7 +208,7 @@ private:
 class HouseMakerSelectionEditor {
 public:
     HouseMakerSelectionEditor( SceneGraph& sg, RenderOrchestrator& rsg, ArchOrchestrator& asg,
-                               ArchRenderController& arc ) : sg(sg), rsg(rsg), asg(asg), arc(arc) {}
+                               ArchRenderController& arc, PropertyListingOrchestrator& _plo ) : sg(sg), rsg(rsg), asg(asg), arc(arc), plo(_plo) {}
     template<typename BE>
     void update( BE *backEnd ) {
 
@@ -238,6 +239,8 @@ public:
                 }
             }
         } else {
+            // Activate property (listing) view so one can change listing attributes in here
+            propertyLister();
             if ( res ) res->deactivate();
             if ( rcs ) rcs->deactivate();
         }
@@ -245,6 +248,33 @@ public:
     }
 
 private:
+    void propertyLister() {
+        ImGui::LabelText( "Name", "%s", plo.ActiveProperty().name.c_str());
+        ImGui::LabelText( "addressLine1", "%s", plo.ActiveProperty().addressLine1.c_str());
+        ImGui::LabelText( "addressLine2", "%s", plo.ActiveProperty().addressLine2.c_str());
+        ImGui::LabelText( "addressLine3", "%s", plo.ActiveProperty().addressLine3.c_str());
+        ImGui::LabelText( "buyOrLet", "%s", plo.ActiveProperty().buyOrLet.c_str());
+        ImGui::LabelText( "priceReadable", "%s", plo.ActiveProperty().priceReadable.c_str());
+        ImGui::LabelText( "status", "%s", plo.ActiveProperty().status.c_str());
+
+        ImGui::Text( "%s", plo.ActiveProperty().description.c_str());
+        for ( const auto& feature : plo.ActiveProperty().keyFeatures ) {
+            ImGui::BulletText("%s", feature.c_str());
+        }
+        ImGui::LabelText("Geo location", "%f, %f", plo.ActiveProperty().location.coordinates.x(), plo.ActiveProperty().location.coordinates.y());
+        int imgCounter = 0;
+        for ( const auto& thumb : plo.ActiveProperty().thumbs ) {
+            if (!sg.exists(ResourceGroup::Image, thumb)) {
+                sg.addRawImage(thumb, RawImage{FM::readLocalFileC("/home/dado/media/media/" + thumb)});
+            } else {
+                auto im = rsg.TH(thumb);
+                if ( imgCounter++ % 4 != 0 ) ImGui::SameLine();
+                ImGui::Image( ImGuiRenderTexture(im), ImVec2(thumbSize, thumbSize) );
+            }
+        }
+//        std::vector<std::string> thumbs{};
+    }
+
     void materialChange( const std::string& label, HouseMaterialProperty& targetMP, const std::string& presets = {} ) {
         ImGui::Separator();
         ImGui::Separator();
@@ -381,6 +411,7 @@ private:
     RenderOrchestrator& rsg;
     ArchOrchestrator& asg;
     ArchRenderController& arc;
+    PropertyListingOrchestrator& plo;
     std::shared_ptr<RemoteEntitySelector> res;
     std::shared_ptr<RemoteColorSelector> rcs;
 };

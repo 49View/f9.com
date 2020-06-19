@@ -175,6 +175,25 @@ struct CreateHouseTextures {
     }
 };
 
+JSONDATA( ExcaliburPostBody, url, upsert )
+    std::string url;
+    bool upsert = false;
+    ExcaliburPostBody( const std::string& url, bool upsert ) : url(url), upsert(upsert) {}
+};
+
+struct ImportExcaliburLink {
+    void operator()( SceneGraph& sg, ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc,
+                     OnImportExcaliburLinkEvent event ) {
+        auto body = ExcaliburPostBody{ event.excaliburLink, false};
+        Http::post(Url{ "/property/fetch/floorplan/excalibur"}, body.serialize(),
+                   [&]( HttpResponeParams params ) {
+                    PropertyListing property{ params.bufferString };
+                    prepareProperty(property, sg, asg);
+//                    asg.saveHouse();
+                });
+    }
+};
+
 struct CreateNewPropertyFromFloorplanImage {
     void operator()( SceneGraph& sg, ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc,
                      OnCreateNewPropertyFromFloorplanImageEvent event ) {

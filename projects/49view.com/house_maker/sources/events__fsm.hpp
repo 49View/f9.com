@@ -20,6 +20,9 @@ struct OnLoadFloorPlanEvent {
 struct OnCreateNewPropertyFromFloorplanImageEvent {
     std::string floorplanFileName;
 };
+struct OnImportExcaliburLinkEvent {
+    std::string excaliburLink;
+};
 
 struct OnCreateHouseTexturesEvent {};
 struct OnUpdateHMBEvent {};

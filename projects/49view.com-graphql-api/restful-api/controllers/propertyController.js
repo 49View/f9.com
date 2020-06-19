@@ -108,12 +108,10 @@ const updatePropertyBinaries = async (result, propertyId) => {
   let inc = 0;
   for (const elem of result.images) {
     const thumbUrl =
-      await saveImageFromUrl(elem.thumbnailUrl, mp,
-        () => `${propertyId}${elem.caption}_thumb_${inc}`);
+      await saveImageFromUrl(elem.thumbnailUrl, mp, `${propertyId}${elem.caption}_thumb_${inc}`);
 
     const imageUrl =
-      await saveImageFromUrl(elem.masterUrl, mp,
-        () => `${propertyId}${elem.caption}_image_${inc}`);
+      await saveImageFromUrl(elem.masterUrl, mp, `${propertyId}${elem.caption}_image_${inc}`);
     inc++;
     thumbs.push(thumbUrl);
     images.push(imageUrl);
@@ -150,8 +148,11 @@ export const scrapeExcaliburFloorplan = async (htmlUrl, userId, upsert) => {
 
   const origin = Buffer.from(htmlUrl).toString('base64');
 
-  if (!(upsert === true) && await propertyModel.findOne({origin})) {
-    return null;
+  if (!(upsert === true) ) {
+    const prop = await propertyModel.findOne({origin});
+    if ( prop ) {
+      return prop.toObject();
+    }
   }
   const response = await fetch(htmlUrl);
   const htmlSource = await response.text();
@@ -336,7 +337,9 @@ export const scrapeExcaliburFloorplan = async (htmlUrl, userId, upsert) => {
   // Upsert the estate agent with the new property in its list
   await estateAgentModel.updateOne({_id: estateAgentDoc._id}, {$addToSet: {properties: propertyDoc._id}});
 
-  return propertyDoc;
+  const ret = await propertyModel.findById(propertyDoc._id);
+
+  return ret.toObject();
 };
 
 const upsert2 = async (model, query, data) => {

@@ -15,14 +15,14 @@
 #include "house_maker_gui.hpp"
 
 HouseMakerStateMachine::HouseMakerStateMachine( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchOrchestrator& _asg,
-                                                ArchRenderController& _arc, HouseMakerSelectionEditor& _se ) :
+                                                ArchRenderController& _arc, HouseMakerSelectionEditor& _se, PropertyListingOrchestrator& _plo ) :
         RunLoopBackEndBase(_sg, _rsg),
         ScenePreLoader(_sg, _rsg),
-        asg(_asg), arc(_arc), selectionEditor(_se) {
+        asg(_asg), arc(_arc), selectionEditor(_se), plo(_plo) {
     arc.renderMode(FloorPlanRenderMode::Debug3d);
     rb = std::make_shared<RoomBuilder>(_sg, _rsg);
     backEnd = std::make_shared<FrontEnd>(*this, rb.get(), _asg, _sg, _rsg, _arc);
-    gui = std::make_shared<HouseMakerGUI<FrontEnd>>(_sg, _rsg, _asg, _arc, _se);
+    gui = std::make_shared<HouseMakerGUI<FrontEnd>>(_sg, _rsg, _asg, _arc, _se, _plo);
     gui->setBackEnd(backEnd);
 }
 

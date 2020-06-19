@@ -26,7 +26,7 @@ class HouseMakerStateMachine
           public BackEndService<FrontEnd> {
 public:
     HouseMakerStateMachine( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchOrchestrator& _asg,
-                            ArchRenderController& _arc, HouseMakerSelectionEditor& );
+                            ArchRenderController& _arc, HouseMakerSelectionEditor&, PropertyListingOrchestrator& );
     ~HouseMakerStateMachine() override = default;
 
     void updateImpl( const AggregatedInputData& _aid ) override;
@@ -44,4 +44,5 @@ protected:
     ArchRenderController& arc;
     std::shared_ptr<HouseMakerGUI<FrontEnd>> gui;
     HouseMakerSelectionEditor& selectionEditor;
+    PropertyListingOrchestrator& plo;
 };

@@ -22,6 +22,7 @@ struct FrontEndStateMachineSML {
             ,state<class HouseMaker> + event<OnCreateNewPropertyFromFloorplanImageEvent> / CreateNewPropertyFromFloorplanImage{}
             ,state<class HouseMaker> + event<OnUpdateHMBEvent> / UpdateHMB{}
             ,state<class HouseMaker> + event<OnMakeHouse3dEvent> / MakeHouse3d{}
+            ,state<class HouseMaker> + event<OnImportExcaliburLinkEvent> / ImportExcaliburLink{}
             ,state<class HouseMaker> + event<OnCreateHouseTexturesEvent> / CreateHouseTextures{}
             ,state<class HouseMaker> + event<OnElaborateHouseBitmapEvent> / ElaborateHouseBitmap{}
             ,state<class HouseMaker> + event<OnRecalculateFurnitureEvent> / FurnishHouse{}

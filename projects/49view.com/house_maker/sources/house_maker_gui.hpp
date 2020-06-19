@@ -26,15 +26,17 @@
 #include <eh_arch/controller/arch_render_controller.hpp>
 #include <eh_arch/makers/image/house_maker_bitmap.hpp>
 
+#include "property_listing_orchestrator.hpp"
+
 template<typename T>
 class HouseMakerGUI : public BackEndService<T> {
 public:
     HouseMakerGUI( SceneGraph& sg, RenderOrchestrator& rsg, ArchOrchestrator& asg, ArchRenderController& arc,
-                   HouseMakerSelectionEditor& selectionEditor ) : sg(sg), rsg(rsg), asg(asg), arc(arc),
-                                                                  selectionEditor(selectionEditor) {
+                   HouseMakerSelectionEditor& selectionEditor, PropertyListingOrchestrator& _plo ) : sg(sg), rsg(rsg), asg(asg), arc(arc),
+                                                                  selectionEditor(selectionEditor), plo(_plo) {
         rsg.setDragAndDropFunction(std::bind(&HouseMakerGUI::elaborateHouseCallback, this, std::placeholders::_1));
         Http::get(Url{ "/property/list/0/40" }, [&]( HttpResponeParams params ) {
-            propertyList = deserializeVector<PropertyListing>(params.bufferString);
+            plo.PropertyList() = deserializeVector<PropertyListing>(params.bufferString);
         });
     }
 
@@ -85,7 +87,7 @@ public:
 
     void postProperty() {
         FM::writeLocalFile("./propertylatest.json", asg.H()->serialize());
-        Http::post(Url{ "/property" }, activeProperty.serialize());
+        Http::post(Url{ "/property" }, plo.ActiveProperty().serialize());
         asg.saveHouse();
     }
 
@@ -102,6 +104,11 @@ public:
 
         static bool boControl = true;
         ImGui::Begin("Control", &boControl, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoTitleBar);
+        static char exacliburLink[2048];
+        if ( ImGui::InputText("Excalibur!", exacliburLink, 2048, ImGuiInputTextFlags_EnterReturnsTrue) ) {
+            this->backEnd->process_event(OnImportExcaliburLinkEvent{exacliburLink});
+        }
+
         if ( asg.H() ) {
             if ( asg.hasEvent(ArchIOEvents::AIOE_OnLoad) ) {
                 this->backEnd->process_event(OnCreateHouseTexturesEvent{});
@@ -159,12 +166,12 @@ public:
             }
 
             if ( ImGui::Button("Save") ) {
-                activeProperty.status = "staging";
+                plo.ActiveProperty().status = "staging";
                 postProperty();
             }
             ImGui::SameLine();
             if ( ImGui::Button("Publish") ) {
-                activeProperty.status = "live";
+                plo.ActiveProperty().status = "live";
                 postProperty();
             }
         }
@@ -180,7 +187,7 @@ public:
         ImGui::End();
 
         ImGui::Begin("Listing");
-        for ( const auto& property : propertyList ) {
+        for ( const auto& property : plo.PropertyList() ) {
             C4f color = C4f::DARK_BLUE;
             if ( property.status == "live" ) color = C4f::DARK_RED;
             if ( property.status == "defaults" ) color = C4f::FOREST_GREEN;
@@ -191,8 +198,8 @@ public:
             ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(color.x(), color.y(), color.z(), 0.5f));
 
             if ( ImGui::Button(( property.addressLine1 + property.name + property._id ).c_str()) ) {
-                activeProperty = property;
-                this->backEnd->process_event(OnLoadFloorPlanEvent{ activeProperty });
+                plo.ActiveProperty() = property;
+                this->backEnd->process_event(OnLoadFloorPlanEvent{ plo.ActiveProperty() });
             }
             ImGui::PopStyleColor(3);
             ImGui::PopID();
@@ -237,11 +244,11 @@ public:
                     Http::post(Url{ "/fs/updateFloorplan/" + asg.H()->propertyId + "/" + fext },
                                FM::readLocalFileC(rsg.CallbackPaths()[0]),
                                [&]( HttpResponeParams params ) {
-                                   activeProperty.floorplanUrl = std::string{
+                                   plo.ActiveProperty().floorplanUrl = std::string{
                                            reinterpret_cast<const char *>(params.buffer.get()), params.length };
                                    sg.addGenericCallback([&]() {
                                        this->backEnd->process_event(
-                                               OnLoadFloorPlanEvent{ activeProperty });
+                                               OnLoadFloorPlanEvent{ plo.ActiveProperty() });
                                    });
                                });
                     rsg.CallbackPaths().clear();
@@ -258,6 +265,5 @@ private:
     ArchOrchestrator& asg;
     ArchRenderController& arc;
     HouseMakerSelectionEditor& selectionEditor;
-    std::vector<PropertyListing> propertyList;
-    PropertyListing activeProperty{};
+    PropertyListingOrchestrator& plo;
 };
