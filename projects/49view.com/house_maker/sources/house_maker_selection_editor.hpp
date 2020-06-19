@@ -212,6 +212,11 @@ public:
     template<typename BE>
     void update( BE *backEnd ) {
 
+        // Just send this message every frame to compound few checks on position (automatic room selections etc)
+        if ( asg.H() ) {
+            backEnd->process_event(OnWhichRoomAmIEvent{});
+        }
+
         if ( res ) {
             res->update(backEnd, sg, rsg);
         }

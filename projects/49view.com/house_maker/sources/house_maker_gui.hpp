@@ -110,8 +110,6 @@ public:
         }
 
         if ( asg.H() ) {
-            // Just send this message every frame to compound few checks on position (automatic room selections etc)
-            this->backEnd->process_event(OnWhichRoomAmIEvent{});
             if ( asg.hasEvent(ArchIOEvents::AIOE_OnLoad) ) {
                 this->backEnd->process_event(OnCreateHouseTexturesEvent{});
             }
