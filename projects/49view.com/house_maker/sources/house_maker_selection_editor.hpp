@@ -28,7 +28,7 @@ public:
         if ( !presets.empty() ) {
             ResourceMetaData::getListOf(ResourceGroup::Material, presets,
                                         [&]( CRefResourceMetadataList el ) {
-                                            metadataList = el;
+                                            metadataMaterialList = el;
                                         });
         }
     }
@@ -62,16 +62,17 @@ public:
             if ( ImGui::InputText("Material", query, 256, ImGuiInputTextFlags_EnterReturnsTrue) ) {
                 ResourceMetaData::getListOf(ResourceGroup::Material, query,
                                             [&]( CRefResourceMetadataList el ) {
-                                                metadataList = el;
+                                                metadataMaterialList = el;
                                             });
             }
-            if ( !metadataList.empty() ) {
+            if ( !metadataMaterialList.empty() ) {
                 int grouping = 3;
-                for ( auto m = 0u; m < metadataList.size(); m += 3 ) {
+                for ( auto m = 0u; m < metadataMaterialList.size(); m += 3 ) {
                     ImGui::NewLine();
                     for ( int t = 0; t < grouping; t++ ) {
-                        if ( m + t >= metadataList.size() ) break;
-                        const auto& meta = metadataList[m + t];
+                        if ( t > 0 ) ImGui::SameLine();
+                        if ( m + t >= metadataMaterialList.size() ) break;
+                        const auto& meta = metadataMaterialList[m + t];
                         auto imr = sg.get<RawImage>(meta.thumb);
                         if ( !imr ) {
                             sg.addRawImageIM(meta.thumb, RawImage{ FM::readLocalFileC(
@@ -92,39 +93,13 @@ public:
                                 ImGui::EndTooltip();
                             }
                         }
-                        ImGui::SameLine();
                     }
                 }
             }
-            ImGui::End();
-        }
-
-    }
-
-private:
-    MaterialAndColorProperty& target;
-    ResourceMetadataList metadataList{};
-    bool bActive = true;
-};
-
-class RemoteColorSelector {
-public:
-    RemoteColorSelector( MaterialAndColorProperty& target ) : target(target) {}
-
-    void activate() {
-        bActive = true;
-    }
-    void deactivate() {
-        bActive = false;
-    }
-
-    template<typename BE>
-    void update( BE *backEnd, SceneGraph& sg, RenderOrchestrator& rsg ) {
-        if ( bActive ) {
-            ImGui::Begin("Colors");
 
             std::vector<std::pair<std::string, C4f>> colors;
 
+            ImGui::Separator();
             ImGui::Text("Color Family");
 
             colors.emplace_back("red", C4f::INDIAN_RED);
@@ -154,7 +129,7 @@ public:
                                             ImVec2(thumbSize, thumbSize)) ) {
                         ResourceMetaData::getListOf(ResourceGroup::Color, color.first,
                                                     [&]( CRefResourceMetadataList el ) {
-                                                        metadataList = el;
+                                                        metadataColorList = el;
                                                     });
                     }
                     if ( ImGui::IsItemHovered() ) {
@@ -169,12 +144,12 @@ public:
             ImGui::NewLine();
             ImGui::Text("Colors");
 
-            if ( !metadataList.empty() ) {
-                for ( auto m = 0u; m < metadataList.size(); m += 3 ) {
+            if ( !metadataColorList.empty() ) {
+                for ( auto m = 0u; m < metadataColorList.size(); m += 3 ) {
                     ImGui::NewLine();
                     for ( int t = 0; t < grouping; t++ ) {
-                        if ( m + t >= metadataList.size() ) break;
-                        const auto& meta = metadataList[m + t];
+                        if ( m + t >= metadataColorList.size() ) break;
+                        const auto& meta = metadataColorList[m + t];
                         if ( ImGui::ColorButton(meta.color.toString().c_str(),
                                                 ImVec4(meta.color.x(), meta.color.y(), meta.color.z(), 1.0f), 0,
                                                 ImVec2(thumbSize, thumbSize)) ) {
@@ -194,6 +169,7 @@ public:
                     }
                 }
             }
+
             ImGui::End();
         }
 
@@ -201,7 +177,8 @@ public:
 
 private:
     MaterialAndColorProperty& target;
-    ResourceMetadataList metadataList{};
+    ResourceMetadataList metadataMaterialList{};
+    ResourceMetadataList metadataColorList{};
     bool bActive = true;
 };
 
@@ -219,10 +196,6 @@ public:
 
         if ( res ) {
             res->update(backEnd, sg, rsg);
-        }
-
-        if ( rcs ) {
-            rcs->update(backEnd, sg, rsg);
         }
 
         static bool boSelection = false;
@@ -247,7 +220,6 @@ public:
             // Activate property (listing) view so one can change listing attributes in here
             propertyLister();
             if ( res ) res->deactivate();
-            if ( rcs ) rcs->deactivate();
         }
         ImGui::End();
     }
@@ -417,5 +389,4 @@ private:
     ArchRenderController& arc;
     PropertyListingOrchestrator& plo;
     std::shared_ptr<RemoteEntitySelector> res;
-    std::shared_ptr<RemoteColorSelector> rcs;
 };
