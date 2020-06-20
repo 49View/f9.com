@@ -16,8 +16,8 @@
 
 class RemoteEntitySelector {
 public:
-    void prepare( MaterialAndColorProperty *_target, const std::string& presets = {} ) {
-        target = _target;
+    void prepare( GHTypeT _label, const std::string& presets = {} ) {
+        label = _label;
         if ( !presets.empty() ) {
             ResourceMetaData::getListOf(ResourceGroup::Material, presets,
                                         [&]( CRefResourceMetadataList el ) {
@@ -40,12 +40,16 @@ public:
         return ret;
     }
 
-    template<typename BE>
-    void update( BE *backEnd, SceneGraph& sg, RenderOrchestrator& rsg ) {
+    template<typename BE, typename R>
+    void update( BE *backEnd, SceneGraph& sg, RenderOrchestrator& rsg, R *_resource ) {
 
+        if ( !_resource )return;
+        target = getCommonMaterialChangeMapping(label, _resource);
         if ( !target ) return;
 
         ImGui::Begin("Entity");
+        ImGui::TextColored(ImVec4(0.5, 0.7, 0.2, 1.0), "%s", GHTypeToString(label).c_str());
+        ImGui::NewLine();
         static char query[256] = { '\0' };
         if ( ImGui::InputText("Material", query, 256, ImGuiInputTextFlags_EnterReturnsTrue) ) {
             ResourceMetaData::getListOf(ResourceGroup::Material, query,
@@ -163,6 +167,7 @@ public:
     }
 
 private:
+    GHTypeT label{ GHType::None };
     MaterialAndColorProperty *target = nullptr;
     ResourceMetadataList metadataMaterialList{};
     ResourceMetadataList metadataColorList{};

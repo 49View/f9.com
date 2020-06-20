@@ -17,10 +17,26 @@
 #include "property_listing_orchestrator.hpp"
 #include "selection_remote_entity_editor.hpp"
 
+template<typename R>
+static MaterialAndColorProperty *getCommonMaterialChangeMapping( GHTypeT key, R *resource ) {
+    if constexpr ( std::is_same_v<R, RoomBSData> ) {
+        if ( key == GHType::Wall ) return &resource->wallsMaterial;
+        if ( key == GHType::Floor ) return &resource->floorMaterial;
+        if ( key == GHType::Skirting ) return &resource->skirtingMaterial;
+        if ( key == GHType::Coving ) return &resource->covingMaterial;
+        if ( key == GHType::Ceiling ) return &resource->ceilingMaterial;
+        if ( key == GHType::KitchenWorktop ) return &resource->kitchenData.worktopMaterial;
+        if ( key == GHType::KitchenCabinet ) return &resource->kitchenData.unitsMaterial;
+    }
+    return nullptr;
+}
+
 class HouseMakerSelectionEditor {
 public:
     HouseMakerSelectionEditor( SceneGraph& sg, RenderOrchestrator& rsg, ArchOrchestrator& asg,
-                               ArchRenderController& arc, PropertyListingOrchestrator& _plo, RemoteEntitySelector& _res ) : sg(sg), rsg(rsg), asg(asg), arc(arc), plo(_plo), res(_res) {}
+                               ArchRenderController& arc, PropertyListingOrchestrator& _plo,
+                               RemoteEntitySelector& _res ) : sg(sg), rsg(rsg), asg(asg), arc(arc), plo(_plo),
+                                                              res(_res) {}
     template<typename BE>
     void update( BE *backEnd ) {
 
@@ -48,7 +64,6 @@ public:
                 }
             }
         } else {
-            res.prepare(nullptr);
             // Activate property (listing) view so one can change listing attributes in here
             propertyLister();
         }
@@ -57,50 +72,59 @@ public:
 
 private:
     void propertyLister() {
-        ImGui::LabelText( "Name", "%s", plo.ActiveProperty().name.c_str());
-        ImGui::LabelText( "addressLine1", "%s", plo.ActiveProperty().addressLine1.c_str());
-        ImGui::LabelText( "addressLine2", "%s", plo.ActiveProperty().addressLine2.c_str());
-        ImGui::LabelText( "addressLine3", "%s", plo.ActiveProperty().addressLine3.c_str());
-        ImGui::LabelText( "buyOrLet", "%s", plo.ActiveProperty().buyOrLet.c_str());
-        ImGui::LabelText( "priceReadable", "%s", plo.ActiveProperty().priceReadable.c_str());
-        ImGui::LabelText( "status", "%s", plo.ActiveProperty().status.c_str());
+        ImGui::LabelText("Name", "%s", plo.ActiveProperty().name.c_str());
+        ImGui::LabelText("addressLine1", "%s", plo.ActiveProperty().addressLine1.c_str());
+        ImGui::LabelText("addressLine2", "%s", plo.ActiveProperty().addressLine2.c_str());
+        ImGui::LabelText("addressLine3", "%s", plo.ActiveProperty().addressLine3.c_str());
+        ImGui::LabelText("buyOrLet", "%s", plo.ActiveProperty().buyOrLet.c_str());
+        ImGui::LabelText("priceReadable", "%s", plo.ActiveProperty().priceReadable.c_str());
+        ImGui::LabelText("status", "%s", plo.ActiveProperty().status.c_str());
 
-        ImGui::Text( "%s", plo.ActiveProperty().description.c_str());
+        ImGui::Text("%s", plo.ActiveProperty().description.c_str());
         for ( const auto& feature : plo.ActiveProperty().keyFeatures ) {
             ImGui::BulletText("%s", feature.c_str());
         }
-        ImGui::LabelText("Geo location", "%f, %f", plo.ActiveProperty().location.coordinates.x(), plo.ActiveProperty().location.coordinates.y());
+        ImGui::LabelText("Geo location", "%f, %f", plo.ActiveProperty().location.coordinates.x(),
+                         plo.ActiveProperty().location.coordinates.y());
         int imgCounter = 0;
         for ( const auto& thumb : plo.ActiveProperty().thumbs ) {
             if ( thumb.empty() ) continue;
-            if (!sg.exists(ResourceGroup::Image, thumb)) {
-                sg.addRawImage(thumb, RawImage{FM::readLocalFileC("/home/dado/media/media/" + thumb)});
+            if ( !sg.exists(ResourceGroup::Image, thumb) ) {
+                sg.addRawImage(thumb, RawImage{ FM::readLocalFileC("/home/dado/media/media/" + thumb) });
             } else {
                 auto im = rsg.TH(thumb);
                 if ( imgCounter++ % 4 != 0 ) ImGui::SameLine();
-                ImGui::Image( ImGuiRenderTexture(im), ImVec2(thumbSize, thumbSize) );
+                ImGui::Image(ImGuiRenderTexture(im), ImVec2(thumbSize, thumbSize));
             }
         }
 //        std::vector<std::string> thumbs{};
     }
 
-    void materialChange( const std::string& label, MaterialAndColorProperty& targetMP, const std::string& presets = {} ) {
+    template<typename R>
+    void materialChange( GHTypeT label, R *elem, const std::string& presets = {} ) {
         ImGui::Separator();
-        ImGui::Text("%s", label.c_str());
-        auto imr = sg.get<Material>(targetMP.materialHash);
-        if ( imr ) {
-            auto im = rsg.TH(imr->getDiffuseTexture());
-            auto matButtonId = label + targetMP.materialHash;
-            ImGui::PushID(matButtonId.c_str());
-            C4f target = targetMP.color;
-            if ( ImGui::ImageButton(ImGuiRenderTexture(im), ImVec2(thumbSize, thumbSize), ImVec2(0,0), ImVec2(1,1), -1, ImVec4(0,0,0,0), ImVec4(target.x(), target.y(), target.z(), 1.0f)) ) {
-                res.prepare(&targetMP, presets);
-            }
-            if ( ImGui::IsItemHovered() ) {
-                ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-            }
-            ImGui::PopID();
+        ImGui::Text("%s", GHTypeToString(label).c_str());
+
+        MaterialAndColorProperty *targetMP = getCommonMaterialChangeMapping(label, elem);
+        if ( !targetMP ) return;
+
+        auto imr = sg.get<Material>(targetMP->materialHash);
+        if ( !imr ) return;
+
+        auto im = rsg.TH(imr->getDiffuseTexture());
+        auto matButtonId = std::to_string(label) + targetMP->materialHash;
+
+        ImGui::PushID(matButtonId.c_str());
+        C4f target = targetMP->color;
+        if ( ImGui::ImageButton(ImGuiRenderTexture(im), ImVec2(thumbSize, thumbSize), ImVec2(0, 0), ImVec2(1, 1), -1,
+                                ImVec4(0, 0, 0, 0), ImVec4(target.x(), target.y(), target.z(), 1.0f)) ) {
+            res.prepare(label, presets);
+            currLabel = label;
         }
+        if ( ImGui::IsItemHovered() ) {
+            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+        }
+        ImGui::PopID();
     }
 
     template<typename BE>
@@ -188,18 +212,18 @@ private:
             }
         }
 
-        materialChange("Worktop", room->kitchenData.worktopMaterial, "granite+marble");
-        materialChange("Units", room->kitchenData.unitsMaterial, "wood+metal");
+        materialChange(GHType::KitchenWorktop, room, "granite+marble");
+        materialChange(GHType::KitchenCabinet, room, "wood+metal");
     }
 
     template<typename BE>
     void roomSelector( RoomBSData *room, BE *backEnd ) {
-        res.update(backEnd, sg, rsg);
-        materialChange("Walls", room->wallsMaterial, "plaster");
-        materialChange("Floor", room->floorMaterial, "wood+tiles+carpet");
-        materialChange("Skirting", room->skirtingMaterial, "wood+tiles");
-        materialChange("Coving", room->covingMaterial, "wood+tiles");
-        materialChange("Ceiling", room->ceilingMaterial, "plaster");
+        res.update(backEnd, sg, rsg, room);
+        materialChange(GHType::Wall, room, "plaster");
+        materialChange(GHType::Floor, room, "wood+tiles+carpet");
+        materialChange(GHType::Skirting, room, "wood+tiles");
+        materialChange(GHType::Coving, room, "wood+tiles");
+        materialChange(GHType::Ceiling, room, "plaster");
         roomMiscProperties(room, backEnd);
         roomTypeSelector(room, backEnd);
         roomTypePersonalisedEditor(room, backEnd);
@@ -212,4 +236,5 @@ private:
     ArchRenderController& arc;
     PropertyListingOrchestrator& plo;
     RemoteEntitySelector& res;
+    GHTypeT currLabel{ GHType::None };
 };
