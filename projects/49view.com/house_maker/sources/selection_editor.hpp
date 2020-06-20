@@ -6,6 +6,7 @@
 
 #include <core/resources/resource_metadata.hpp>
 #include <graphics/imgui/imgui.h>
+#include <graphics/imgui/im_gui_utils.h>
 
 #include <eh_arch/models//house_service.hpp>
 #include <eh_arch/render/house_render.hpp>
@@ -14,188 +15,18 @@
 
 #include "events__fsm.hpp"
 #include "property_listing_orchestrator.hpp"
-
-template<typename T>
-static ImTextureID ImGuiRenderTexture( const T& im ) {
-    return reinterpret_cast<ImTextureID *>(im);
-};
-
-static constexpr int thumbSize = 128;
-
-class RemoteEntitySelector {
-public:
-    RemoteEntitySelector( MaterialAndColorProperty& target, const std::string& presets = {} ) : target(target) {
-        if ( !presets.empty() ) {
-            ResourceMetaData::getListOf(ResourceGroup::Material, presets,
-                                        [&]( CRefResourceMetadataList el ) {
-                                            metadataMaterialList = el;
-                                        });
-        }
-    }
-
-    void activate() {
-        bActive = true;
-    }
-    void deactivate() {
-        bActive = false;
-    }
-
-    std::vector<std::string>
-    tagsSanitisedFor( const std::string& query, const std::string& group, const std::vector<std::string>& tags ) {
-        auto ret = tags;
-        erase_if(ret, [query]( const auto& elem ) -> bool {
-            return elem == query;
-        });
-        if ( group == ResourceGroup::Material ) {
-            erase_if(ret, []( const auto& elem ) -> bool {
-                return elem == "sbsar";
-            });
-        }
-        return ret;
-    }
-
-    template<typename BE>
-    void update( BE *backEnd, SceneGraph& sg, RenderOrchestrator& rsg ) {
-        if ( bActive ) {
-            ImGui::Begin("Entity");
-            static char query[256] = { '\0' };
-            if ( ImGui::InputText("Material", query, 256, ImGuiInputTextFlags_EnterReturnsTrue) ) {
-                ResourceMetaData::getListOf(ResourceGroup::Material, query,
-                                            [&]( CRefResourceMetadataList el ) {
-                                                metadataMaterialList = el;
-                                            });
-            }
-            if ( !metadataMaterialList.empty() ) {
-                int grouping = 3;
-                for ( auto m = 0u; m < metadataMaterialList.size(); m += 3 ) {
-                    ImGui::NewLine();
-                    for ( int t = 0; t < grouping; t++ ) {
-                        if ( t > 0 ) ImGui::SameLine();
-                        if ( m + t >= metadataMaterialList.size() ) break;
-                        const auto& meta = metadataMaterialList[m + t];
-                        auto imr = sg.get<RawImage>(meta.thumb);
-                        if ( !imr ) {
-                            sg.addRawImageIM(meta.thumb, RawImage{ FM::readLocalFileC(
-                                    "/home/dado/media/media/entities/" + meta.group + "/" + meta.thumb) });
-                        }
-                        auto im = rsg.TH(meta.thumb);
-                        if ( im ) {
-                            if ( ImGui::ImageButton(ImGuiRenderTexture(im), ImVec2(thumbSize, thumbSize)) ) {
-                                target.materialHash = meta.hash;
-                                target.materialName = meta.name;
-                                backEnd->process_event(OnMakeHouse3dEvent{});
-                            }
-                            auto santizedTags = tagsSanitisedFor(query, meta.group, meta.tags);
-                            if ( ImGui::IsItemHovered() ) {
-                                ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-                                ImGui::BeginTooltip();
-                                ImGui::Text("%s", arrayToStringCompact(santizedTags).c_str());
-                                ImGui::EndTooltip();
-                            }
-                        }
-                    }
-                }
-            }
-
-            std::vector<std::pair<std::string, C4f>> colors;
-
-            ImGui::Separator();
-            ImGui::Text("Color Family");
-
-            colors.emplace_back("red", C4f::INDIAN_RED);
-            colors.emplace_back("green", C4f::FOREST_GREEN);
-            colors.emplace_back("black", C4f::DARK_GRAY);
-
-            colors.emplace_back("blue", C4f::SKY_BLUE);
-            colors.emplace_back("cream", C4f::SAND);
-            colors.emplace_back("grey", C4f::PASTEL_GRAY);
-
-            colors.emplace_back("orange", C4f::PASTEL_ORANGE);
-            colors.emplace_back("pink", C4f::HOT_PINK);
-            colors.emplace_back("purple", C4f::DARK_PURPLE);
-
-            colors.emplace_back("teal", C4f::PASTEL_CYAN);
-            colors.emplace_back("white", C4f::LIGHT_GREY);
-            colors.emplace_back("yellow", C4f::PASTEL_YELLOW);
-
-            int grouping = 3;
-            for ( auto m = 0u; m < colors.size(); m += 3 ) {
-                ImGui::NewLine();
-                for ( int t = 0; t < grouping; t++ ) {
-                    if ( m + t >= colors.size() ) break;
-                    const auto& color = colors[m + t];
-                    if ( ImGui::ColorButton(color.first.c_str(),
-                                            ImVec4(color.second.x(), color.second.y(), color.second.z(), 1.0f), 0,
-                                            ImVec2(thumbSize, thumbSize)) ) {
-                        ResourceMetaData::getListOf(ResourceGroup::Color, color.first,
-                                                    [&]( CRefResourceMetadataList el ) {
-                                                        metadataColorList = el;
-                                                    });
-                    }
-                    if ( ImGui::IsItemHovered() ) {
-                        ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-                        ImGui::SetTooltip("%s", color.first.c_str());
-                    }
-                    ImGui::SameLine();
-                }
-            }
-
-            ImGui::Separator();
-            ImGui::NewLine();
-            ImGui::Text("Colors");
-
-            if ( !metadataColorList.empty() ) {
-                for ( auto m = 0u; m < metadataColorList.size(); m += 3 ) {
-                    ImGui::NewLine();
-                    for ( int t = 0; t < grouping; t++ ) {
-                        if ( m + t >= metadataColorList.size() ) break;
-                        const auto& meta = metadataColorList[m + t];
-                        if ( ImGui::ColorButton(meta.color.toString().c_str(),
-                                                ImVec4(meta.color.x(), meta.color.y(), meta.color.z(), 1.0f), 0,
-                                                ImVec2(thumbSize, thumbSize)) ) {
-                            target.color = meta.color;
-                            target.colorHash = meta.hash;
-                            target.colorName = meta.name;
-                            backEnd->process_event(OnMakeHouse3dEvent{});
-                        }
-                        if ( ImGui::IsItemHovered() ) {
-                            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-                            ImGui::BeginTooltip();
-                            ImGui::Text("Color Name:");
-                            ImGui::Text("%s", meta.name.c_str());
-                            ImGui::EndTooltip();
-                        }
-                        ImGui::SameLine();
-                    }
-                }
-            }
-
-            ImGui::End();
-        }
-
-    }
-
-private:
-    MaterialAndColorProperty& target;
-    ResourceMetadataList metadataMaterialList{};
-    ResourceMetadataList metadataColorList{};
-    bool bActive = true;
-};
+#include "selection_remote_entity_editor.hpp"
 
 class HouseMakerSelectionEditor {
 public:
     HouseMakerSelectionEditor( SceneGraph& sg, RenderOrchestrator& rsg, ArchOrchestrator& asg,
-                               ArchRenderController& arc, PropertyListingOrchestrator& _plo ) : sg(sg), rsg(rsg), asg(asg), arc(arc), plo(_plo) {}
+                               ArchRenderController& arc, PropertyListingOrchestrator& _plo, RemoteEntitySelector& _res ) : sg(sg), rsg(rsg), asg(asg), arc(arc), plo(_plo), res(_res) {}
     template<typename BE>
     void update( BE *backEnd ) {
 
         // Just send this message every frame to compound few checks on position (automatic room selections etc)
         if ( asg.H() ) {
             backEnd->process_event(OnWhichRoomAmIEvent{});
-        }
-
-        if ( res ) {
-            res->update(backEnd, sg, rsg);
         }
 
         static bool boSelection = false;
@@ -217,9 +48,9 @@ public:
                 }
             }
         } else {
+            res.prepare(nullptr);
             // Activate property (listing) view so one can change listing attributes in here
             propertyLister();
-            if ( res ) res->deactivate();
         }
         ImGui::End();
     }
@@ -255,7 +86,6 @@ private:
 
     void materialChange( const std::string& label, MaterialAndColorProperty& targetMP, const std::string& presets = {} ) {
         ImGui::Separator();
-        ImGui::Separator();
         ImGui::Text("%s", label.c_str());
         auto imr = sg.get<Material>(targetMP.materialHash);
         if ( imr ) {
@@ -264,21 +94,13 @@ private:
             ImGui::PushID(matButtonId.c_str());
             C4f target = targetMP.color;
             if ( ImGui::ImageButton(ImGuiRenderTexture(im), ImVec2(thumbSize, thumbSize), ImVec2(0,0), ImVec2(1,1), -1, ImVec4(0,0,0,0), ImVec4(target.x(), target.y(), target.z(), 1.0f)) ) {
-                res = std::make_shared<RemoteEntitySelector>(targetMP, presets);
+                res.prepare(&targetMP, presets);
             }
             if ( ImGui::IsItemHovered() ) {
                 ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
             }
             ImGui::PopID();
         }
-//        ImGui::SameLine();
-//        if ( ImGui::ColorButton(colorButtonId.c_str(), ImVec4(target.x(), target.y(), target.z(), 1.0f), 0,
-//                                ImVec2(thumbSize / 2, thumbSize / 2)) ) {
-//            rcs = std::make_shared<RemoteColorSelector>(targetMP);
-//        }
-//        if ( ImGui::IsItemHovered() ) {
-//            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-//        }
     }
 
     template<typename BE>
@@ -372,6 +194,7 @@ private:
 
     template<typename BE>
     void roomSelector( RoomBSData *room, BE *backEnd ) {
+        res.update(backEnd, sg, rsg);
         materialChange("Walls", room->wallsMaterial, "plaster");
         materialChange("Floor", room->floorMaterial, "wood+tiles+carpet");
         materialChange("Skirting", room->skirtingMaterial, "wood+tiles");
@@ -388,5 +211,5 @@ private:
     ArchOrchestrator& asg;
     ArchRenderController& arc;
     PropertyListingOrchestrator& plo;
-    std::shared_ptr<RemoteEntitySelector> res;
+    RemoteEntitySelector& res;
 };
