@@ -24,7 +24,7 @@ static constexpr int thumbSize = 128;
 
 class RemoteEntitySelector {
 public:
-    RemoteEntitySelector( HouseMaterialProperty& target, const std::string& presets = {} ) : target(target) {
+    RemoteEntitySelector( MaterialAndColorProperty& target, const std::string& presets = {} ) : target(target) {
         if ( !presets.empty() ) {
             ResourceMetaData::getListOf(ResourceGroup::Material, presets,
                                         [&]( CRefResourceMetadataList el ) {
@@ -102,14 +102,14 @@ public:
     }
 
 private:
-    HouseMaterialProperty& target;
+    MaterialAndColorProperty& target;
     ResourceMetadataList metadataList{};
     bool bActive = true;
 };
 
 class RemoteColorSelector {
 public:
-    RemoteColorSelector( HouseMaterialProperty& target ) : target(target) {}
+    RemoteColorSelector( MaterialAndColorProperty& target ) : target(target) {}
 
     void activate() {
         bActive = true;
@@ -200,7 +200,7 @@ public:
     }
 
 private:
-    HouseMaterialProperty& target;
+    MaterialAndColorProperty& target;
     ResourceMetadataList metadataList{};
     bool bActive = true;
 };
@@ -281,7 +281,7 @@ private:
 //        std::vector<std::string> thumbs{};
     }
 
-    void materialChange( const std::string& label, HouseMaterialProperty& targetMP, const std::string& presets = {} ) {
+    void materialChange( const std::string& label, MaterialAndColorProperty& targetMP, const std::string& presets = {} ) {
         ImGui::Separator();
         ImGui::Separator();
         ImGui::Text("%s", label.c_str());
@@ -290,7 +290,8 @@ private:
             auto im = rsg.TH(imr->getDiffuseTexture());
             auto matButtonId = label + targetMP.materialHash;
             ImGui::PushID(matButtonId.c_str());
-            if ( ImGui::ImageButton(ImGuiRenderTexture(im), ImVec2(thumbSize, thumbSize)) ) {
+            C4f target = targetMP.color;
+            if ( ImGui::ImageButton(ImGuiRenderTexture(im), ImVec2(thumbSize, thumbSize), ImVec2(0,0), ImVec2(1,1), -1, ImVec4(0,0,0,0), ImVec4(target.x(), target.y(), target.z(), 1.0f)) ) {
                 res = std::make_shared<RemoteEntitySelector>(targetMP, presets);
             }
             if ( ImGui::IsItemHovered() ) {
@@ -298,17 +299,14 @@ private:
             }
             ImGui::PopID();
         }
-        ImGui::SameLine();
-        C4f target = targetMP.color;
-        auto colorButtonId = label + target.toString();
-        if ( ImGui::ColorButton(colorButtonId.c_str(), ImVec4(target.x(), target.y(), target.z(), 1.0f), 0,
-                                ImVec2(thumbSize / 2, thumbSize / 2)) ) {
-            rcs = std::make_shared<RemoteColorSelector>(targetMP);
-        }
-        if ( ImGui::IsItemHovered() ) {
-            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-        }
-
+//        ImGui::SameLine();
+//        if ( ImGui::ColorButton(colorButtonId.c_str(), ImVec4(target.x(), target.y(), target.z(), 1.0f), 0,
+//                                ImVec2(thumbSize / 2, thumbSize / 2)) ) {
+//            rcs = std::make_shared<RemoteColorSelector>(targetMP);
+//        }
+//        if ( ImGui::IsItemHovered() ) {
+//            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+//        }
     }
 
     template<typename BE>
