@@ -17,20 +17,6 @@
 #include "property_listing_orchestrator.hpp"
 #include "selection_remote_entity_editor.hpp"
 
-template<typename R>
-static MaterialAndColorProperty *getCommonMaterialChangeMapping( GHTypeT key, R *resource ) {
-    if constexpr ( std::is_same_v<R, RoomBSData> ) {
-        if ( key == GHType::Wall ) return &resource->wallsMaterial;
-        if ( key == GHType::Floor ) return &resource->floorMaterial;
-        if ( key == GHType::Skirting ) return &resource->skirtingMaterial;
-        if ( key == GHType::Coving ) return &resource->covingMaterial;
-        if ( key == GHType::Ceiling ) return &resource->ceilingMaterial;
-        if ( key == GHType::KitchenWorktop ) return &resource->kitchenData.worktopMaterial;
-        if ( key == GHType::KitchenCabinet ) return &resource->kitchenData.unitsMaterial;
-    }
-    return nullptr;
-}
-
 class HouseMakerSelectionEditor {
 public:
     HouseMakerSelectionEditor( SceneGraph& sg, RenderOrchestrator& rsg, ArchOrchestrator& asg,
@@ -101,7 +87,7 @@ private:
     }
 
     template<typename R>
-    void materialChange( GHTypeT label, R *elem, const std::string& presets = {} ) {
+    void materialChange( GHTypeT label, R *elem ) {
         ImGui::Separator();
         ImGui::Text("%s", GHTypeToString(label).c_str());
 
@@ -118,7 +104,7 @@ private:
         C4f target = targetMP->color;
         if ( ImGui::ImageButton(ImGuiRenderTexture(im), ImVec2(thumbSize, thumbSize), ImVec2(0, 0), ImVec2(1, 1), -1,
                                 ImVec4(0, 0, 0, 0), ImVec4(target.x(), target.y(), target.z(), 1.0f)) ) {
-            res.prepare(label, presets);
+            res.prepare(label);
             currLabel = label;
         }
         if ( ImGui::IsItemHovered() ) {
@@ -212,18 +198,18 @@ private:
             }
         }
 
-        materialChange(GHType::KitchenWorktop, room, "granite+marble");
-        materialChange(GHType::KitchenCabinet, room, "wood+metal");
+        materialChange(GHType::KitchenWorktop, room);
+        materialChange(GHType::KitchenCabinet, room);
     }
 
     template<typename BE>
     void roomSelector( RoomBSData *room, BE *backEnd ) {
         res.update(backEnd, sg, rsg, room);
-        materialChange(GHType::Wall, room, "plaster");
-        materialChange(GHType::Floor, room, "wood+tiles+carpet");
-        materialChange(GHType::Skirting, room, "wood+tiles");
-        materialChange(GHType::Coving, room, "wood+tiles");
-        materialChange(GHType::Ceiling, room, "plaster");
+        materialChange(GHType::Wall, room);
+        materialChange(GHType::Floor, room);
+        materialChange(GHType::Skirting, room);
+        materialChange(GHType::Coving, room);
+        materialChange(GHType::Ceiling, room);
         roomMiscProperties(room, backEnd);
         roomTypeSelector(room, backEnd);
         roomTypePersonalisedEditor(room, backEnd);

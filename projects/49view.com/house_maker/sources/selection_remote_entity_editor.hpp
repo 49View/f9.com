@@ -7,17 +7,20 @@
 #include <core/resources/resource_metadata.hpp>
 #include <graphics/imgui/imgui.h>
 
-#include <eh_arch/models//house_service.hpp>
+#include <eh_arch/models/house_service.hpp>
 #include <eh_arch/render/house_render.hpp>
 #include <eh_arch/controller/arch_orchestrator.hpp>
 #include <eh_arch/controller/arch_render_controller.hpp>
+#include <eh_arch/models/htypes_functions.hpp>
 
 #include "events__fsm.hpp"
+#include "selection_editor.hpp"
 
 class RemoteEntitySelector {
 public:
-    void prepare( GHTypeT _label, const std::string& presets = {} ) {
+    void prepare( GHTypeT _label ) {
         label = _label;
+        auto presets = defaultMaterialAndColorPropertyPresetsForGHType(_label);
         if ( !presets.empty() ) {
             ResourceMetaData::getListOf(ResourceGroup::Material, presets,
                                         [&]( CRefResourceMetadataList el ) {
