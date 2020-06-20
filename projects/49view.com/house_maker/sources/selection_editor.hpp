@@ -199,6 +199,7 @@ private:
         }
 
         materialChange(GHType::KitchenWorktop, room);
+        materialChange(GHType::KitchenBackSplash, room);
         materialChange(GHType::KitchenCabinet, room);
     }
 
