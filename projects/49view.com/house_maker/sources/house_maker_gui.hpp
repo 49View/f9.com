@@ -233,7 +233,7 @@ public:
 
         selectionEditor.update(this->BackEnd());
 
-        ImGui::ShowDemoWindow();
+//        ImGui::ShowDemoWindow();
 
         // Modal callbacks
         if ( !rsg.CallbackPaths().empty() ) {
