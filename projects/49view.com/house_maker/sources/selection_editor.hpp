@@ -88,14 +88,15 @@ private:
 
     template<typename R>
     void materialChange( GHTypeT label, R *elem ) {
-        ImGui::Separator();
-        ImGui::Text("%s", GHTypeToString(label).c_str());
 
         MaterialAndColorProperty *targetMP = getCommonMaterialChangeMapping(label, elem);
         if ( !targetMP ) return;
 
         auto imr = sg.get<Material>(targetMP->materialHash);
         if ( !imr ) return;
+
+        ImGui::BeginGroup();
+        ImGui::Text("%s", GHTypeToString(label).c_str());
 
         auto im = rsg.TH(imr->getDiffuseTexture());
         auto matButtonId = std::to_string(label) + targetMP->materialHash;
@@ -111,6 +112,7 @@ private:
             ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
         }
         ImGui::PopID();
+        ImGui::EndGroup();
     }
 
     template<typename BE>
@@ -135,6 +137,7 @@ private:
         for ( auto rn = startIndex; rn < ASType::LastRoom; rn++ ) {
             hasRoomV[rn - startIndex] = RoomService::hasRoomType(room, rn);
         }
+        ImGui::Columns(2);
         for ( auto rn = startIndex; rn < ASType::LastRoom; rn++ ) {
             if ( ImGui::Checkbox(RoomService::roomTypeToName1to1(rn).c_str(), &hasRoomV[rn - startIndex]) ) {
                 if ( hasRoomV[rn - startIndex] ) {
@@ -149,7 +152,9 @@ private:
                 HouseService::reevaluateDoorsAndWindowsAfterRoomChange(asg.H());
                 backEnd->process_event(OnRecalculateFurnitureEvent{});
             }
+            ImGui::NextColumn();
         }
+        ImGui::Columns(1);
     }
 
     template<typename BE>
@@ -192,7 +197,9 @@ private:
         }
 
         materialChange(GHType::KitchenWorktop, room);
+        ImGui::SameLine();
         materialChange(GHType::KitchenBackSplash, room);
+        ImGui::SameLine();
         materialChange(GHType::KitchenCabinet, room);
     }
 
@@ -200,9 +207,13 @@ private:
     void roomSelector( RoomBSData *room, BE *backEnd ) {
         res.update(backEnd, sg, rsg, room);
         materialChange(GHType::Wall, room);
+        ImGui::SameLine();
         materialChange(GHType::Floor, room);
+        ImGui::NewLine();
         materialChange(GHType::Skirting, room);
+        ImGui::SameLine();
         materialChange(GHType::Coving, room);
+        ImGui::SameLine();
         materialChange(GHType::Ceiling, room);
         roomMiscProperties(room, backEnd);
         roomTypeSelector(room, backEnd);
