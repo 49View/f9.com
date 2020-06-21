@@ -60,6 +60,27 @@ struct TouchedDownFirstTimeFeatureManipulationGuard {
     }
 };
 
+struct TouchedDownFirstTimeFittedFurnitureGuard {
+    bool operator()( const OnFirstTimeTouchDownViewportSpaceEvent& mouseEvent, ArchOrchestrator& hm,
+                     ArchRenderController& arc ) noexcept {
+//        if ( !hm.H() ) return false;
+//        float aroundDistance = 0.05f;
+//        auto is = mouseEvent.viewportPos;
+//        if ( auto ff = HouseService::point<FittedFurniture, IsInside>(hm.H(), is); ff ) {
+//            afs.feature = ArchStructuralFeature::ASF_Box;
+//            arc.singleToggleSelection(afs, is);
+//            return true;
+//        }
+        return false;
+    }
+};
+
+
+struct EnterFittedFurniture {
+    void operator()( ArchOrchestrator& hm, ArchRenderController& arc ) noexcept {
+    }
+};
+
 struct TouchMoveFeatureManipulation {
     bool operator()( const OnTouchMoveViewportSpaceEvent& mouseEvent, ArchOrchestrator& hm,
                      ArchRenderController& arc ) noexcept {

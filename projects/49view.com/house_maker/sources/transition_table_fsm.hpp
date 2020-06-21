@@ -66,11 +66,15 @@ struct FrontEndStateMachineSML {
             ,state<class FeatureManipulation> + event<OnSpaceEvent>[SpaceToggleFeatureManipulation{}] / UpdateFeatureManipulation{}
             ,state<class FeatureManipulation> + event<OnSpecialSpaceEvent>[SpecialSpaceToggleFeatureManipulation{}] / UpdateFeatureManipulation{}
             ,state<class FeatureManipulation> + event<OnDeleteEvent>[DeleteFeatureManipulation{}] / ExitFeatureManipulation{} = state<class HouseMaker>
+            ,state<class FeatureManipulation> + event<OnFirstTimeTouchDownViewportSpaceEvent>[TouchedDownFirstTimeFittedFurnitureGuard{}] / EnterFittedFurniture{} = state<class FittedFurnitureManipulation>
             ,state<class FeatureManipulation> + event<OnTouchUpViewportSpaceEvent>[TouchUpEventFeatureManipulation{}] / ExitFeatureManipulation{} = state<class HouseMaker>
             ,state<class FeatureManipulation> + event<OnLoadFloorPlanEvent> / LoadFloorPlan{}
             ,state<class FeatureManipulation> + event<OnMakeHouse3dEvent> / MakeHouse3d{}
             ,state<class FeatureManipulation> + event<OnElaborateHouseBitmapEvent> / ElaborateHouseBitmap{}
             ,state<class FeatureManipulation> + event<OnRecalculateFurnitureEvent> / FurnishHouse{}
+
+            ,state<class FittedFurnitureManipulation> + event<OnEnterFittedFurnitureManipulationEvent> / []{}
+
         );
     }
 };

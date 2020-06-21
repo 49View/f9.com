@@ -349,6 +349,17 @@ private:
     }
 
     template<typename BE>
+    void roomFurnitureEditor( RoomBSData *room, BE *backEnd ) {
+        ImGui::Separator();
+        ImGui::NewLine();
+        ImGui::Text("Furnitures");
+        ImGui::Separator();
+        for ( const auto& ff : room->mFittedFurniture ) {
+            ImGui::Button( ff.name.c_str() );
+        }
+    }
+
+    template<typename BE>
     void kitchenSelector( RoomBSData *room, BE *backEnd ) {
         ImGui::Text("Kitchen Shape");
         if ( ImGui::RadioButton("Straight", room->kitchenData.kitchenShape == KS_Straight) ) {
@@ -399,6 +410,7 @@ private:
         roomMiscProperties(room, backEnd);
         roomTypeSelector(room, backEnd);
         roomTypePersonalisedEditor(room, backEnd);
+        roomFurnitureEditor(room, backEnd);
 
 //        auto nodes = sg.Nodes();
 //        auto node = *nodes.begin();
