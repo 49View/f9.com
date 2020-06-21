@@ -138,12 +138,12 @@ private:
         for ( auto rn = startIndex; rn < ASType::LastRoom; rn++ ) {
             if ( ImGui::Checkbox(RoomService::roomTypeToName1to1(rn).c_str(), &hasRoomV[rn - startIndex]) ) {
                 if ( hasRoomV[rn - startIndex] ) {
-                    RoomService::addRoomType(room, rn);
+                    RoomService::addRoomType(room, rn, asg.H());
                     RoomService::removeRoomType(room, ASType::GenericRoom);
                 } else {
                     RoomService::removeRoomType(room, rn);
                     if ( room->roomTypes.empty() ) {
-                        RoomService::addRoomType(room, ASType::GenericRoom);
+                        RoomService::addRoomType(room, ASType::GenericRoom, asg.H());
                     }
                 }
                 HouseService::reevaluateDoorsAndWindowsAfterRoomChange(asg.H());
@@ -186,16 +186,9 @@ private:
         }
 
         if ( ImGui::Button("MainWallToggle") ) {
-            for ( auto t = 0u; t < room->mWallSegmentsSorted.size(); t++ ) {
-                room->kitchenData.kitchenIndexMainWorktop++;
-                if ( room->kitchenData.kitchenIndexMainWorktop >= room->mWallSegmentsSorted.size() ) {
-                    room->kitchenData.kitchenIndexMainWorktop = 0;
-                }
-                if ( room->mWallSegmentsSorted[room->kitchenData.kitchenIndexMainWorktop].length() > 1.5f ) {
-                    backEnd->process_event(OnRecalculateFurnitureEvent{});
-                    break;
-                }
-            }
+            KitchenRoomService::setNextMainWorktopIndexCandidate(room, [&]() {
+                backEnd->process_event(OnRecalculateFurnitureEvent{});
+            });
         }
 
         materialChange(GHType::KitchenWorktop, room);
