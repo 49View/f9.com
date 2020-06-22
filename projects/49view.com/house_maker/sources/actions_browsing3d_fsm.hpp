@@ -11,7 +11,7 @@ struct WhichRoomAmI {
         if ( asg.H() ) {
             V2f pos2d = XZY::C2(rsg.DC()->getPosition());
             if ( auto ret = HouseService::whichRoomAmI(asg.H(), pos2d ); ret ) {
-                arc.setSelectionList(( *ret )->hash);
+                arc.setSelectionList(*ret);
             }
         }
     }

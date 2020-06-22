@@ -216,20 +216,30 @@ public:
         ImGui::Begin("Selection", &boSelection);
         auto selected = arc.selectionFront();
         if ( selected ) {
-            auto *room = HouseService::find<RoomBSData>(asg.H(), selected->hash);
-            if ( room ) {
-                roomSelector(room, backEnd);
-            } else {
-                auto *wall = HouseService::find<WallBSData>(asg.H(), selected->hash);
-                if ( wall ) {
-                    LOGRS("Wall selected: " << wall->epoints[selected->index] << " "
-                                            << wall->epoints[selected->index + 1]);
-                    auto aci = HouseService::findRoomArchSegmentWithWallHash(asg.H(), wall->hash, selected->index);
-                    if ( aci ) {
-                        ImGui::Text("Wall index: %d", static_cast<int>(*aci));
-                    }
-                }
+            switch ( selected->elem->type ) {
+                case RoomT:
+                    roomSelector(dynamic_cast<RoomBSData*>(selected->elem), backEnd);
+                    break;
+                case WallT:
+                    HouseService::findRoomArchSegmentWithWallHash(asg.H(), selected->elem->hash, selected->index);
+                    break;
+                default:
+                    break;
             }
+//            auto *room = HouseService::find<RoomBSData>(asg.H(), selected->hash);
+//            if ( room ) {
+//                roomSelector(room, backEnd);
+//            } else {
+//                auto *wall = HouseService::find<WallBSData>(asg.H(), selected->hash);
+//                if ( wall ) {
+//                    LOGRS("Wall selected: " << wall->epoints[selected->index] << " "
+//                                            << wall->epoints[selected->index + 1]);
+//                    auto aci = HouseService::findRoomArchSegmentWithWallHash(asg.H(), wall->hash, selected->index);
+//                    if ( aci ) {
+//                        ImGui::Text("Wall index: %d", static_cast<int>(*aci));
+//                    }
+//                }
+//            }
         } else {
             // Activate property (listing) view so one can change listing attributes in here
             propertyLister();
