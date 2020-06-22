@@ -49,6 +49,12 @@ struct TouchedDownFirstTimeFeatureManipulationGuard {
                 arc.singleToggleSelection(afs, is);
                 return true;
             }
+            if ( auto ff = HouseService::point<FittedFurniture, IsInside>(hm.H(), is); ff ) {
+                afs.feature = ArchStructuralFeature::ASF_Poly;
+                afs.hash = ff->hash;
+                arc.singleToggleSelection(afs, is);
+                return true;
+            }
             if ( auto room = HouseService::point<RoomBSData, IsInside>(hm.H(), is); room ) {
                 afs.feature = ArchStructuralFeature::ASF_Poly;
                 afs.hash = room->hash;
@@ -77,24 +83,31 @@ struct TouchedDownFirstTimeFittedFurnitureGuard {
 
 
 struct EnterFittedFurniture {
-    void operator()( ArchOrchestrator& hm, ArchRenderController& arc ) noexcept {
+    void operator()( ArchOrchestrator& asg, ArchRenderController& arc ) noexcept {
     }
 };
 
 struct TouchMoveFeatureManipulation {
-    bool operator()( const OnTouchMoveViewportSpaceEvent& mouseEvent, ArchOrchestrator& hm,
+    bool operator()( const OnTouchMoveViewportSpaceEvent& mouseEvent, ArchOrchestrator& asg,
                      ArchRenderController& arc ) noexcept {
         auto is = mouseEvent.viewportPos;
         arc.moveSelectionList(is, [&]( const ArchStructuralFeatureDescriptor& asf, const V2f& offset ) {
-            WallService::moveFeature(hm.H(), asf, offset, false);
-            HouseService::recalculateBBox(hm.H());
+            if ( asf.feature == ArchStructuralFeature::ASF_Poly ) {
+                HouseService::moveArch(asg.H(), asf.hash, offset);
+//                asg.showIMHouse();
+            } else {
+                WallService::moveFeature(asg.H(), asf, offset, false);
+                HouseService::recalculateBBox(asg.H());
+            }
         });
         return true;
     }
 };
 
 struct TouchUpEventFeatureManipulation {
-    bool operator()( ArchRenderController& arc, HouseMakerStateMachine& hm ) noexcept {
+    bool operator()( ArchRenderController& arc, ArchOrchestrator& asg, RenderOrchestrator& rsg ) noexcept {
+        MakeHouse3d{}(asg, rsg, arc);
+        asg.showIMHouse();
         return true;
     }
 };

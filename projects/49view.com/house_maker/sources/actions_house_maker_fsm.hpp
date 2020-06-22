@@ -215,7 +215,7 @@ struct LoadFloorPlan {
 
 struct MakeHouse3d {
     void operator()( ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) {
-        HouseService::guessFittings( asg.H(), asg.FurnitureMap() );
+        //HouseService::guessFittings( asg.H(), asg.FurnitureMap() );
         asg.make3dHouse([&]() {
             if ( arc.getViewingMode() == ArchViewingMode::AVM_DollHouse ||
                  arc.getViewingMode() == ArchViewingMode::AVM_TopDown3d ) {

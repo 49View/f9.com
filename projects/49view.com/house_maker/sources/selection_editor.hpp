@@ -354,9 +354,9 @@ private:
         ImGui::NewLine();
         ImGui::Text("Furnitures");
         ImGui::Separator();
-        for ( const auto& ff : room->mFittedFurniture ) {
-            ImGui::Button( ff.name.c_str() );
-        }
+//        for ( const auto& ff : room->mFittedFurniture ) {
+//            ImGui::Button( ff->name.c_str() );
+//        }
     }
 
     template<typename BE>
