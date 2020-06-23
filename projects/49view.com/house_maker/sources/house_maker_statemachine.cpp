@@ -32,7 +32,7 @@ void HouseMakerStateMachine::activateImpl() {
 
 void HouseMakerStateMachine::activatePostLoad() {
 
-//    RoomServiceFurniture::addDefaultFurnitureSet("uk_default");
+    RoomServiceFurniture::addDefaultFurnitureSet("uk_default");
     asg.loadFurnitureMapStorage("uk_default");
 
     rsg.RR().createGrid(CommandBufferLimits::GridStart, 1.0f, ( Color4f::PASTEL_GRAYLIGHT ),

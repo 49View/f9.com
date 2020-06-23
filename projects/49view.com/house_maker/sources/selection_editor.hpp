@@ -359,9 +359,15 @@ private:
         ImGui::Separator();
         ImGui::NewLine();
         ImGui::Text("Add furniture");
-        if ( ImGui::Button("table") ) {
-            RoomServiceFurniture::addFurnitureSingle( HouseService::findFloorOf(asg.H(), room->hash), room, asg.FurnitureMap(), FurnitureTypeHandler::FT_DiningTable );
+        ImGui::Columns(4);
+        for ( auto fth = 0; fth < FurnitureTypeHandler::FT_Invalid; fth++ ) {
+            auto ft = static_cast<FurnitureTypeHandler::Type>(fth);
+            if ( ImGui::Button(FurnitureTypeHandler::name(ft).c_str()) ) {
+                RoomServiceFurniture::addFurnitureSingle( HouseService::findFloorOf(asg.H(), room->hash), room, asg.FurnitureMap(), ft );
+            }
+            ImGui::NextColumn();
         }
+        ImGui::Columns(1);
     }
 
     template<typename BE>
