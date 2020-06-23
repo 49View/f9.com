@@ -226,20 +226,6 @@ public:
                 default:
                     break;
             }
-//            auto *room = HouseService::find<RoomBSData>(asg.H(), selected->hash);
-//            if ( room ) {
-//                roomSelector(room, backEnd);
-//            } else {
-//                auto *wall = HouseService::find<WallBSData>(asg.H(), selected->hash);
-//                if ( wall ) {
-//                    LOGRS("Wall selected: " << wall->epoints[selected->index] << " "
-//                                            << wall->epoints[selected->index + 1]);
-//                    auto aci = HouseService::findRoomArchSegmentWithWallHash(asg.H(), wall->hash, selected->index);
-//                    if ( aci ) {
-//                        ImGui::Text("Wall index: %d", static_cast<int>(*aci));
-//                    }
-//                }
-//            }
         } else {
             // Activate property (listing) view so one can change listing attributes in here
             propertyLister();
@@ -364,9 +350,18 @@ private:
         ImGui::NewLine();
         ImGui::Text("Furnitures");
         ImGui::Separator();
-//        for ( const auto& ff : room->mFittedFurniture ) {
-//            ImGui::Button( ff->name.c_str() );
-//        }
+        ImGui::Columns(3);
+        for ( const auto& ff : room->mFittedFurniture ) {
+            ImGui::Button( ff->name.c_str() );
+            ImGui::NextColumn();
+        }
+        ImGui::Columns(1);
+        ImGui::Separator();
+        ImGui::NewLine();
+        ImGui::Text("Add furniture");
+        if ( ImGui::Button("table") ) {
+            RoomServiceFurniture::addFurnitureSingle( HouseService::findFloorOf(asg.H(), room->hash), room, asg.FurnitureMap(), FurnitureTypeHandler::FT_DiningTable );
+        }
     }
 
     template<typename BE>
