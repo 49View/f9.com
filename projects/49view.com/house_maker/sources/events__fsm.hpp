@@ -62,6 +62,10 @@ struct OnKeyToggleEvent{
     V2f viewportPos{V2fc::HUGE_VALUE_NEG};
 };
 
+struct OnIncrementalScaleEvent {
+    float incrementalScaleFactor = 0.0f;
+};
+
 struct OnFinaliseEvent {};
 struct OnEscapeEvent {};
 struct OnSpaceEvent {};

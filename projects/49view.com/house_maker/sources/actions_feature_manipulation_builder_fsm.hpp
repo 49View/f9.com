@@ -143,6 +143,22 @@ struct SpaceToggleFeatureManipulation {
     }
 };
 
+struct IncrementalScaleFeatureManipulation {
+    bool operator()( ArchRenderController& arc, ArchOrchestrator& hm, OnIncrementalScaleEvent event ) noexcept {
+        arc.toggleElementsOnSelectionList([&]( const ArchStructuralFeatureDescriptor& asf ) {
+            switch ( asf.elem->type ) {
+                case FittedFurnitureT:
+                    RoomServiceFurniture::scaleIncrementalFurniture(dynamic_cast<FittedFurniture*>(asf.elem), event.incrementalScaleFactor );
+
+                    break;
+                default:
+                    break;
+            }
+        });
+        return true;
+    }
+};
+
 struct SpecialSpaceToggleFeatureManipulation {
     bool operator()( ArchRenderController& arc, HouseMakerStateMachine& hm, ArchOrchestrator& asg ) noexcept {
         arc.toggleElementsOnSelectionList([&]( const ArchStructuralFeatureDescriptor& asf ) {
