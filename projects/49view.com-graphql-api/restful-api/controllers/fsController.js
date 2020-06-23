@@ -36,7 +36,15 @@ export const saveImageFromUrl = async (sourceUrl, mainPath, fileNameRule) => {
   const fext = getFileNameExt(sourceUrl);
   const fres = await fetch(sourceUrl);
   const data = await fres.buffer();
-  const filename = `${mainPath}/${fileNameRule()}.${fext}`;
+  const filename = `${mainPath}/${fileNameRule}.${fext}`;
+  mkdir(mainPath);
+  writeFile(filename, data);
+  return filename;
+}
+
+export const writeImageFromData = async (sourceUrl, mainPath, data, fileNameRule) => {
+  const fext = getFileNameExt(sourceUrl);
+  const filename = `${mainPath}/${fileNameRule}.${fext}`;
   mkdir(mainPath);
   writeFile(filename, data);
   return filename;

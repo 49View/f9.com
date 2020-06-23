@@ -130,39 +130,92 @@ struct KeyToggleHouseMaker {
     }
 };
 
-struct UpdateHMB {
-    void operator()( SceneGraph& sg ) {
-        auto sourceImages = HouseMakerBitmap::prepareImages();
+static inline void
+updateSourceImagesIntoScene( SceneGraph& sg, ArchOrchestrator& asg, const SourceImages& sourceImages ) {
+    auto binPropertyId = asg.H()->propertyId + "_bin";
+    auto sourceBim = sg.get<RawImage>(binPropertyId);
+    if ( sourceBim ) {
+        memcpy(sourceBim->data(), sourceImages.sourceFileImageBin.data, sourceBim->size());
+        sg.updateRawImage(binPropertyId);
+    } else {
+        auto sourceBinParams = getImageParamsFromMat(sourceImages.sourceFileImageBin);
+        auto sourceBinImage = RawImage{ sourceBinParams.width, sourceBinParams.height, sourceBinParams.channels,
+                                        sourceImages.sourceFileImageBin.data };
+        sg.addRawImageIM(binPropertyId, sourceBinImage);
+    }
+}
 
-        auto sourceBim = sg.get<RawImage>(HouseMakerBitmap::HMB().propertyId + "_bin");
-        if ( sourceBim ) {
-            memcpy(sourceBim->data(), sourceImages.sourceFileImageBin.data, sourceBim->size());
-            sg.updateRawImage(HouseMakerBitmap::HMB().propertyId + "_bin");
-        } else {
-            auto sourceBinParams = getImageParamsFromMat(sourceImages.sourceFileImageBin);
-            auto sourceBinImage = RawImage{ sourceBinParams.width, sourceBinParams.height, sourceBinParams.channels,
-                                            sourceImages.sourceFileImageBin.data };
-            sg.addRawImageIM(HouseMakerBitmap::HMB().propertyId + "_bin", sourceBinImage);
-        }
+struct UpdateHMB {
+    void operator()( SceneGraph& sg, ArchOrchestrator& asg ) {
+        updateSourceImagesIntoScene(sg, asg, HouseMakerBitmap::prepareImages(asg.H()));
+    }
+};
+
+
+
+static inline void prepareProperty( const PropertyListing& property, SceneGraph& sg, ArchOrchestrator& asg ) {
+    asg.loadHouse(property._id, [&, property]() {
+        HouseMakerBitmap::createSourceDataImage(asg.H(), property);
+        asg.centerCameraMiddleOfHouse();
+        asg.onEvent(ArchIOEvents::AIOE_OnLoad);
+    }, [&, property]() {
+        asg.setHouse(HouseMakerBitmap::makeEmpty(property));
+        asg.centerCameraMiddleOfHouse();
+        asg.onEvent(ArchIOEvents::AIOE_OnLoad);
+    });
+
+}
+
+struct CreateHouseTextures {
+    void operator()( SceneGraph& sg, ArchOrchestrator& asg ) {
+        updateSourceImagesIntoScene(sg, asg, HouseMakerBitmap::getSourceImages());
+        sg.addRawImageIM(asg.H()->propertyId, asg.H()->sourceData.image);
+        asg.showIMHouse();
+        asg.onEvent(ArchIOEvents::AIOE_OnLoadComplete);
+    }
+};
+
+JSONDATA( ExcaliburPostBody, url, upsert )
+    std::string url;
+    bool upsert = false;
+    ExcaliburPostBody( const std::string& url, bool upsert ) : url(url), upsert(upsert) {}
+};
+
+struct ImportExcaliburLink {
+    void operator()( SceneGraph& sg, ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc,
+                     OnImportExcaliburLinkEvent event ) {
+        auto body = ExcaliburPostBody{ event.excaliburLink, false};
+        Http::post(Url{ "/property/fetch/floorplan/excalibur"}, body.serialize(),
+                   [&]( HttpResponeParams params ) {
+                    PropertyListing property{ params.bufferString };
+                    prepareProperty(property, sg, asg);
+//                    asg.saveHouse();
+                });
+    }
+};
+
+struct CreateNewPropertyFromFloorplanImage {
+    void operator()( SceneGraph& sg, ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc,
+                     OnCreateNewPropertyFromFloorplanImageEvent event ) {
+        Http::post(Url{ "/property/newFromImage/" + url_encode(getFileName(event.floorplanFileName)) },
+                   FM::readLocalFileC(event.floorplanFileName), [&]( HttpResponeParams params ) {
+                    PropertyListing property{ params.bufferString };
+                    prepareProperty(property, sg, asg);
+                    asg.saveHouse();
+                });
     }
 };
 
 struct LoadFloorPlan {
     void operator()( SceneGraph& sg, ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc,
                      OnLoadFloorPlanEvent event ) {
-        auto newHMB = HMBBSData{ event.propertyId,
-                                 RawImage{ FM::readLocalFileC(event.floorPlanFileName) } };
-        HouseMakerBitmap::updateHMB(newHMB);
-        UpdateHMB{}(sg);
-        sg.addRawImageIM(newHMB.propertyId, newHMB.image);
-        asg.setHouse(HouseMakerBitmap::makeEmpty());
-        asg.showIMHouse();
-        asg.centerCameraMiddleOfHouse();
+        prepareProperty(event.property, sg, asg);
     }
 };
 
 struct MakeHouse3d {
     void operator()( ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) {
+        //HouseService::guessFittings( asg.H(), asg.FurnitureMap() );
         asg.make3dHouse([&]() {
             if ( arc.getViewingMode() == ArchViewingMode::AVM_DollHouse ||
                  arc.getViewingMode() == ArchViewingMode::AVM_TopDown3d ) {
@@ -174,7 +227,7 @@ struct MakeHouse3d {
 
 struct ElaborateHouseBitmap {
     void operator()( ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) {
-        auto newHouse = HouseMakerBitmap::make(asg.FurnitureMap());
+        auto newHouse = HouseMakerBitmap::make(asg.H(), asg.FurnitureMap());
         asg.setHouse(newHouse);
         asg.showIMHouse();
     }
@@ -195,10 +248,20 @@ struct GlobalRescale {
         float oldScaleFactor = event.oldScaleFactor;
         float currentScaleFactorMeters = event.currentScaleFactorMeters;
         if ( asg.H() ) {
+            // We do 2 re-scale because we do not want to have accuracy problems on chaining floating point operations
+            // and we also want an absolute number as a scale factor that we can easily serialize.
+            // The reason why we need to do 2 rescale is that we do not have a "1.0" scale factor as that depends
+            // on the result of the ocr scan of the floorplan, so first we need to invert the current scale
+            // then apply the new scale. It's a bit awkard but works.
             HouseMakerBitmap::rescale(asg.H(), 1.0f / oldScaleFactor, metersToCentimeters(1.0f / oldScaleFactor));
-            HouseMakerBitmap::HMB().rescaleFactor = metersToCentimeters(currentScaleFactorMeters);
-            HouseMakerBitmap::rescale(asg.H(), HouseMakerBitmap::HMB().rescaleFactor,
-                                      centimetersToMeters(HouseMakerBitmap::HMB().rescaleFactor));
+            asg.H()->sourceData.rescaleFactor = metersToCentimeters(currentScaleFactorMeters);
+            HouseMakerBitmap::rescale(asg.H(), asg.H()->sourceData.rescaleFactor,
+                                      centimetersToMeters(asg.H()->sourceData.rescaleFactor));
+            // We need a full rebuild of the fittings because scaling doesn't go well with furnitures, IE we cannot
+            // scale a sofa, hence only scaling the position will move the sofa away from it's desired location
+            // which for example would be "against a wall". So because we cannot apply "scale" to furnitures we need
+            // to re-run the complete algorithm to refit everything with the new scale.
+            HouseService::guessFittings(asg.H(), asg.FurnitureMap());
             asg.showIMHouse();
             asg.centerCameraMiddleOfHouse();
         }

@@ -6,7 +6,7 @@
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 
-#include "house_maker_selection_editor.hpp"
+#include "selection_editor.hpp"
 #include "events__fsm.hpp"
 
 #include <core/util.h>
@@ -26,36 +26,31 @@
 #include <eh_arch/controller/arch_render_controller.hpp>
 #include <eh_arch/makers/image/house_maker_bitmap.hpp>
 
+#include "property_listing_orchestrator.hpp"
+
 template<typename T>
 class HouseMakerGUI : public BackEndService<T> {
 public:
     HouseMakerGUI( SceneGraph& sg, RenderOrchestrator& rsg, ArchOrchestrator& asg, ArchRenderController& arc,
-                   HouseMakerSelectionEditor& selectionEditor ) : sg(sg), rsg(rsg), asg(asg), arc(arc),
-                                                                  selectionEditor(selectionEditor) {
+                   HouseMakerSelectionEditor& selectionEditor, PropertyListingOrchestrator& _plo ) : sg(sg), rsg(rsg), asg(asg), arc(arc),
+                                                                  selectionEditor(selectionEditor), plo(_plo) {
         rsg.setDragAndDropFunction(std::bind(&HouseMakerGUI::elaborateHouseCallback, this, std::placeholders::_1));
+        Http::get(Url{ "/property/list/0/40" }, [&]( HttpResponeParams params ) {
+            plo.PropertyList() = deserializeVector<PropertyListing>(params.bufferString);
+        });
     }
 
     void elaborateHouseCallback( std::vector<std::string>& _paths ) {
         if ( _paths.empty() ) return;
-        this->backEnd->process_event(OnLoadFloorPlanEvent{ getFileNameOnly(_paths[0]),_paths[0] });
-        _paths.clear();
+        if ( !asg.H() ) {
+            this->backEnd->process_event(OnCreateNewPropertyFromFloorplanImageEvent{ _paths[0] });
+//            this->backEnd->process_event(OnLoadFloorPlanEvent{ getFileNameOnly(_paths[0]), _paths[0] });
+            _paths.clear();
+        }
     }
 
     void dockSpaceStartUp( bool *p_open ) {
         static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_PassthruCentralNode;
-
-//        if ( ImGui::BeginMainMenuBar() ) {
-//            if ( ImGui::BeginMenu("File") ) {
-//                if ( ImGui::MenuItem("Open Property", "Ctrl+O") ) {
-//                    ResourceMetaData::getListOf(ResourceGroup::Material, query,
-//                                                [&]( CRefResourceMetadataList el ) {
-//                                                    metadataList = el;
-//                                                });
-//                }
-//                ImGui::EndMenu();
-//            }
-//            ImGui::EndMainMenuBar();
-//        }
 
         // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
         // because it would be confusing to have two docking targets within each others.
@@ -67,8 +62,7 @@ public:
         ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
         window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
-                        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground |
-                        ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+                        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground;
 
         // Important: note that we proceed even if Begin() returns false (aka window is collapsed).
         // This is because we want to keep our DockSpace() active. If a DockSpace() is inactive,
@@ -91,6 +85,12 @@ public:
         ImGui::End();
     }
 
+    void postProperty() {
+        FM::writeLocalFile("./propertylatest.json", asg.H()->serialize());
+        Http::post(Url{ "/property" }, plo.ActiveProperty().serialize());
+        asg.saveHouse();
+    }
+
     void update() {
         static bool doc = true;
         dockSpaceStartUp(&doc);
@@ -104,64 +104,80 @@ public:
 
         static bool boControl = true;
         ImGui::Begin("Control", &boControl, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoTitleBar);
-        if ( ImGui::Button("Elaborate") ) {
-            this->backEnd->process_event(OnElaborateHouseBitmapEvent{});
-        }
-        ImGui::SameLine();
-        if ( ImGui::Button("Elaborate 3d") ) {
-            this->backEnd->process_event(OnMakeHouse3dEvent{});
-        }
-        if ( ImGui::SliderFloat("Contrast", &HouseMakerBitmap::HMB().sourceContrast, 0.0f, 20.0f) ) {
-            this->backEnd->process_event(OnUpdateHMBEvent{});
-        }
-        if ( ImGui::SliderFloat("Brightness", &HouseMakerBitmap::HMB().sourceBrightness, 0.0f, 255.0f) ) {
-            this->backEnd->process_event(OnUpdateHMBEvent{});
-        }
-        if ( ImGui::SliderFloat("Gaussian", &HouseMakerBitmap::HMB().sourceGuassian, 1.0f, 5.0f) ) {
-            this->backEnd->process_event(OnUpdateHMBEvent{});
-        }
-        if ( ImGui::SliderInt("Gaussian Sigma", &HouseMakerBitmap::HMB().sourceGuassianSigma, 1, 21) ) {
-            if ( !isOdd(HouseMakerBitmap::HMB().sourceGuassianSigma) ) HouseMakerBitmap::HMB().sourceGuassianSigma++;
-            this->backEnd->process_event(OnUpdateHMBEvent{});
-        }
-        if ( ImGui::SliderFloat("Gaussian Beta", &HouseMakerBitmap::HMB().sourceGuassianBeta, -5.0f, 5.0f) ) {
-            this->backEnd->process_event(OnUpdateHMBEvent{});
-        }
-        if ( ImGui::SliderFloat("minBinThreshold", &HouseMakerBitmap::HMB().minBinThreshold, 0.0f, 255.0f) ) {
-            this->backEnd->process_event(OnUpdateHMBEvent{});
-        }
-        if ( ImGui::SliderFloat("maxBinThreshold", &HouseMakerBitmap::HMB().maxBinThreshold, 0.0f, 255.0f) ) {
-            this->backEnd->process_event(OnUpdateHMBEvent{});
-        }
-        if ( !HouseMakerBitmap::HMB().propertyId.empty() ) {
-            float tSize = 500.0f;
-            auto texBin = rsg.RR().TM()->get(HouseMakerBitmap::HMB().propertyId + "_bin");
-            auto ar = texBin->getAspectRatioVector();
-            ImGui::Image(reinterpret_cast<ImTextureID *>(texBin->getHandle()), ImVec2{ tSize, tSize / ar.y() });
+        static char exacliburLink[2048];
+        if ( ImGui::InputText("Excalibur!", exacliburLink, 2048, ImGuiInputTextFlags_EnterReturnsTrue) ) {
+            this->backEnd->process_event(OnImportExcaliburLinkEvent{exacliburLink});
         }
 
-        ImGui::Text("Winning Strategy: %d", HouseMakerBitmap::HMB().winningStrategy);
-        ImGui::Text("Winning Margin: %f", HouseMakerBitmap::HMB().winningMargin);
-        static float oldScaleFactor = HouseMakerBitmap::HMB().rescaleFactor;
-        static float currentScaleFactorMeters = centimetersToMeters(HouseMakerBitmap::HMB().rescaleFactor);
+        if ( asg.H() ) {
+            if ( asg.hasEvent(ArchIOEvents::AIOE_OnLoad) ) {
+                this->backEnd->process_event(OnCreateHouseTexturesEvent{});
+            }
+            if ( ImGui::Button("Elaborate") ) {
+                this->backEnd->process_event(OnElaborateHouseBitmapEvent{});
+            }
+            ImGui::SameLine();
+            if ( ImGui::Button("Furnish") ) {
+                this->backEnd->process_event(OnRecalculateFurnitureEvent{});
+            }
+            ImGui::SameLine();
+            if ( ImGui::Button("Elaborate 3d") ) {
+                this->backEnd->process_event(OnMakeHouse3dEvent{});
+            }
+            if ( ImGui::SliderFloat("Contrast", &asg.H()->sourceData.sourceContrast, 0.0f, 20.0f) ) {
+                this->backEnd->process_event(OnUpdateHMBEvent{});
+            }
+            if ( ImGui::SliderFloat("Brightness", &asg.H()->sourceData.sourceBrightness, 0.0f, 255.0f) ) {
+                this->backEnd->process_event(OnUpdateHMBEvent{});
+            }
+            if ( ImGui::SliderFloat("Gaussian", &asg.H()->sourceData.sourceGuassian, 1.0f, 5.0f) ) {
+                this->backEnd->process_event(OnUpdateHMBEvent{});
+            }
+            if ( ImGui::SliderInt("Gaussian Sigma", &asg.H()->sourceData.sourceGuassianSigma, 1, 21) ) {
+                if ( !isOdd(asg.H()->sourceData.sourceGuassianSigma) ) asg.H()->sourceData.sourceGuassianSigma++;
+                this->backEnd->process_event(OnUpdateHMBEvent{});
+            }
+            if ( ImGui::SliderFloat("Gaussian Beta", &asg.H()->sourceData.sourceGuassianBeta, -5.0f, 5.0f) ) {
+                this->backEnd->process_event(OnUpdateHMBEvent{});
+            }
+            if ( ImGui::SliderFloat("minBinThreshold", &asg.H()->sourceData.minBinThreshold, 0.0f, 255.0f) ) {
+                this->backEnd->process_event(OnUpdateHMBEvent{});
+            }
+            if ( ImGui::SliderFloat("maxBinThreshold", &asg.H()->sourceData.maxBinThreshold, 0.0f, 255.0f) ) {
+                this->backEnd->process_event(OnUpdateHMBEvent{});
+            }
+            auto texBin = rsg.RR().TM()->get(asg.H()->propertyId + "_bin");
+            if ( texBin ) {
+                float tSize = 500.0f;
+                auto ar = texBin->getAspectRatioVector();
+                ImGui::Image(reinterpret_cast<ImTextureID *>(texBin->getHandle()), ImVec2{ tSize, tSize / ar.y() });
+            }
 
-        if ( ImGui::InputFloat("Scale Factor", &currentScaleFactorMeters, 0.001f, 0.01f, 5) ) {
-            this->backEnd->process_event(OnGlobalRescaleEvent{ oldScaleFactor, currentScaleFactorMeters });
-            oldScaleFactor = HouseMakerBitmap::HMB().rescaleFactor;
-        }
+            ImGui::Text("Winning Strategy: %d", asg.H()->sourceData.winningStrategy);
+            ImGui::Text("Winning Margin: %f", asg.H()->sourceData.winningMargin);
+            static float oldScaleFactor = asg.H()->sourceData.rescaleFactor;
+            static float currentScaleFactorMeters = centimetersToMeters(asg.H()->sourceData.rescaleFactor);
 
-        static float fptf = arc.getFloorPlanTransparencyFactor();
-        if ( ImGui::SliderFloat("floorPlanTransparencyFactor", &fptf, 0.0f, 1.0f) ) {
-            arc.setFloorPlanTransparencyFactor(fptf);
-            asg.showIMHouse();
-        }
+            if ( ImGui::InputFloat("Scale Factor", &currentScaleFactorMeters, 0.001f, 0.01f, 5) ) {
+                this->backEnd->process_event(OnGlobalRescaleEvent{ oldScaleFactor, currentScaleFactorMeters });
+                oldScaleFactor = asg.H()->sourceData.rescaleFactor;
+            }
 
-        if ( ImGui::Button("Publish") ) {
-            FM::writeLocalFile("./asr2bed.json", asg.H()->serialize());
-            Http::post(Url{ "/propertybim/" + asg.H()->propertyId }, asg.H()->serialize(),
-                       []( HttpResponeParams params ) {
-                           LOGRS("Published")
-                       });
+            static float fptf = arc.getFloorPlanTransparencyFactor();
+            if ( ImGui::SliderFloat("floorPlanTransparencyFactor", &fptf, 0.0f, 1.0f) ) {
+                arc.setFloorPlanTransparencyFactor(fptf);
+                asg.showIMHouse();
+            }
+
+            if ( ImGui::Button("Save") ) {
+                plo.ActiveProperty().status = "staging";
+                postProperty();
+            }
+            ImGui::SameLine();
+            if ( ImGui::Button("Publish") ) {
+                plo.ActiveProperty().status = "live";
+                postProperty();
+            }
         }
         ImGui::End();
 
@@ -171,6 +187,26 @@ public:
         auto lines = split(camDump.str(), '\n');
         for ( const auto& line : lines ) {
             ImGui::Text("%s", line.c_str());
+        }
+        ImGui::End();
+
+        ImGui::Begin("Listing");
+        for ( const auto& property : plo.PropertyList() ) {
+            C4f color = C4f::DARK_BLUE;
+            if ( property.status == "live" ) color = C4f::DARK_RED;
+            if ( property.status == "defaults" ) color = C4f::FOREST_GREEN;
+
+            ImGui::PushID(property.status.c_str());
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(color.x(), color.y(), color.z(), 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(color.x(), color.y(), color.z(), 0.7f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(color.x(), color.y(), color.z(), 0.5f));
+
+            if ( ImGui::Button(( property.addressLine1 + property.name + property._id ).c_str()) ) {
+                plo.ActiveProperty() = property;
+                this->backEnd->process_event(OnLoadFloorPlanEvent{ plo.ActiveProperty() });
+            }
+            ImGui::PopStyleColor(3);
+            ImGui::PopID();
         }
         ImGui::End();
 
@@ -198,6 +234,33 @@ public:
         selectionEditor.update(this->BackEnd());
 
 //        ImGui::ShowDemoWindow();
+
+        // Modal callbacks
+        if ( !rsg.CallbackPaths().empty() ) {
+            ImGui::OpenPopup("qeqwew");
+            if ( ImGui::BeginPopupModal("qeqwew", nullptr, ImGuiWindowFlags_AlwaysAutoResize) ) {
+                if ( ImGui::Button("Import as new") ) {
+                    this->backEnd->process_event(OnCreateNewPropertyFromFloorplanImageEvent{ rsg.CallbackPaths()[0] });
+                    rsg.CallbackPaths().clear();
+                }
+                if ( ImGui::Button("Update floorplan") ) {
+                    auto fext = getFileNameExt(rsg.CallbackPaths()[0], true);
+                    Http::post(Url{ "/fs/updateFloorplan/" + asg.H()->propertyId + "/" + fext },
+                               FM::readLocalFileC(rsg.CallbackPaths()[0]),
+                               [&]( HttpResponeParams params ) {
+                                   plo.ActiveProperty().floorplanUrl = std::string{
+                                           reinterpret_cast<const char *>(params.buffer.get()), params.length };
+                                   sg.addGenericCallback([&]() {
+                                       this->backEnd->process_event(
+                                               OnLoadFloorPlanEvent{ plo.ActiveProperty() });
+                                   });
+                               });
+                    rsg.CallbackPaths().clear();
+                }
+                ImGui::EndPopup();
+            }
+        }
+
     }
 
 private:
@@ -206,4 +269,5 @@ private:
     ArchOrchestrator& asg;
     ArchRenderController& arc;
     HouseMakerSelectionEditor& selectionEditor;
+    PropertyListingOrchestrator& plo;
 };

@@ -14,10 +14,18 @@ struct OnClearEvent {};
 struct OnDoubleTapEvent {};
 struct OnUndoEvent {};
 
+struct OnWhichRoomAmIEvent{};
 struct OnLoadFloorPlanEvent {
-    std::string propertyId;
-    std::string floorPlanFileName;
+    PropertyListing property;
 };
+struct OnCreateNewPropertyFromFloorplanImageEvent {
+    std::string floorplanFileName;
+};
+struct OnImportExcaliburLinkEvent {
+    std::string excaliburLink;
+};
+
+struct OnCreateHouseTexturesEvent {};
 struct OnUpdateHMBEvent {};
 struct OnMakeHouse3dEvent {};
 struct OnElaborateHouseBitmapEvent {};
@@ -54,6 +62,10 @@ struct OnKeyToggleEvent{
     V2f viewportPos{V2fc::HUGE_VALUE_NEG};
 };
 
+struct OnIncrementalScaleEvent {
+    float incrementalScaleFactor = 0.0f;
+};
+
 struct OnFinaliseEvent {};
 struct OnEscapeEvent {};
 struct OnSpaceEvent {};
@@ -63,3 +75,5 @@ struct OnGlobalRescaleEvent {
     float oldScaleFactor = 1.0f;
     float currentScaleFactorMeters = 1.0f;
 };
+
+struct OnEnterFittedFurnitureManipulationEvent{};

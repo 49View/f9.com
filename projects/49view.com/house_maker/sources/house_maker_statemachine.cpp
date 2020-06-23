@@ -15,14 +15,14 @@
 #include "house_maker_gui.hpp"
 
 HouseMakerStateMachine::HouseMakerStateMachine( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchOrchestrator& _asg,
-                                                ArchRenderController& _arc, HouseMakerSelectionEditor& _se ) :
+                                                ArchRenderController& _arc, HouseMakerSelectionEditor& _se, PropertyListingOrchestrator& _plo ) :
         RunLoopBackEndBase(_sg, _rsg),
         ScenePreLoader(_sg, _rsg),
-        asg(_asg), arc(_arc), selectionEditor(_se) {
+        asg(_asg), arc(_arc), selectionEditor(_se), plo(_plo) {
     arc.renderMode(FloorPlanRenderMode::Debug3d);
     rb = std::make_shared<RoomBuilder>(_sg, _rsg);
     backEnd = std::make_shared<FrontEnd>(*this, rb.get(), _asg, _sg, _rsg, _arc);
-    gui = std::make_shared<HouseMakerGUI<FrontEnd>>(_sg, _rsg, _asg, _arc, _se);
+    gui = std::make_shared<HouseMakerGUI<FrontEnd>>(_sg, _rsg, _asg, _arc, _se, _plo);
     gui->setBackEnd(backEnd);
 }
 
@@ -32,7 +32,7 @@ void HouseMakerStateMachine::activateImpl() {
 
 void HouseMakerStateMachine::activatePostLoad() {
 
-//    RoomServiceFurniture::addDefaultFurnitureSet("uk_default");
+    RoomServiceFurniture::addDefaultFurnitureSet("uk_default");
     asg.loadFurnitureMapStorage("uk_default");
 
     rsg.RR().createGrid(CommandBufferLimits::GridStart, 1.0f, ( Color4f::PASTEL_GRAYLIGHT ),
@@ -47,22 +47,10 @@ void HouseMakerStateMachine::activatePostLoad() {
     rsg.useSSAO(true);
     rsg.RR().useFilmGrain(false);
 
+
     backEnd->process_event(OnActivateEvent{ [&]() {
-        backEnd->process_event(OnLoadFloorPlanEvent{"5ee92e42bf40e9d29c759e15", "/home/dado/media/media/property/5ee92e42bf40e9d29c759e15_floorplan.png"});
-//    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/visionhouse-apt2.png");
-//    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/visionhouse-apt3.png");
-//    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/visionhouse-apt4.png");
-//    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/visionhouse-apt5.png");
-
-//    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/asr2bedroomflat.png");
-//    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/canbury_park_road.jpg");
-//    elaborateHouseStage1("/home/dado/Downloads/data/floorplans/halterA7-11.png");
-
-//    backEnd->process_event(OnLoadFloorPlanEvent{"/home/dado/Downloads/data/floorplans/test_lightingpw.png"});
-
 //    rb->loadSegments(FM::readLocalFileC("/home/dado/Documents/GitHub/f9.com/builds/house_maker/debug/bespoke_segments529417476917197912") );
 //    finaliseBespoke();
-
     }});
 }
 
@@ -136,6 +124,14 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
     if ( _aid.TI().checkKeyToggleOn(GMK_R) ) {
         backEnd->process_event(OnKeyToggleEvent{ GMK_R });
     }
+
+    if ( _aid.TI().checkKeyToggleOn(GMK_MINUS) ) {
+        backEnd->process_event(OnIncrementalScaleEvent{-0.05f});
+    }
+    if ( _aid.TI().checkKeyToggleOn(GMK_EQUAL) ) {
+        backEnd->process_event(OnIncrementalScaleEvent{0.05f});
+    }
+
 //    if ( _aid.TI().checkKeyToggleOn(GMK_O) ) {
 //        backEnd->process_event(OnKeyToggleEvent{ GMK_O });
 //    }

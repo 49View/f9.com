@@ -6,16 +6,12 @@ const logger = require('eh_logger');
 const db = require('eh_db');
 
 
-router.post("/:id", async (req, res, next) => {
+router.post("/", async (req, res, next) => {
 
   try {
-    const query = { propertyId: req.params.id };
-    const data = {
-      ...JSON.parse(req.body),
-      ...query
-    };
+    const property = JSON.parse(req.body);
 
-    const result = await db.upsert( propertyBimModel, query, data);
+    const result = await db.upsert( propertyBimModel, {propertyId: property.propertyId}, property);
     if ( !result ) {
       res.sendStatus(204);
     } else {

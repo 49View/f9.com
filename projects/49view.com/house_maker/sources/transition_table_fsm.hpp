@@ -19,8 +19,11 @@ struct FrontEndStateMachineSML {
             ,state<class HouseMaker> + event<OnClearEvent> / ClearEverthing{}
             ,state<class HouseMaker> + event<OnHouseMakerToggleEvent> / ActivateHouseMaker{}
             ,state<class HouseMaker> + event<OnLoadFloorPlanEvent> / LoadFloorPlan{}
+            ,state<class HouseMaker> + event<OnCreateNewPropertyFromFloorplanImageEvent> / CreateNewPropertyFromFloorplanImage{}
             ,state<class HouseMaker> + event<OnUpdateHMBEvent> / UpdateHMB{}
             ,state<class HouseMaker> + event<OnMakeHouse3dEvent> / MakeHouse3d{}
+            ,state<class HouseMaker> + event<OnImportExcaliburLinkEvent> / ImportExcaliburLink{}
+            ,state<class HouseMaker> + event<OnCreateHouseTexturesEvent> / CreateHouseTextures{}
             ,state<class HouseMaker> + event<OnElaborateHouseBitmapEvent> / ElaborateHouseBitmap{}
             ,state<class HouseMaker> + event<OnRecalculateFurnitureEvent> / FurnishHouse{}
             ,state<class HouseMaker> + event<OnBrowserTopDown3dToggleEvent> / ActivateHouseMakerWithTopDown3d{}
@@ -32,6 +35,7 @@ struct FrontEndStateMachineSML {
             ,state<class Browsing3d> + event<OnBrowserTopDown3dToggleEvent> / ActivateHouseMakerWithTopDown3d{} = state<class HouseMaker>
             ,state<class Browsing3d> + event<OnHouseMakerToggleEvent> / ActivateHouseMaker{} = state<class HouseMaker>
             ,state<class Browsing3d> + event<OnBrowserDollyHouseToggleEvent> / ActivateBrowsingDollyHouse{} = state<class BrowsingDollyHouse>
+            ,state<class Browsing3d> + event<OnWhichRoomAmIEvent> / WhichRoomAmI{}
             ,state<class Browsing3d> + event<OnLoadFloorPlanEvent> / LoadFloorPlan{}
             ,state<class Browsing3d> + event<OnMakeHouse3dEvent> / MakeHouse3d{}
             ,state<class Browsing3d> + event<OnElaborateHouseBitmapEvent> / ElaborateHouseBitmap{}
@@ -59,14 +63,19 @@ struct FrontEndStateMachineSML {
 
             ,state<class FeatureManipulation> + event<OnTouchMoveViewportSpaceEvent>[TouchMoveFeatureManipulation{}] / UpdateFeatureManipulation{}
             ,state<class FeatureManipulation> + event<OnKeyToggleEvent>[KeyToggleFeatureManipulation{}] / UpdateFeatureManipulation{}
+            ,state<class FeatureManipulation> + event<OnIncrementalScaleEvent> / IncrementalScaleFeatureManipulation{}
             ,state<class FeatureManipulation> + event<OnSpaceEvent>[SpaceToggleFeatureManipulation{}] / UpdateFeatureManipulation{}
             ,state<class FeatureManipulation> + event<OnSpecialSpaceEvent>[SpecialSpaceToggleFeatureManipulation{}] / UpdateFeatureManipulation{}
             ,state<class FeatureManipulation> + event<OnDeleteEvent>[DeleteFeatureManipulation{}] / ExitFeatureManipulation{} = state<class HouseMaker>
+            ,state<class FeatureManipulation> + event<OnFirstTimeTouchDownViewportSpaceEvent>[TouchedDownFirstTimeFittedFurnitureGuard{}] / EnterFittedFurniture{} = state<class FittedFurnitureManipulation>
             ,state<class FeatureManipulation> + event<OnTouchUpViewportSpaceEvent>[TouchUpEventFeatureManipulation{}] / ExitFeatureManipulation{} = state<class HouseMaker>
             ,state<class FeatureManipulation> + event<OnLoadFloorPlanEvent> / LoadFloorPlan{}
             ,state<class FeatureManipulation> + event<OnMakeHouse3dEvent> / MakeHouse3d{}
             ,state<class FeatureManipulation> + event<OnElaborateHouseBitmapEvent> / ElaborateHouseBitmap{}
             ,state<class FeatureManipulation> + event<OnRecalculateFurnitureEvent> / FurnishHouse{}
+
+            ,state<class FittedFurnitureManipulation> + event<OnEnterFittedFurnitureManipulationEvent> / []{}
+
         );
     }
 };

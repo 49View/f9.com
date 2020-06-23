@@ -9,7 +9,8 @@ export class propertyDataSource extends MongoDataSourceExtended {
           {addressLine1: {"$regex": partialName, "$options": "i"}},
           {addressLine2: {"$regex": partialName, "$options": "i"}},
           {addressLine3: {"$regex": partialName, "$options": "i"}},
-        ]
+        ],
+        status: "live"
       }
     ).collation({locale: "en", strength: 2});
   }
