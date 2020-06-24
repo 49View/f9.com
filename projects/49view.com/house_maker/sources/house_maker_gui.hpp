@@ -16,6 +16,7 @@
 #include <graphics/imgui/imgui.h>
 #include <graphics/imgui/imgui_internal.h>
 #include <graphics/imgui/imgui_jsonvisit.hpp>
+#include <graphics/imgui/im_gui_console.h>
 
 #include <render_scene_graph/render_orchestrator.h>
 #include <render_scene_graph/runloop_graphics.h>
@@ -230,6 +231,8 @@ public:
             asg.H()->visit<ImGUIJson>();
             ImGui::End();
         }
+
+        ImGuiLuaConsole(rsg);
 
         selectionEditor.update(this->BackEnd());
 

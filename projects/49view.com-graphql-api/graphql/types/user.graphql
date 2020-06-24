@@ -3,10 +3,12 @@ type User {
     name: String!
     email: String!
     properties: [Property]
+    entities: [Entity]
 }
 
 type Query {
     users: [User]
     user(name: String!): User
     properties: [Property]
+    entities: [Entity]
 }

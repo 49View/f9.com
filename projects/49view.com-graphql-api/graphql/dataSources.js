@@ -1,4 +1,5 @@
 import {MongoDataSourceExtended} from "./datasources/common";
+import {entityModel} from "../models/entity";
 import {propertyModel} from "../models/property";
 import {estateAgentModel} from "../models/estate_agent";
 import {propertyDataSource} from "./datasources/property";
@@ -9,4 +10,5 @@ export default () => ({
     properties: new propertyDataSource(propertyModel),
     users: new MongoDataSourceExtended(usersModel),
     estateAgents: new MongoDataSourceExtended(estateAgentModel),
+    entities: new MongoDataSourceExtended(entityModel),
 });
