@@ -1,3 +1,4 @@
+import "./Excalibur.styled.css";
 import styled from "styled-components";
 
 const mainPadding = "15px";
@@ -9,9 +10,10 @@ export const ExcaliburGrid = styled.div`{
   grid-gap: 10px;
   height: ${wasmCanvasSize.y};
   grid-template-columns: ${wasmCanvasSize.x} calc( var(--body-width) - ${mainPadding}*2 - ${wasmCanvasSize.x} - 10px );
-  grid-template-rows: 50% 50%;
+  grid-template-rows: 30% 60% 10%;
   grid-template-areas: "wasm dropzone"
-                       "wasm report";
+                       "wasm report"
+                       "wscript report";
 }`;
 
 export const DivWasm = styled.div`{
@@ -24,4 +26,13 @@ export const DivReports = styled.div`{
 
 export const DivDropZone = styled.div`{
   grid-area: dropzone;
+}`;
+
+export const ExcaliburScriptGrid = styled.div`{
+  grid-area: wscript;
+}`;
+
+export const DivTags = styled.div`{
+  width: 100%;
+  overflow: auto;
 }`;

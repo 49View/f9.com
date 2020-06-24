@@ -1,0 +1,25 @@
+type Entity {
+    _id: ID!
+    group: String
+    source: String
+    name: String
+    project: String
+    isPublic: Boolean
+    isRestricted: Boolean
+    contentType: String
+    hash: String
+    user: User
+    thumb: String
+    tags: [String]
+    bboxSize: [Float]
+}
+
+type Query {
+    entity(name: String): Entity
+    entityRefresh(name: String, refreshToken: String): Entity
+}
+
+type Mutation {
+    addEntityTagsMutation(entityId: ID!, tags: [String!]): Boolean
+    removeEntityTagMutation(entityId: ID!, tag: String!): Boolean
+}

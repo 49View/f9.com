@@ -1,8 +1,13 @@
 import {api, useApi} from "../../futuremodules/api/apiEntryPoint";
-import {useCallback} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {addEntity} from "../../futuremodules/entities/entitiesApiCalls";
 import {useAlertWarning, useMultiChoiceAlert} from "../../futuremodules/alerts/alerts";
 import {getPossibleGroupFromFilename} from "../../futuremodules/entities/entitiesAccessors";
+import {Badge, Spinner} from "react-bootstrap";
+import gql from "graphql-tag";
+import {useMutation, useQuery} from "@apollo/react-hooks";
+import {checkQueryHasLoadedWithData, getQueryLoadedWithValue} from "../../futuremodules/graphqlclient/query";
+import {getFileName} from "../../futuremodules/utils/utils";
 
 export const useExcaliburDragAndDropCallback = (dispatch) => {
   const entitiesApi = useApi('entities');
@@ -65,10 +70,12 @@ export const useExcaliburDragAndDropCallback = (dispatch) => {
 export const excaliburInitialState = {
   stage: -1,
   fileDragged: null,
+  filenameKey: null,
   group: null,
   fileDraggedReadStatus: null,
   fileDraggedUploaded: null,
-  completed: null
+  completed: null,
+  refreshToken: null
 };
 
 export const excaliburStateReducer = (state, action) => {
@@ -77,6 +84,7 @@ export const excaliburStateReducer = (state, action) => {
       return {
         ...state,
         fileDragged: action[1],
+        filenameKey: getFileName(action[1]),
         group: action[2],
         stage: 1,
       };
@@ -99,7 +107,125 @@ export const excaliburStateReducer = (state, action) => {
       }
     case 'reset':
       return excaliburInitialState;
+    case 'completeAndReset':
+      const d1 = new Date();
+      return {
+        ...excaliburInitialState,
+        refreshToken: d1.toString(),
+        filenameKey: state.filenameKey
+      };
+    case 'entityTagsChanged':
+      const d = new Date();
+      return {
+        ...state,
+        refreshToken: d.toString()
+      };
     default:
       throw new Error("dashBoardManager reducer is handling an invalid action: " + JSON.stringify(action));
   }
 }
+
+export const AssetLoadingStage = ({state}) => {
+
+  const variantStages = (state, stage) => {
+    if (state.stage < stage) return "secondary";
+    if (state.stage === stage) return "warning";
+    return "success";
+  }
+
+  return (
+    <div>
+      <p>{state.fileDragged}</p>
+      <h3><Badge variant={variantStages(state, 1)}>Read </Badge>
+        {state.stage === 1 && <Spinner animation={"grow"}
+                                       variant={"warning"}/>}
+      </h3>
+      <h3><Badge variant={variantStages(state, 2)}>Upload </Badge>
+        {state.stage === 2 && <Spinner animation={"grow"}
+                                       variant={"warning"}/>}
+      </h3>
+      <h3><Badge variant={variantStages(state, 3)}>Elaborate </Badge>
+        {state.stage === 3 && <Spinner animation={"grow"}
+                                       variant={"warning"}/>}
+      </h3>
+    </div>
+  );
+};
+
+// ------------------------------
+// GraphQL Queries
+// ------------------------------
+
+const entityByNameQuery = (name, refreshToken) => gql`{
+    entityRefresh(name:"${name}", refreshToken:"${refreshToken}"){
+        _id
+        name
+        group
+        tags
+        bboxSize
+    }
+}`;
+
+// ------------------------------
+// GraphQL Mutations
+// ------------------------------
+
+export const addEntityTagsMutation = gql`
+    mutation AddEntityTagsMutation($entityId: ID!, $tags: [String!]) {
+        addEntityTagsMutation(entityId: $entityId, tags: $tags ) 
+    }`;
+
+export const removeEntityTagMutation = gql`
+    mutation RemoveEntityTagMutation($entityId: ID!, $tag: String!) {
+        removeEntityTagMutation(entityId: $entityId, tag: $tag) 
+    }`;
+
+export const useAddEntityTags = () => {
+  const [addEntityTagsMutationRet] = useMutation(addEntityTagsMutation);
+
+  const updater = (entityId, tags, dispatch) => {
+    addEntityTagsMutationRet({
+      variables: {
+        entityId,
+        tags
+      }
+    }).then((r) => dispatch(['entityTagsChanged']));
+  };
+
+  return updater;
+};
+
+export const useRemoveEntityTag = () => {
+  const [removeEntityTagMutationRet] = useMutation(removeEntityTagMutation);
+
+  const updater = (entityId, tag, dispatch) => {
+    removeEntityTagMutationRet({
+      variables: {
+        entityId,
+        tag
+      }
+    }).then((r) => dispatch(['entityTagsChanged']));
+  };
+
+  return updater;
+};
+
+// ------------------------------
+// Hooks
+// ------------------------------
+
+export const useQLEntityByName = (name, refreshToken) => {
+  const [entityByName, setEntityByName] = useState(null);
+  const queryRes = useQuery(entityByNameQuery(name, refreshToken));
+
+  useEffect(() => {
+    if (checkQueryHasLoadedWithData(queryRes)) {
+      setEntityByName(getQueryLoadedWithValue(queryRes));
+    }
+  }, [queryRes, setEntityByName]);
+
+  return {
+    entityByName,
+    setEntityByName,
+  }
+};

@@ -6,5 +6,6 @@ export default {
 
   User: {
     properties:(user, args, {dataSources}) => dataSources.properties.find( {userId: user._id}),
+    entities:(user, args, {dataSources}) => dataSources.entities.find( {userId: user._id}),
   }
 };
