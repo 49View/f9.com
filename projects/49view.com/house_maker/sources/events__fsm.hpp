@@ -50,9 +50,18 @@ struct OnTouchMoveViewportSpaceEvent {
     V2f viewportPos{V2fc::HUGE_VALUE_NEG};
 };
 
+struct OnSingleTapEvent {
+    V2f mousePos{V2fc::HUGE_VALUE_NEG};
+};
+
 struct OnTouchUpEvent {
     V2f mousePos{V2fc::HUGE_VALUE_NEG};
 };
+
+struct OnSingleTapViewportSpaceEvent {
+    V2f viewportPos{V2fc::HUGE_VALUE_NEG};
+};
+
 struct OnTouchUpViewportSpaceEvent {
     V2f viewportPos{V2fc::HUGE_VALUE_NEG};
 };

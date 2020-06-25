@@ -26,43 +26,65 @@ struct ExitFeatureManipulation {
     }
 };
 
-struct TouchedDownFirstTimeFeatureManipulationGuard {
-    bool operator()( const OnFirstTimeTouchDownViewportSpaceEvent& mouseEvent, ArchOrchestrator& hm,
-                     ArchRenderController& arc ) noexcept {
-        if ( !hm.H() ) return false;
-        float aroundDistance = 0.05f;
-        auto is = mouseEvent.viewportPos;
-        auto afs = WallService::getNearestFeatureToPoint(hm.H(), is, aroundDistance);
-        if ( afs.feature != ArchStructuralFeature::ASF_None ) {
-            arc.singleToggleSelection(afs, is, SelectionFlags::RemoveAtTouchUp);
+enum class TouchedSelectionFlag {
+    Keep,
+    Toggle
+};
+
+static inline bool touchSelection( const V2f& is, TouchedSelectionFlag tsf, ArchOrchestrator& asg, ArchRenderController& arc) {
+    if ( !asg.H() ) return false;
+    float aroundDistance = 0.05f;
+    auto afs = WallService::getNearestFeatureToPoint(asg.H(), is, aroundDistance);
+    if ( afs.feature != ArchStructuralFeature::ASF_None ) {
+        if ( tsf == TouchedSelectionFlag::Toggle ) arc.singleSelectionToggle(afs, is, SelectionFlags::RemoveAtTouchUp);
+        if ( tsf == TouchedSelectionFlag::Keep ) arc.singleSelectionKeep(afs, is, SelectionFlags::RemoveAtTouchUp);
+        return true;
+    } else {
+        if ( auto door = HouseService::point<DoorBSData, IsInside>(asg.H(), is); door ) {
+            afs.feature = ArchStructuralFeature::ASF_Poly;
+            afs.elem = door.get();
+            if ( tsf == TouchedSelectionFlag::Toggle ) arc.singleSelectionToggle(afs, is);
+            if ( tsf == TouchedSelectionFlag::Keep ) arc.singleSelectionKeep(afs, is);
             return true;
-        } else {
-            if ( auto door = HouseService::point<DoorBSData, IsInside>(hm.H(), is); door ) {
-                afs.feature = ArchStructuralFeature::ASF_Poly;
-                afs.elem = door.get();
-                arc.singleToggleSelection(afs, is);
-                return true;
-            }
-            if ( auto window = HouseService::point<WindowBSData, IsInside>(hm.H(), is); window ) {
-                afs.feature = ArchStructuralFeature::ASF_Poly;
-                afs.elem = window.get();
-                arc.singleToggleSelection(afs, is);
-                return true;
-            }
-            if ( auto ff = HouseService::point<FittedFurniture, IsInside>(hm.H(), is); ff ) {
-                afs.feature = ArchStructuralFeature::ASF_Poly;
-                afs.elem = ff.get();
-                arc.singleToggleSelection(afs, is);
-                return true;
-            }
-            if ( auto room = HouseService::point<RoomBSData, IsInside>(hm.H(), is); room ) {
-                afs.feature = ArchStructuralFeature::ASF_Poly;
-                afs.elem = room.get();
-                arc.singleToggleSelection(afs, is);
-                return true;
-            }
         }
-        return false;
+        if ( auto window = HouseService::point<WindowBSData, IsInside>(asg.H(), is); window ) {
+            afs.feature = ArchStructuralFeature::ASF_Poly;
+            afs.elem = window.get();
+            if ( tsf == TouchedSelectionFlag::Toggle ) arc.singleSelectionToggle(afs, is);
+            if ( tsf == TouchedSelectionFlag::Keep ) arc.singleSelectionKeep(afs, is);
+            return true;
+        }
+        if ( auto ff = HouseService::point<FittedFurniture, IsInside>(asg.H(), is); ff ) {
+            afs.feature = ArchStructuralFeature::ASF_Poly;
+            afs.elem = ff.get();
+            if ( tsf == TouchedSelectionFlag::Toggle ) arc.singleSelectionToggle(afs, is);
+            if ( tsf == TouchedSelectionFlag::Keep ) arc.singleSelectionKeep(afs, is);
+            return true;
+        }
+        if ( auto room = HouseService::point<RoomBSData, IsInside>(asg.H(), is); room ) {
+            afs.feature = ArchStructuralFeature::ASF_Poly;
+            afs.elem = room.get();
+            if ( tsf == TouchedSelectionFlag::Toggle ) arc.singleSelectionToggle(afs, is);
+            if ( tsf == TouchedSelectionFlag::Keep ) arc.singleSelectionKeep(afs, is);
+            return true;
+        }
+    }
+    return false;
+}
+
+struct SingleTapViewportSpaceFeatureManipulationGuard {
+    bool operator()( const OnSingleTapViewportSpaceEvent& mouseEvent, ArchOrchestrator& asg,
+                     ArchRenderController& arc ) noexcept {
+        return touchSelection( mouseEvent.viewportPos, TouchedSelectionFlag::Toggle, asg, arc );
+    }
+};
+
+struct TouchedDownFirstTimeFeatureManipulationGuard {
+    bool operator()( const OnFirstTimeTouchDownViewportSpaceEvent& mouseEvent, ArchOrchestrator& asg,
+                     ArchRenderController& arc ) noexcept {
+        bool res = touchSelection( mouseEvent.viewportPos, TouchedSelectionFlag::Keep, asg, arc );
+        LOGRS("First touch res: " << res );
+        return res;
     }
 };
 

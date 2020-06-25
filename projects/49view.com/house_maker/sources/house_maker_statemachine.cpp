@@ -87,9 +87,14 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
         backEnd->process_event(OnTouchMoveEvent{ _aid.mousePos(TOUCH_ZERO) });
         backEnd->process_event(OnTouchMoveViewportSpaceEvent{ _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC()) });
     }
-    if ( _aid.isMouseTouchedUp(TOUCH_ZERO) ) {
-        backEnd->process_event(OnTouchUpEvent{ _aid.mousePos(TOUCH_ZERO) });
-        backEnd->process_event(OnTouchUpViewportSpaceEvent{ _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC()) });
+    if ( _aid.isMouseSingleTap( TOUCH_ZERO) ) {
+        backEnd->process_event(OnSingleTapEvent{ _aid.mousePos(TOUCH_ZERO) });
+        backEnd->process_event(OnSingleTapViewportSpaceEvent{ _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC()) });
+    } else {
+        if ( _aid.isMouseTouchedUp(TOUCH_ZERO) ) {
+            backEnd->process_event(OnTouchUpEvent{ _aid.mousePos(TOUCH_ZERO) });
+            backEnd->process_event(OnTouchUpViewportSpaceEvent{ _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC()) });
+        }
     }
 
     if ( _aid.TI().checkKeyToggleOn(GMK_A) ) {

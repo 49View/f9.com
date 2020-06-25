@@ -31,6 +31,7 @@ struct FrontEndStateMachineSML {
             ,state<class HouseMaker> + event<OnBrowserDollyHouseToggleEvent> / ActivateBrowsingDollyHouse{} = state<class BrowsingDollyHouse>
             ,state<class HouseMaker> + event<OnKeyToggleEvent> / KeyToggleHouseMaker{}
             ,state<class HouseMaker> + event<OnFirstTimeTouchDownViewportSpaceEvent>[TouchedDownFirstTimeFeatureManipulationGuard{}] / EnterFeatureManipulation{} = state<class FeatureManipulation>
+            ,state<class HouseMaker> + event<OnSingleTapViewportSpaceEvent>[SingleTapViewportSpaceFeatureManipulationGuard{}] / EnterFeatureManipulation{} = state<class FeatureManipulation>
 
             ,state<class Browsing3d> + event<OnBrowserTopDown3dToggleEvent> / ActivateHouseMakerWithTopDown3d{} = state<class HouseMaker>
             ,state<class Browsing3d> + event<OnHouseMakerToggleEvent> / ActivateHouseMaker{} = state<class HouseMaker>
@@ -69,6 +70,7 @@ struct FrontEndStateMachineSML {
             ,state<class FeatureManipulation> + event<OnDeleteEvent>[DeleteFeatureManipulation{}] / ExitFeatureManipulation{} = state<class HouseMaker>
             ,state<class FeatureManipulation> + event<OnFirstTimeTouchDownViewportSpaceEvent>[TouchedDownFirstTimeFittedFurnitureGuard{}] / EnterFittedFurniture{} = state<class FittedFurnitureManipulation>
             ,state<class FeatureManipulation> + event<OnTouchUpViewportSpaceEvent>[TouchUpEventFeatureManipulation{}] / ExitFeatureManipulation{} = state<class HouseMaker>
+            ,state<class FeatureManipulation> + event<OnSingleTapViewportSpaceEvent>[SingleTapViewportSpaceFeatureManipulationGuard{}] / ExitFeatureManipulation{} = state<class HouseMaker>
             ,state<class FeatureManipulation> + event<OnLoadFloorPlanEvent> / LoadFloorPlan{}
             ,state<class FeatureManipulation> + event<OnMakeHouse3dEvent> / MakeHouse3d{}
             ,state<class FeatureManipulation> + event<OnElaborateHouseBitmapEvent> / ElaborateHouseBitmap{}
