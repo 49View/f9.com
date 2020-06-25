@@ -36,8 +36,8 @@ public:
                    HouseMakerSelectionEditor& selectionEditor, PropertyListingOrchestrator& _plo ) : cli(_cli), sg(sg), rsg(rsg), asg(asg), arc(arc),
                                                                   selectionEditor(selectionEditor), plo(_plo) {
         rsg.setDragAndDropFunction(std::bind(&HouseMakerGUI::elaborateHouseCallback, this, std::placeholders::_1));
-        Http::get(Url{ "/property/list/0/40" }, [&]( HttpResponeParams params ) {
-            plo.PropertyList() = deserializeVector<PropertyListing>(params.bufferString);
+        Http::getNoCache(Url{ "/property/list/0/40" }, [&]( HttpResponeParams params ) {
+            plo.PropertyList() = deserializeVector<PropertyListing>(params.BufferString());
         });
     }
 

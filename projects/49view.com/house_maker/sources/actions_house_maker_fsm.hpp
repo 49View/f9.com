@@ -187,7 +187,7 @@ struct ImportExcaliburLink {
         auto body = ExcaliburPostBody{ event.excaliburLink, false };
         Http::post(Url{ "/property/fetch/floorplan/excalibur" }, body.serialize(),
                    [&]( HttpResponeParams params ) {
-                       PropertyListing property{ params.bufferString };
+                       PropertyListing property{ params.BufferString() };
                        prepareProperty(property, asg, *cli.getParam("mediaFolder"));
 //                    asg.saveHouse();
                    });
@@ -199,7 +199,7 @@ struct CreateNewPropertyFromFloorplanImage {
                      OnCreateNewPropertyFromFloorplanImageEvent event ) {
         Http::post(Url{ "/property/newFromImage/" + url_encode(getFileName(event.floorplanFileName)) },
                    FM::readLocalFileC(event.floorplanFileName), [&]( HttpResponeParams params ) {
-                    PropertyListing property{ params.bufferString };
+                    PropertyListing property{ params.BufferString() };
                     prepareProperty(property, asg, *cli.getParam("mediaFolder"));
                     asg.saveHouse();
                 });
