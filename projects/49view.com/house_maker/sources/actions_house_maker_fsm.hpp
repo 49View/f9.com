@@ -152,14 +152,14 @@ struct UpdateHMB {
 };
 
 
+static inline void prepareProperty( const PropertyListing& property, ArchOrchestrator& asg, const std::string& mediaFolder ) {
 
-static inline void prepareProperty( const PropertyListing& property, SceneGraph& sg, ArchOrchestrator& asg ) {
-    asg.loadHouse(property._id, [&, property]() {
-        HouseMakerBitmap::createSourceDataImage(asg.H(), property);
+    asg.loadHouse(property._id, [&, property, mediaFolder]() {
+        HouseMakerBitmap::createSourceDataImage(asg.H(), property, mediaFolder);
         asg.centerCameraMiddleOfHouse();
         asg.onEvent(ArchIOEvents::AIOE_OnLoad);
     }, [&, property]() {
-        asg.setHouse(HouseMakerBitmap::makeEmpty(property));
+        asg.setHouse(HouseMakerBitmap::makeEmpty(property, mediaFolder));
         asg.centerCameraMiddleOfHouse();
         asg.onEvent(ArchIOEvents::AIOE_OnLoad);
     });
@@ -175,32 +175,32 @@ struct CreateHouseTextures {
     }
 };
 
-JSONDATA( ExcaliburPostBody, url, upsert )
+JSONDATA(ExcaliburPostBody, url, upsert)
     std::string url;
     bool upsert = false;
     ExcaliburPostBody( const std::string& url, bool upsert ) : url(url), upsert(upsert) {}
 };
 
 struct ImportExcaliburLink {
-    void operator()( SceneGraph& sg, ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc,
+    void operator()( SceneGraph& sg, ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc, const CLIParamMap& cli,
                      OnImportExcaliburLinkEvent event ) {
-        auto body = ExcaliburPostBody{ event.excaliburLink, false};
-        Http::post(Url{ "/property/fetch/floorplan/excalibur"}, body.serialize(),
+        auto body = ExcaliburPostBody{ event.excaliburLink, false };
+        Http::post(Url{ "/property/fetch/floorplan/excalibur" }, body.serialize(),
                    [&]( HttpResponeParams params ) {
-                    PropertyListing property{ params.bufferString };
-                    prepareProperty(property, sg, asg);
+                       PropertyListing property{ params.BufferString() };
+                       prepareProperty(property, asg, *cli.getParam("mediaFolder"));
 //                    asg.saveHouse();
-                });
+                   });
     }
 };
 
 struct CreateNewPropertyFromFloorplanImage {
-    void operator()( SceneGraph& sg, ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc,
+    void operator()( SceneGraph& sg, ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc, const CLIParamMap& cli,
                      OnCreateNewPropertyFromFloorplanImageEvent event ) {
         Http::post(Url{ "/property/newFromImage/" + url_encode(getFileName(event.floorplanFileName)) },
                    FM::readLocalFileC(event.floorplanFileName), [&]( HttpResponeParams params ) {
-                    PropertyListing property{ params.bufferString };
-                    prepareProperty(property, sg, asg);
+                    PropertyListing property{ params.BufferString() };
+                    prepareProperty(property, asg, *cli.getParam("mediaFolder"));
                     asg.saveHouse();
                 });
     }
@@ -208,8 +208,9 @@ struct CreateNewPropertyFromFloorplanImage {
 
 struct LoadFloorPlan {
     void operator()( SceneGraph& sg, ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc,
+                     const CLIParamMap& cli,
                      OnLoadFloorPlanEvent event ) {
-        prepareProperty(event.property, sg, asg);
+        prepareProperty(event.property, asg, *cli.getParam("mediaFolder"));
     }
 };
 

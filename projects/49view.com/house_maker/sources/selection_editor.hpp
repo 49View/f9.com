@@ -205,7 +205,7 @@ public:
                                RemoteEntitySelector& _res ) : sg(sg), rsg(rsg), asg(asg), arc(arc), plo(_plo),
                                                               res(_res) {}
     template<typename BE>
-    void update( BE *backEnd ) {
+    void update( BE *backEnd, const std::string& mediaFolder ) {
 
         // Just send this message every frame to compound few checks on position (automatic room selections etc)
         if ( asg.H() ) {
@@ -218,7 +218,7 @@ public:
         if ( selected ) {
             switch ( selected->elem->type ) {
                 case RoomT:
-                    roomSelector(dynamic_cast<RoomBSData*>(selected->elem), backEnd);
+                    roomSelector(dynamic_cast<RoomBSData*>(selected->elem), backEnd, mediaFolder );
                     break;
                 case WallT:
                     HouseService::findRoomArchSegmentWithWallHash(asg.H(), selected->elem->hash, selected->index);
@@ -228,13 +228,13 @@ public:
             }
         } else {
             // Activate property (listing) view so one can change listing attributes in here
-            propertyLister();
+            propertyLister(mediaFolder);
         }
         ImGui::End();
     }
 
 private:
-    void propertyLister() {
+    void propertyLister( const std::string& mediaFolder ) {
         ImGui::LabelText("Name", "%s", plo.ActiveProperty().name.c_str());
         ImGui::LabelText("addressLine1", "%s", plo.ActiveProperty().addressLine1.c_str());
         ImGui::LabelText("addressLine2", "%s", plo.ActiveProperty().addressLine2.c_str());
@@ -253,7 +253,8 @@ private:
         for ( const auto& thumb : plo.ActiveProperty().thumbs ) {
             if ( thumb.empty() ) continue;
             if ( !sg.exists(ResourceGroup::Image, thumb) ) {
-                sg.addRawImage(thumb, RawImage{ FM::readLocalFileC("/home/dado/media/media/" + thumb) });
+                std::string filename = mediaFolder + thumb;
+                sg.addRawImage(thumb, RawImage{ FM::readLocalFileC(filename)});
             } else {
                 auto im = rsg.TH(thumb);
                 if ( imgCounter++ % 4 != 0 ) ImGui::SameLine();
@@ -407,8 +408,8 @@ private:
     }
 
     template<typename BE>
-    void roomSelector( RoomBSData *room, BE *backEnd ) {
-        res.update(backEnd, sg, rsg, room);
+    void roomSelector( RoomBSData *room, BE *backEnd, const std::string& mediaFolder ) {
+        res.update(backEnd, mediaFolder, sg, rsg, room);
         materialChange(GHType::Wall, room);
         ImGui::SameLine();
         materialChange(GHType::Floor, room);

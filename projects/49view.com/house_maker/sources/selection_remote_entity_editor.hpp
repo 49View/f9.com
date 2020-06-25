@@ -44,7 +44,7 @@ public:
     }
 
     template<typename BE, typename R>
-    void update( BE *backEnd, SceneGraph& sg, RenderOrchestrator& rsg, R *_resource ) {
+    void update( BE *backEnd, const std::string& mediaFolder, SceneGraph& sg, RenderOrchestrator& rsg, R *_resource ) {
 
         if ( !_resource )return;
         target = getCommonMaterialChangeMapping(label, _resource);
@@ -71,7 +71,7 @@ public:
                     auto imr = sg.get<RawImage>(meta.thumb);
                     if ( !imr ) {
                         sg.addRawImageIM(meta.thumb, RawImage{ FM::readLocalFileC(
-                                "/home/dado/media/media/entities/" + meta.group + "/" + meta.thumb) });
+                                mediaFolder + "entities/" + meta.group + "/" + meta.thumb) });
                     }
                     auto im = rsg.TH(meta.thumb);
                     if ( im ) {
