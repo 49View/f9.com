@@ -32,8 +32,8 @@
 template<typename T>
 class HouseMakerGUI : public BackEndService<T> {
 public:
-    HouseMakerGUI( SceneGraph& sg, RenderOrchestrator& rsg, ArchOrchestrator& asg, ArchRenderController& arc,
-                   HouseMakerSelectionEditor& selectionEditor, PropertyListingOrchestrator& _plo ) : sg(sg), rsg(rsg), asg(asg), arc(arc),
+    HouseMakerGUI( const CLIParamMap& _cli, SceneGraph& sg, RenderOrchestrator& rsg, ArchOrchestrator& asg, ArchRenderController& arc,
+                   HouseMakerSelectionEditor& selectionEditor, PropertyListingOrchestrator& _plo ) : cli(_cli), sg(sg), rsg(rsg), asg(asg), arc(arc),
                                                                   selectionEditor(selectionEditor), plo(_plo) {
         rsg.setDragAndDropFunction(std::bind(&HouseMakerGUI::elaborateHouseCallback, this, std::placeholders::_1));
         Http::get(Url{ "/property/list/0/40" }, [&]( HttpResponeParams params ) {
@@ -234,7 +234,7 @@ public:
 
         ImGuiLuaConsole(rsg);
 
-        selectionEditor.update(this->BackEnd());
+        selectionEditor.update(this->BackEnd(), *cli.getParam("mediaFolder"));
 
 //        ImGui::ShowDemoWindow();
 
@@ -266,7 +266,12 @@ public:
 
     }
 
+    std::string MediaFolder() const {
+        return *cli.getParam("mediaFolder");
+    }
+
 private:
+    const CLIParamMap& cli;
     SceneGraph& sg;
     RenderOrchestrator& rsg;
     ArchOrchestrator& asg;

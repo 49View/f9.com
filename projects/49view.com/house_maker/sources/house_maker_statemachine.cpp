@@ -21,8 +21,8 @@ HouseMakerStateMachine::HouseMakerStateMachine( SceneGraph& _sg, RenderOrchestra
         asg(_asg), arc(_arc), selectionEditor(_se), plo(_plo) {
     arc.renderMode(FloorPlanRenderMode::Debug3d);
     rb = std::make_shared<RoomBuilder>(_sg, _rsg);
-    backEnd = std::make_shared<FrontEnd>(*this, rb.get(), _asg, _sg, _rsg, _arc);
-    gui = std::make_shared<HouseMakerGUI<FrontEnd>>(_sg, _rsg, _asg, _arc, _se, _plo);
+    backEnd = std::make_shared<FrontEnd>(*this, this->cliParams, rb.get(), _asg, _sg, _rsg, _arc);
+    gui = std::make_shared<HouseMakerGUI<FrontEnd>>(this->cliParams, _sg, _rsg, _asg, _arc, _se, _plo);
     gui->setBackEnd(backEnd);
 }
 
