@@ -18,6 +18,7 @@ struct ActivateHouseMaker {
     void
     operator()( SceneGraph& sg, ArchRenderController& arc, RenderOrchestrator& rsg, ArchOrchestrator& asg ) noexcept {
         arc.setViewingMode(ArchViewingMode::AVM_TopDown2d);
+        rsg.RR().showBucket(CommandBufferLimits::PBRStart, arc.getViewingMode() != ArchViewingMode::AVM_TopDown2d);
         rsg.setRigCameraController(CameraControlType::Edit2d);
         rsg.DC()->LockAtWalkingHeight(false);
         auto quatAngles = V3f{ M_PI_2, 0.0f, 0.0f };
@@ -57,15 +58,16 @@ static inline void show3dViewInternal( ArchOrchestrator& asg, std::function<void
 
 struct ActivateHouseMakerWithTopDown3d {
     void
-    operator()( SceneGraph& sg, ArchOrchestrator& asg, HouseMakerStateMachine& hm, RenderOrchestrator& rsg ) noexcept {
+    operator()( SceneGraph& sg, ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) noexcept {
         auto show3d = [&]() {
-            hm.ARC().setViewingMode(ArchViewingMode::AVM_TopDown3d);
+            arc.setViewingMode(ArchViewingMode::AVM_TopDown3d);
+            rsg.RR().showBucket(CommandBufferLimits::PBRStart, arc.getViewingMode() != ArchViewingMode::AVM_TopDown2d);
             rsg.setRigCameraController(CameraControlType::Edit2d);
             rsg.DC()->LockAtWalkingHeight(false);
             auto quatAngles = V3f{ M_PI_2, 0.0f, 0.0f };
             rsg.DC()->setIncrementQuatAngles(quatAngles);
             rsg.useSkybox(false);
-            hm.ARC().setFloorPlanTransparencyFactor(0.0f);
+            arc.setFloorPlanTransparencyFactor(0.0f);
             asg.showIMHouse();
             auto quat = quatCompose(quatAngles);
             Timeline::play(rsg.DC()->QAngleAnim(), 0, KeyFramePair{ 0.9f, quat });
@@ -87,6 +89,7 @@ struct ActivateBrowsing3d {
 
         auto show3d = [&]() {
             arc.setViewingMode(ArchViewingMode::AVM_Walk);
+            rsg.RR().showBucket(CommandBufferLimits::PBRStart, arc.getViewingMode() != ArchViewingMode::AVM_TopDown2d);
             rsg.setRigCameraController(CameraControlType::Walk);
             rsg.useSkybox(true);
             V3f pos = V3f::ZERO;
@@ -110,9 +113,10 @@ struct ActivateBrowsing3d {
 
 struct ActivateBrowsingDollyHouse {
     void
-    operator()( SceneGraph& sg, ArchOrchestrator& asg, HouseMakerStateMachine& hm, RenderOrchestrator& rsg ) noexcept {
+    operator()( SceneGraph& sg, ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) noexcept {
         auto show3d = [&]() {
-            hm.ARC().setViewingMode(ArchViewingMode::AVM_DollHouse);
+            arc.setViewingMode(ArchViewingMode::AVM_DollHouse);
+            rsg.RR().showBucket(CommandBufferLimits::PBRStart, arc.getViewingMode() != ArchViewingMode::AVM_TopDown2d);
             rsg.setRigCameraController(CameraControlType::Fly);
             rsg.useSkybox(true);
             V3f pos = V3f::ZERO;
@@ -250,6 +254,8 @@ struct MakeHouse3d {
     void operator()( ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) {
         //HouseService::guessFittings( asg.H(), asg.FurnitureMap() );
         asg.make3dHouse([&]() {
+            rsg.RR().showBucket(CommandBufferLimits::PBRStart, arc.getViewingMode() != ArchViewingMode::AVM_TopDown2d);
+            rsg.useSkybox(arc.getViewingMode() != ArchViewingMode::AVM_TopDown2d);
             if ( arc.getViewingMode() == ArchViewingMode::AVM_DollHouse ||
                  arc.getViewingMode() == ArchViewingMode::AVM_TopDown3d ) {
                 rsg.RR().setVisibilityOnTags(ArchType::CeilingT, false);

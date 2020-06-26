@@ -119,6 +119,7 @@ struct TouchMoveFeatureManipulation {
             } else {
                 WallService::moveFeature( asf, offset, false);
                 HouseService::recalculateBBox(asg.H());
+                HouseMakerBitmap::makeFromWalls(asg.H());
             }
         });
         return true;
@@ -134,14 +135,17 @@ struct TouchUpEventFeatureManipulation {
 };
 
 struct DeleteFeatureManipulation {
-    bool operator()( ArchRenderController& arc, ArchOrchestrator& hm ) noexcept {
+    bool operator()( ArchRenderController& arc, ArchOrchestrator& asg, RenderOrchestrator& rsg ) noexcept {
         arc.deleteElementsOnSelectionList([&]( const ArchStructuralFeatureDescriptor& asf ) {
             if ( asf.feature == ArchStructuralFeature::ASF_Poly ) {
-                HouseService::removeArch(hm.H(), asf.elem->hash);
+                HouseService::removeArch(asg.H(), asf.elem->hash);
             } else {
                 WallService::deleteFeature(asf);
-                HouseService::recalculateBBox(hm.H());
+                HouseService::recalculateBBox(asg.H());
             }
+            MakeHouse3d{}(asg, rsg, arc);
+            asg.showIMHouse();
+
         });
         return true;
     }
