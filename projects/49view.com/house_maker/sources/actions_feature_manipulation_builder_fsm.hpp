@@ -38,44 +38,53 @@ static inline bool touchSelection( const V2f& is, TouchedSelectionFlag tsf, Arch
     if ( afs.feature != ArchStructuralFeature::ASF_None ) {
         if ( tsf == TouchedSelectionFlag::Toggle ) arc.singleSelectionToggle(afs, is, SelectionFlags::RemoveAtTouchUp);
         if ( tsf == TouchedSelectionFlag::Keep ) arc.singleSelectionKeep(afs, is, SelectionFlags::RemoveAtTouchUp);
-        return true;
+        return arc.selectionCount() > 0;
     } else {
         if ( auto door = HouseService::point<DoorBSData, IsInside>(asg.H(), is); door ) {
             afs.feature = ArchStructuralFeature::ASF_Poly;
             afs.elem = door.get();
             if ( tsf == TouchedSelectionFlag::Toggle ) arc.singleSelectionToggle(afs, is);
             if ( tsf == TouchedSelectionFlag::Keep ) arc.singleSelectionKeep(afs, is);
-            return true;
+            return arc.selectionCount() > 0;
         }
         if ( auto window = HouseService::point<WindowBSData, IsInside>(asg.H(), is); window ) {
             afs.feature = ArchStructuralFeature::ASF_Poly;
             afs.elem = window.get();
             if ( tsf == TouchedSelectionFlag::Toggle ) arc.singleSelectionToggle(afs, is);
             if ( tsf == TouchedSelectionFlag::Keep ) arc.singleSelectionKeep(afs, is);
-            return true;
+            return arc.selectionCount() > 0;
         }
         if ( auto ff = HouseService::point<FittedFurniture, IsInside>(asg.H(), is); ff ) {
             afs.feature = ArchStructuralFeature::ASF_Poly;
             afs.elem = ff.get();
             if ( tsf == TouchedSelectionFlag::Toggle ) arc.singleSelectionToggle(afs, is);
             if ( tsf == TouchedSelectionFlag::Keep ) arc.singleSelectionKeep(afs, is);
-            return true;
+            return arc.selectionCount() > 0;
         }
         if ( auto room = HouseService::point<RoomBSData, IsInside>(asg.H(), is); room ) {
             afs.feature = ArchStructuralFeature::ASF_Poly;
             afs.elem = room.get();
             if ( tsf == TouchedSelectionFlag::Toggle ) arc.singleSelectionToggle(afs, is);
             if ( tsf == TouchedSelectionFlag::Keep ) arc.singleSelectionKeep(afs, is);
-            return true;
+            return arc.selectionCount() > 0;
         }
     }
-    return false;
+    // If it gets here and didn't hit anything it means that it points nothing, so clear the selections
+    arc.resetSelection();
+    return false;//arc.selectionCount() > 0;
 }
+
+struct SingleTapViewportHouseMakerManipulationGuard {
+    bool operator()( const OnSingleTapViewportSpaceEvent& mouseEvent, ArchOrchestrator& asg,
+                     ArchRenderController& arc ) noexcept {
+        return touchSelection( mouseEvent.viewportPos, TouchedSelectionFlag::Toggle, asg, arc );
+    }
+};
 
 struct SingleTapViewportSpaceFeatureManipulationGuard {
     bool operator()( const OnSingleTapViewportSpaceEvent& mouseEvent, ArchOrchestrator& asg,
                      ArchRenderController& arc ) noexcept {
-        return touchSelection( mouseEvent.viewportPos, TouchedSelectionFlag::Toggle, asg, arc );
+        return !touchSelection( mouseEvent.viewportPos, TouchedSelectionFlag::Toggle, asg, arc );
     }
 };
 
@@ -83,23 +92,17 @@ struct TouchedDownFirstTimeFeatureManipulationGuard {
     bool operator()( const OnFirstTimeTouchDownViewportSpaceEvent& mouseEvent, ArchOrchestrator& asg,
                      ArchRenderController& arc ) noexcept {
         bool res = touchSelection( mouseEvent.viewportPos, TouchedSelectionFlag::Keep, asg, arc );
-        LOGRS("First touch res: " << res );
+        UpdateFeatureManipulation()(asg);
         return res;
     }
 };
 
 struct TouchedDownFirstTimeFittedFurnitureGuard {
-    bool operator()( const OnFirstTimeTouchDownViewportSpaceEvent& mouseEvent, ArchOrchestrator& hm,
+    bool operator()( const OnFirstTimeTouchDownViewportSpaceEvent& mouseEvent, ArchOrchestrator& asg,
                      ArchRenderController& arc ) noexcept {
-//        if ( !hm.H() ) return false;
-//        float aroundDistance = 0.05f;
-//        auto is = mouseEvent.viewportPos;
-//        if ( auto ff = HouseService::point<FittedFurniture, IsInside>(hm.H(), is); ff ) {
-//            afs.feature = ArchStructuralFeature::ASF_Box;
-//            arc.singleToggleSelection(afs, is);
-//            return true;
-//        }
-        return false;
+        bool res = touchSelection( mouseEvent.viewportPos, TouchedSelectionFlag::Keep, asg, arc );
+        UpdateFeatureManipulation()(asg);
+        return !res;
     }
 };
 
