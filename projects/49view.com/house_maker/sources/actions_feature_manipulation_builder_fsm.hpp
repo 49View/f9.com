@@ -146,6 +146,7 @@ struct TouchMoveFeatureManipulation {
 
 struct TouchUpEventFeatureManipulation {
     bool operator()( ArchRenderController& arc, ArchOrchestrator& asg, RenderOrchestrator& rsg ) noexcept {
+        asg.pushHouseChange();
         MakeHouse3d{}(asg, rsg, arc);
         asg.showIMHouse();
         return true;
@@ -155,7 +156,6 @@ struct TouchUpEventFeatureManipulation {
 struct DeleteFeatureManipulation {
     bool operator()( ArchRenderController& arc, ArchOrchestrator& asg, RenderOrchestrator& rsg ) noexcept {
         arc.deleteElementsOnSelectionList([&]( const ArchStructuralFeatureDescriptor& asf ) {
-            asg.pushHouseChange();
             if ( asf.feature == ArchStructuralFeature::ASF_Poly ) {
                 HouseService::removeArch(asg.H(), asf.elem->hash);
             } else {
@@ -164,7 +164,7 @@ struct DeleteFeatureManipulation {
             }
             MakeHouse3d{}(asg, rsg, arc);
             asg.showIMHouse();
-
+            asg.pushHouseChange();
         });
         return true;
     }
@@ -173,7 +173,6 @@ struct DeleteFeatureManipulation {
 struct SpaceToggleFeatureManipulation {
     bool operator()( ArchRenderController& arc, ArchOrchestrator& asg ) noexcept {
         arc.toggleElementsOnSelectionList([&]( const ArchStructuralFeatureDescriptor& asf ) {
-            asg.pushHouseChange();
             switch ( asf.elem->type ) {
                 case DoorT:
                     DoorService::toggleOrientations(dynamic_cast<DoorBSData*>(asf.elem));
@@ -184,6 +183,7 @@ struct SpaceToggleFeatureManipulation {
                 default:
                     break;
             }
+            asg.pushHouseChange();
         });
         return true;
     }
@@ -192,7 +192,6 @@ struct SpaceToggleFeatureManipulation {
 struct IncrementalScaleFeatureManipulation {
     bool operator()( ArchRenderController& arc, ArchOrchestrator& asg, OnIncrementalScaleEvent event ) noexcept {
         arc.toggleElementsOnSelectionList([&]( const ArchStructuralFeatureDescriptor& asf ) {
-            asg.pushHouseChange();
             switch ( asf.elem->type ) {
                 case FittedFurnitureT:
                     RoomServiceFurniture::scaleIncrementalFurniture(dynamic_cast<FittedFurniture*>(asf.elem), event.incrementalScaleFactor );
@@ -200,6 +199,7 @@ struct IncrementalScaleFeatureManipulation {
                 default:
                     break;
             }
+            asg.pushHouseChange();
         });
         return true;
     }
@@ -208,8 +208,8 @@ struct IncrementalScaleFeatureManipulation {
 struct SpecialSpaceToggleFeatureManipulation {
     bool operator()( ArchRenderController& arc, HouseMakerStateMachine& hm, ArchOrchestrator& asg ) noexcept {
         arc.toggleElementsOnSelectionList([&]( const ArchStructuralFeatureDescriptor& asf ) {
-            asg.pushHouseChange();
             HouseMakerBitmap::makeFromSwapDoorOrWindow(asg.H(), asf.elem->hash);
+            asg.pushHouseChange();
         });
         return true;
     }
@@ -219,20 +219,20 @@ struct SpecialSpaceToggleFeatureManipulation {
 struct KeyToggleFeatureManipulation {
     bool operator()( ArchRenderController& arc, ArchOrchestrator& asg, OnKeyToggleEvent keyEvent ) noexcept {
         if ( keyEvent.keyCode == GMK_A ) {
-            asg.pushHouseChange();
             arc.splitFirstEdgeOnSelectionList([&]( const ArchStructuralFeatureDescriptor& asf, const V2f& offset ) {
                 WallService::splitEdgeAndAddPointInTheMiddle(asf, offset);
                 HouseService::recalculateBBox(asg.H());
             });
+            asg.pushHouseChange();
             arc.resetSelection();
             return true;
         }
         if ( keyEvent.keyCode == GMK_D ) {
-            asg.pushHouseChange();
             auto fus = WallService::createTwoShapeAt(asg.H(), keyEvent.viewportPos);
             if ( FloorService::isFloorUShapeValid(fus) ) {
                 HouseMakerBitmap::makeAddDoor(asg.H(), fus);
             }
+            asg.pushHouseChange();
             return true;
         }
         return false;
