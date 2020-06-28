@@ -174,20 +174,22 @@ updateSourceImagesIntoScene( SceneGraph& sg, ArchOrchestrator& asg, const Source
 
 struct UpdateHMB {
     void operator()( SceneGraph& sg, ArchOrchestrator& asg ) {
-        updateSourceImagesIntoScene(sg, asg, HouseMakerBitmap::prepareImages(asg.H()));
+        updateSourceImagesIntoScene(sg, asg, HouseMakerBitmap::prepareImages(asg.H(), *sg.get<RawImage>(asg.H()->propertyId)));
     }
 };
 
 
 static inline void
-prepareProperty( const PropertyListing& property, ArchOrchestrator& asg, const std::string& mediaFolder ) {
+prepareProperty( const PropertyListing& property, ArchOrchestrator& asg, SceneGraph& sg, const std::string& mediaFolder ) {
 
-    asg.loadHouse(property._id, [&, property, mediaFolder]() {
-        HouseMakerBitmap::createSourceDataImage(asg.H(), property, mediaFolder);
+    auto floorplanImage = RawImage{ FM::readLocalFileC(mediaFolder + property.floorplanUrl) };
+    sg.addRawImageIM(property._id, floorplanImage);
+    asg.loadHouse(property._id, [&, property]() {
+        HouseMakerBitmap::prepareImages( asg.H(), *sg.get<RawImage>(property._id) );
         asg.centerCameraMiddleOfHouse();
         asg.onEvent(ArchIOEvents::AIOE_OnLoad);
     }, [&, property]() {
-        asg.setHouse(HouseMakerBitmap::makeEmpty(property, mediaFolder));
+        asg.setHouse(HouseMakerBitmap::makeEmpty(property, *sg.get<RawImage>(property._id)));
         asg.centerCameraMiddleOfHouse();
         asg.onEvent(ArchIOEvents::AIOE_OnLoad);
     });
@@ -197,14 +199,6 @@ prepareProperty( const PropertyListing& property, ArchOrchestrator& asg, const s
 struct CreateHouseTextures {
     void operator()( SceneGraph& sg, ArchOrchestrator& asg ) {
         updateSourceImagesIntoScene(sg, asg, HouseMakerBitmap::getSourceImages());
-        sg.addRawImageIM(asg.H()->propertyId, asg.H()->sourceData.image);
-        if ( asg.H()->sourceData.floorPlanBBox.size().x() == 0.0f ||
-             asg.H()->sourceData.floorPlanBBox.size().y() == 0.0f ) {
-            asg.H()->sourceData.floorPlanBBox = Rect2f{ V2fc::ZERO, V2f{ asg.H()->sourceData.image.width *
-                                                                         asg.H()->sourceData.rescaleFactor,
-                                                                         asg.H()->sourceData.image.height *
-                                                                         asg.H()->sourceData.rescaleFactor } };
-        }
         asg.showIMHouse();
         asg.onEvent(ArchIOEvents::AIOE_OnLoadComplete);
     }
@@ -224,7 +218,7 @@ struct ImportExcaliburLink {
         Http::post(Url{ "/property/fetch/floorplan/excalibur" }, body.serialize(),
                    [&]( HttpResponeParams params ) {
                        PropertyListing property{ params.BufferString() };
-                       prepareProperty(property, asg, *cli.getParam("mediaFolder"));
+                       prepareProperty(property, asg, sg, *cli.getParam("mediaFolder"));
 //                    asg.saveHouse();
                    });
     }
@@ -237,7 +231,7 @@ struct CreateNewPropertyFromFloorplanImage {
         Http::post(Url{ "/property/newFromImage/" + url_encode(getFileName(event.floorplanFileName)) },
                    FM::readLocalFileC(event.floorplanFileName), [&]( HttpResponeParams params ) {
                     PropertyListing property{ params.BufferString() };
-                    prepareProperty(property, asg, *cli.getParam("mediaFolder"));
+                    prepareProperty(property, asg, sg, *cli.getParam("mediaFolder"));
                     asg.saveHouse();
                 });
     }
@@ -247,7 +241,7 @@ struct LoadFloorPlan {
     void operator()( SceneGraph& sg, ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc,
                      const CLIParamMap& cli,
                      OnLoadFloorPlanEvent event ) {
-        prepareProperty(event.property, asg, *cli.getParam("mediaFolder"));
+        prepareProperty(event.property, asg, sg, *cli.getParam("mediaFolder"));
     }
 };
 
@@ -265,8 +259,8 @@ struct MakeHouse3d {
 };
 
 struct ElaborateHouseBitmap {
-    void operator()( ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) {
-        auto newHouse = HouseMakerBitmap::make(asg.H(), asg.FurnitureMap());
+    void operator()( SceneGraph& sg, ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) {
+        auto newHouse = HouseMakerBitmap::make(asg.H(), *sg.get<RawImage>(asg.H()->propertyId), asg.FurnitureMap());
         asg.setHouse(newHouse);
         asg.showIMHouse();
     }
