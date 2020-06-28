@@ -263,6 +263,7 @@ struct ElaborateHouseBitmap {
         auto newHouse = HouseMakerBitmap::make(asg.H(), *sg.get<RawImage>(asg.H()->propertyId), asg.FurnitureMap());
         asg.setHouse(newHouse);
         asg.showIMHouse();
+        asg.pushHouseChange();
     }
 };
 
@@ -271,6 +272,7 @@ struct FurnishHouse {
         HouseService::guessFittings(asg.H(), asg.FurnitureMap());
         MakeHouse3d{}(asg, rsg, arc);
         asg.showIMHouse();
+        asg.pushHouseChange();
     }
 };
 
