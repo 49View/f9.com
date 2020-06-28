@@ -71,7 +71,9 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
     }
 
     if ( _aid.TI().checkModKeyPressed(GMK_LEFT_CONTROL) ) {
-        if ( _aid.TI().checkKeyToggleOn(GMK_Z) ) {
+        if ( isShiftPressed && _aid.TI().checkKeyToggleOn(GMK_Z) ) {
+            backEnd->process_event(OnRedoEvent{});
+        } else if ( _aid.TI().checkKeyToggleOn(GMK_Z) ) {
             backEnd->process_event(OnUndoEvent{});
         }
         if ( _aid.TI().checkKeyToggleOn(GMK_T) ) {

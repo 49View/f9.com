@@ -14,8 +14,15 @@ struct EnterFeatureManipulation {
     }
 };
 
-struct UpdateFeatureManipulation {
-    void operator()( ArchOrchestrator& asg ) noexcept {
+struct UpdateFeatureManipulationIm {
+    void operator()( ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) noexcept {
+        asg.showIMHouse();
+    }
+};
+
+struct UpdateFeatureManipulationFull {
+    void operator()( ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) noexcept {
+        MakeHouse3d{}(asg, rsg, arc);
         asg.showIMHouse();
     }
 };
@@ -23,6 +30,20 @@ struct UpdateFeatureManipulation {
 struct ExitFeatureManipulation {
     void operator()( ArchOrchestrator& asg ) noexcept {
         asg.showIMHouse();
+    }
+};
+
+struct UndoFeatureManipulation {
+    void operator()( ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) noexcept {
+        asg.undoHouseChange();
+        UpdateFeatureManipulationFull{}(asg, rsg, arc);
+    }
+};
+
+struct RedoFeatureManipulation {
+    void operator()( ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) noexcept {
+        asg.redoHouseChange();
+        UpdateFeatureManipulationFull{}(asg, rsg, arc);
     }
 };
 
@@ -89,26 +110,18 @@ struct SingleTapViewportSpaceFeatureManipulationGuard {
 };
 
 struct TouchedDownFirstTimeFeatureManipulationGuard {
-    bool operator()( const OnFirstTimeTouchDownViewportSpaceEvent& mouseEvent, ArchOrchestrator& asg,
-                     ArchRenderController& arc ) noexcept {
+    bool operator()( const OnFirstTimeTouchDownViewportSpaceEvent& mouseEvent, ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) noexcept {
         bool res = touchSelection( mouseEvent.viewportPos, TouchedSelectionFlag::Keep, asg, arc );
-        UpdateFeatureManipulation()(asg);
+        UpdateFeatureManipulationIm()(asg, rsg, arc);
         return res;
     }
 };
 
 struct TouchedDownFirstTimeFittedFurnitureGuard {
-    bool operator()( const OnFirstTimeTouchDownViewportSpaceEvent& mouseEvent, ArchOrchestrator& asg,
-                     ArchRenderController& arc ) noexcept {
+    bool operator()( const OnFirstTimeTouchDownViewportSpaceEvent& mouseEvent, ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) noexcept {
         bool res = touchSelection( mouseEvent.viewportPos, TouchedSelectionFlag::Keep, asg, arc );
-        UpdateFeatureManipulation()(asg);
+        UpdateFeatureManipulationIm()(asg, rsg, arc);
         return !res;
-    }
-};
-
-
-struct EnterFittedFurniture {
-    void operator()( ArchOrchestrator& asg, ArchRenderController& arc ) noexcept {
     }
 };
 
@@ -140,6 +153,7 @@ struct TouchUpEventFeatureManipulation {
 struct DeleteFeatureManipulation {
     bool operator()( ArchRenderController& arc, ArchOrchestrator& asg, RenderOrchestrator& rsg ) noexcept {
         arc.deleteElementsOnSelectionList([&]( const ArchStructuralFeatureDescriptor& asf ) {
+            asg.pushHouseChange();
             if ( asf.feature == ArchStructuralFeature::ASF_Poly ) {
                 HouseService::removeArch(asg.H(), asf.elem->hash);
             } else {
@@ -155,8 +169,9 @@ struct DeleteFeatureManipulation {
 };
 
 struct SpaceToggleFeatureManipulation {
-    bool operator()( ArchRenderController& arc, ArchOrchestrator& hm ) noexcept {
+    bool operator()( ArchRenderController& arc, ArchOrchestrator& asg ) noexcept {
         arc.toggleElementsOnSelectionList([&]( const ArchStructuralFeatureDescriptor& asf ) {
+            asg.pushHouseChange();
             switch ( asf.elem->type ) {
                 case DoorT:
                     DoorService::toggleOrientations(dynamic_cast<DoorBSData*>(asf.elem));
@@ -173,8 +188,9 @@ struct SpaceToggleFeatureManipulation {
 };
 
 struct IncrementalScaleFeatureManipulation {
-    bool operator()( ArchRenderController& arc, ArchOrchestrator& hm, OnIncrementalScaleEvent event ) noexcept {
+    bool operator()( ArchRenderController& arc, ArchOrchestrator& asg, OnIncrementalScaleEvent event ) noexcept {
         arc.toggleElementsOnSelectionList([&]( const ArchStructuralFeatureDescriptor& asf ) {
+            asg.pushHouseChange();
             switch ( asf.elem->type ) {
                 case FittedFurnitureT:
                     RoomServiceFurniture::scaleIncrementalFurniture(dynamic_cast<FittedFurniture*>(asf.elem), event.incrementalScaleFactor );
@@ -191,6 +207,7 @@ struct IncrementalScaleFeatureManipulation {
 struct SpecialSpaceToggleFeatureManipulation {
     bool operator()( ArchRenderController& arc, HouseMakerStateMachine& hm, ArchOrchestrator& asg ) noexcept {
         arc.toggleElementsOnSelectionList([&]( const ArchStructuralFeatureDescriptor& asf ) {
+            asg.pushHouseChange();
             HouseMakerBitmap::makeFromSwapDoorOrWindow(asg.H(), asf.elem->hash);
         });
         return true;
@@ -199,9 +216,9 @@ struct SpecialSpaceToggleFeatureManipulation {
 
 
 struct KeyToggleFeatureManipulation {
-    bool operator()( ArchRenderController& arc, HouseMakerStateMachine& hm, ArchOrchestrator& asg,
-                     OnKeyToggleEvent keyEvent ) noexcept {
+    bool operator()( ArchRenderController& arc, ArchOrchestrator& asg, OnKeyToggleEvent keyEvent ) noexcept {
         if ( keyEvent.keyCode == GMK_A ) {
+            asg.pushHouseChange();
             arc.splitFirstEdgeOnSelectionList([&]( const ArchStructuralFeatureDescriptor& asf, const V2f& offset ) {
                 WallService::splitEdgeAndAddPointInTheMiddle(asf, offset);
                 HouseService::recalculateBBox(asg.H());
@@ -210,6 +227,7 @@ struct KeyToggleFeatureManipulation {
             return true;
         }
         if ( keyEvent.keyCode == GMK_D ) {
+            asg.pushHouseChange();
             auto fus = WallService::createTwoShapeAt(asg.H(), keyEvent.viewportPos);
             if ( FloorService::isFloorUShapeValid(fus) ) {
                 HouseMakerBitmap::makeAddDoor(asg.H(), fus);

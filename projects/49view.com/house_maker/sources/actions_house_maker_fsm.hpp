@@ -49,6 +49,7 @@ struct InitializeHouseMaker {
 };
 
 static inline void show3dViewInternal( ArchOrchestrator& asg, std::function<void()> callback ) {
+    if ( !asg.H() ) return;
     if ( asg.HRC().houseId != asg.H()->propertyId ) {
         asg.make3dHouse(callback);
     } else {
@@ -252,7 +253,6 @@ struct LoadFloorPlan {
 
 struct MakeHouse3d {
     void operator()( ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) {
-        //HouseService::guessFittings( asg.H(), asg.FurnitureMap() );
         asg.make3dHouse([&]() {
             rsg.RR().showBucket(CommandBufferLimits::PBRStart, arc.getViewingMode() != ArchViewingMode::AVM_TopDown2d);
             rsg.useSkybox(arc.getViewingMode() != ArchViewingMode::AVM_TopDown2d);

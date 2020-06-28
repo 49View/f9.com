@@ -30,6 +30,8 @@ struct FrontEndStateMachineSML {
             ,state<class HouseMaker> + event<OnBrowser3dToggleEvent> / ActivateBrowsing3d{} = state<class Browsing3d>
             ,state<class HouseMaker> + event<OnBrowserDollyHouseToggleEvent> / ActivateBrowsingDollyHouse{} = state<class BrowsingDollyHouse>
             ,state<class HouseMaker> + event<OnKeyToggleEvent> / KeyToggleHouseMaker{}
+            ,state<class HouseMaker> + event<OnUndoEvent> / UndoFeatureManipulation{}
+            ,state<class HouseMaker> + event<OnRedoEvent> / RedoFeatureManipulation{}
 
             ,state<class HouseMaker> + event<OnFirstTimeTouchDownViewportSpaceEvent>[TouchedDownFirstTimeFeatureManipulationGuard{}] / EnterFeatureManipulation{} = state<class FeatureManipulation>
             ,state<class HouseMaker> + event<OnSingleTapViewportSpaceEvent>[SingleTapViewportHouseMakerManipulationGuard{}] / EnterFeatureManipulation{} = state<class FeatureManipulation>
@@ -63,15 +65,17 @@ struct FrontEndStateMachineSML {
             ,state<class Bespoke> + event<OnElaborateHouseBitmapEvent> / ElaborateHouseBitmap{}
             ,state<class Bespoke> + event<OnRecalculateFurnitureEvent> / FurnishHouse{}
 
-            ,state<class FeatureManipulation> + event<OnTouchMoveViewportSpaceEvent>[TouchMoveFeatureManipulation{}] / UpdateFeatureManipulation{}
-            ,state<class FeatureManipulation> + event<OnKeyToggleEvent>[KeyToggleFeatureManipulation{}] / UpdateFeatureManipulation{}
+            ,state<class FeatureManipulation> + event<OnUndoEvent> / UndoFeatureManipulation{}
+            ,state<class FeatureManipulation> + event<OnRedoEvent> / RedoFeatureManipulation{}
+            ,state<class FeatureManipulation> + event<OnTouchMoveViewportSpaceEvent>[TouchMoveFeatureManipulation{}] / UpdateFeatureManipulationIm{}
+            ,state<class FeatureManipulation> + event<OnKeyToggleEvent>[KeyToggleFeatureManipulation{}] / UpdateFeatureManipulationIm{}
             ,state<class FeatureManipulation> + event<OnIncrementalScaleEvent> / IncrementalScaleFeatureManipulation{}
-            ,state<class FeatureManipulation> + event<OnSpaceEvent>[SpaceToggleFeatureManipulation{}] / UpdateFeatureManipulation{}
-            ,state<class FeatureManipulation> + event<OnSpecialSpaceEvent>[SpecialSpaceToggleFeatureManipulation{}] / UpdateFeatureManipulation{}
+            ,state<class FeatureManipulation> + event<OnSpaceEvent>[SpaceToggleFeatureManipulation{}] / UpdateFeatureManipulationIm{}
+            ,state<class FeatureManipulation> + event<OnSpecialSpaceEvent>[SpecialSpaceToggleFeatureManipulation{}] / UpdateFeatureManipulationIm{}
             ,state<class FeatureManipulation> + event<OnDeleteEvent>[DeleteFeatureManipulation{}] / ExitFeatureManipulation{} = state<class HouseMaker>
 
-            ,state<class FeatureManipulation> + event<OnFirstTimeTouchDownViewportSpaceEvent>[TouchedDownFirstTimeFittedFurnitureGuard{}] / UpdateFeatureManipulation{} = state<class HouseMaker>
-            ,state<class FeatureManipulation> + event<OnTouchUpViewportSpaceEvent>[TouchUpEventFeatureManipulation{}] / UpdateFeatureManipulation{}
+            ,state<class FeatureManipulation> + event<OnFirstTimeTouchDownViewportSpaceEvent>[TouchedDownFirstTimeFittedFurnitureGuard{}] / UpdateFeatureManipulationIm{} = state<class HouseMaker>
+            ,state<class FeatureManipulation> + event<OnTouchUpViewportSpaceEvent>[TouchUpEventFeatureManipulation{}] / UpdateFeatureManipulationIm{}
             ,state<class FeatureManipulation> + event<OnSingleTapViewportSpaceEvent>[SingleTapViewportSpaceFeatureManipulationGuard{}] / ExitFeatureManipulation{} = state<class HouseMaker>
 
             ,state<class FeatureManipulation> + event<OnLoadFloorPlanEvent> / LoadFloorPlan{}

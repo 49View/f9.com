@@ -13,6 +13,7 @@ struct OnAltPressedEvent {};
 struct OnClearEvent {};
 struct OnDoubleTapEvent {};
 struct OnUndoEvent {};
+struct OnRedoEvent {};
 
 struct OnWhichRoomAmIEvent{};
 struct OnLoadFloorPlanEvent {
