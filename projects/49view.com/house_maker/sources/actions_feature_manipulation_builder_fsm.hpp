@@ -36,6 +36,7 @@ struct ExitFeatureManipulation {
 struct UndoFeatureManipulation {
     void operator()( ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) noexcept {
         asg.undoHouseChange();
+        arc.resetSelection();
         UpdateFeatureManipulationFull{}(asg, rsg, arc);
     }
 };
@@ -43,6 +44,7 @@ struct UndoFeatureManipulation {
 struct RedoFeatureManipulation {
     void operator()( ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) noexcept {
         asg.redoHouseChange();
+        arc.resetSelection();
         UpdateFeatureManipulationFull{}(asg, rsg, arc);
     }
 };
@@ -194,7 +196,6 @@ struct IncrementalScaleFeatureManipulation {
             switch ( asf.elem->type ) {
                 case FittedFurnitureT:
                     RoomServiceFurniture::scaleIncrementalFurniture(dynamic_cast<FittedFurniture*>(asf.elem), event.incrementalScaleFactor );
-
                     break;
                 default:
                     break;
