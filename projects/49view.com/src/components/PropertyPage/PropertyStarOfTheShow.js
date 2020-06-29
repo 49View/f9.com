@@ -63,7 +63,7 @@ export const PropertyStarOfTheShow = ({property}) => {
     <PropertyStarOfTheShowDiv>
       <PropertyToolbar>
         <Tabs defaultActiveKey={toolbarKey} id="property-toolbar-tab" onSelect={k => {
-          const wasmCommand = `f9.changeViewMode(${k})`;
+          const wasmCommand = `f9.setViewingMode(${k})`;
           console.log(wasmCommand);
           dispatch([wasmAddScriptLine, wasmCommand]);
           setToolbarKey(k);
