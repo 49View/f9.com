@@ -299,6 +299,7 @@ struct GlobalRescale {
             HouseService::guessFittings(asg.H(), asg.FurnitureMap());
             asg.showIMHouse();
             asg.centerCameraMiddleOfHouse();
+            asg.pushHouseChange();
         }
     }
 };

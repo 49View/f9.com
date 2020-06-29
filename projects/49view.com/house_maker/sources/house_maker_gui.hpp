@@ -45,7 +45,6 @@ public:
         if ( _paths.empty() ) return;
         if ( !asg.H() ) {
             this->backEnd->process_event(OnCreateNewPropertyFromFloorplanImageEvent{ _paths[0] });
-//            this->backEnd->process_event(OnLoadFloorPlanEvent{ getFileNameOnly(_paths[0]), _paths[0] });
             _paths.clear();
         }
     }
@@ -159,6 +158,7 @@ public:
             static float oldScaleFactor = asg.H()->sourceData.rescaleFactor;
             static float currentScaleFactorMeters = centimetersToMeters(asg.H()->sourceData.rescaleFactor);
 
+            currentScaleFactorMeters = centimetersToMeters(asg.H()->sourceData.rescaleFactor);
             if ( ImGui::InputFloat("Scale Factor", &currentScaleFactorMeters, 0.001f, 0.01f, 5) ) {
                 this->backEnd->process_event(OnGlobalRescaleEvent{ oldScaleFactor, currentScaleFactorMeters });
                 oldScaleFactor = asg.H()->sourceData.rescaleFactor;
