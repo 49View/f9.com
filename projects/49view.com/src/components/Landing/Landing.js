@@ -53,7 +53,9 @@ const Landing = () => {
           type="text"
           id="search-bar"
           autoComplete={"off"}
-          onChange={e => setPartialString(e.target.value)}>
+          onChange={e => setPartialString(e.target.value)}
+          placeholder={"Enter your desired location, IE: Wimbledon"}
+        >
         </LandingSearchBar>
         <SearchResults partialString={partialString}/>
       </LandingInner>
