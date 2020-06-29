@@ -14,36 +14,12 @@ struct ClearEverthing {
     }
 };
 
-struct ActivateHouseMaker {
-    void
-    operator()( SceneGraph& sg, ArchRenderController& arc, RenderOrchestrator& rsg, ArchOrchestrator& asg ) noexcept {
-        arc.setViewingMode(ArchViewingMode::AVM_TopDown2d);
-        rsg.RR().showBucket(CommandBufferLimits::PBRStart, arc.getViewingMode() != ArchViewingMode::AVM_TopDown2d);
-        rsg.setRigCameraController(CameraControlType::Edit2d);
-        rsg.DC()->LockAtWalkingHeight(false);
-        auto quatAngles = V3f{ M_PI_2, 0.0f, 0.0f };
-        rsg.DC()->setIncrementQuatAngles(quatAngles);
-        rsg.useSkybox(false);
-        if ( asg.H() ) {
-            auto quat = quatCompose(quatAngles);
-            Timeline::play(rsg.DC()->QAngleAnim(), 0, KeyFramePair{ 0.9f, quat });
-            asg.centerCameraMiddleOfHouse();
-            arc.setFloorPlanTransparencyFactor(0.5f);
-            asg.showIMHouse();
-        }
-        fader(0.9f, 1.0f, rsg.RR().CLI(CommandBufferLimits::UI2dStart));
-        fader(0.9f, 1.0f, rsg.RR().CLI(CommandBufferLimits::GridStart));
-        fader(0.9f, 0.0f, rsg.RR().CLI(CommandBufferLimits::PBRStart));
-        sg.setCollisionEnabled(false);
-    }
-};
-
 struct InitializeHouseMaker {
     void operator()( SceneGraph& sg, ArchRenderController& arc, RenderOrchestrator& rsg, ArchOrchestrator& asg,
                      OnActivateEvent ev ) noexcept {
         rsg.DC()->setQuatAngles(V3f{ M_PI_2, 0.0f, 0.0f });
         rsg.DC()->setPosition(V3f::UP_AXIS * 5.0f);
-        ActivateHouseMaker{}(sg, arc, rsg, asg);
+        asg.setFloorPlanView();
         if ( ev.ccf ) ev.ccf();
     }
 };
@@ -57,84 +33,37 @@ static inline void show3dViewInternal( ArchOrchestrator& asg, std::function<void
     }
 }
 
-struct ActivateHouseMakerWithTopDown3d {
+struct ActivateFloorplanView {
     void
-    operator()( SceneGraph& sg, ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) noexcept {
-        auto show3d = [&]() {
-            arc.setViewingMode(ArchViewingMode::AVM_TopDown3d);
-            rsg.RR().showBucket(CommandBufferLimits::PBRStart, arc.getViewingMode() != ArchViewingMode::AVM_TopDown2d);
-            rsg.setRigCameraController(CameraControlType::Edit2d);
-            rsg.DC()->LockAtWalkingHeight(false);
-            auto quatAngles = V3f{ M_PI_2, 0.0f, 0.0f };
-            rsg.DC()->setIncrementQuatAngles(quatAngles);
-            rsg.useSkybox(false);
-            arc.setFloorPlanTransparencyFactor(0.0f);
-            asg.showIMHouse();
-            auto quat = quatCompose(quatAngles);
-            Timeline::play(rsg.DC()->QAngleAnim(), 0, KeyFramePair{ 0.9f, quat });
-            asg.centerCameraMiddleOfHouse(2.0f);
-            rsg.RR().setVisibilityOnTags(ArchType::CeilingT, false);
-            fader(0.9f, 1.0f, rsg.RR().CLI(CommandBufferLimits::UI2dStart));
-            fader(0.9f, 0.0f, rsg.RR().CLI(CommandBufferLimits::GridStart));
-            fader(0.9f, 1.0f, rsg.RR().CLI(CommandBufferLimits::PBRStart));
-            sg.setCollisionEnabled(false);
-        };
-
-        show3dViewInternal( asg, show3d );
+    operator()( SceneGraph& sg, ArchRenderController& arc, RenderOrchestrator& rsg, ArchOrchestrator& asg ) noexcept {
+        asg.setFloorPlanView();
     }
 };
 
-struct ActivateBrowsing3d {
+struct ActivateTopDownView {
     void
     operator()( SceneGraph& sg, ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) noexcept {
-
-        auto show3d = [&]() {
-            arc.setViewingMode(ArchViewingMode::AVM_Walk);
-            rsg.RR().showBucket(CommandBufferLimits::PBRStart, arc.getViewingMode() != ArchViewingMode::AVM_TopDown2d);
-            rsg.setRigCameraController(CameraControlType::Walk);
-            rsg.useSkybox(true);
-            V3f pos = V3f::ZERO;
-            V3f quatAngles = V3f::ZERO;
-            HouseService::bestStartingPositionAndAngle(asg.H(), pos, quatAngles);
-            auto quat = quatCompose(quatAngles);
-            rsg.DC()->setIncrementQuatAngles(quatAngles);
-            Timeline::play(rsg.DC()->PosAnim(), 0,
-                           KeyFramePair{ 0.9f, pos });
-            Timeline::play(rsg.DC()->QAngleAnim(), 0, KeyFramePair{ 0.9f, quat });
-            rsg.RR().setVisibilityOnTags(ArchType::CeilingT, true);
-            fader(0.9f, 0.0f, rsg.RR().CLI(CommandBufferLimits::UI2dStart));
-            fader(0.9f, 0.0f, rsg.RR().CLI(CommandBufferLimits::GridStart));
-            fader(0.9f, 1.0f, rsg.RR().CLI(CommandBufferLimits::PBRStart));
-            sg.setCollisionEnabled(true);
-        };
-
-        show3dViewInternal( asg, show3d );
+        show3dViewInternal( asg, [&]() {
+            asg.setTopDownView();
+        } );
     }
 };
 
-struct ActivateBrowsingDollyHouse {
+struct ActivateWalkView {
     void
     operator()( SceneGraph& sg, ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) noexcept {
-        auto show3d = [&]() {
-            arc.setViewingMode(ArchViewingMode::AVM_DollHouse);
-            rsg.RR().showBucket(CommandBufferLimits::PBRStart, arc.getViewingMode() != ArchViewingMode::AVM_TopDown2d);
-            rsg.setRigCameraController(CameraControlType::Fly);
-            rsg.useSkybox(true);
-            V3f pos = V3f::ZERO;
-            V3f quatAngles = V3f::ZERO;
-            HouseService::bestDollyPositionAndAngle(asg.H(), pos, quatAngles);
-            auto quat = quatCompose(quatAngles);
-            rsg.DC()->setIncrementQuatAngles(quatAngles);
-            Timeline::play(rsg.DC()->PosAnim(), 0, KeyFramePair{ 0.9f, pos });
-            Timeline::play(rsg.DC()->QAngleAnim(), 0, KeyFramePair{ 0.9f, quat });
-            fader(0.9f, 0.0f, rsg.RR().CLI(CommandBufferLimits::UI2dStart));
-            fader(0.9f, 0.0f, rsg.RR().CLI(CommandBufferLimits::GridStart));
-            fader(0.9f, 1.0f, rsg.RR().CLI(CommandBufferLimits::PBRStart));
-            rsg.RR().setVisibilityOnTags(ArchType::CeilingT, false);
-            sg.setCollisionEnabled(false);
-        };
+        show3dViewInternal( asg, [&]() {
+            asg.setWalkView();
+        } );
+    }
+};
 
-        show3dViewInternal( asg, show3d );
+struct ActivateDollyHouseView {
+    void
+    operator()( SceneGraph& sg, ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) noexcept {
+        show3dViewInternal( asg, [&]() {
+            asg.setDollHouseView();
+        } );
     }
 };
 
@@ -248,10 +177,10 @@ struct LoadFloorPlan {
 struct MakeHouse3d {
     void operator()( ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) {
         asg.make3dHouse([&]() {
-            rsg.RR().showBucket(CommandBufferLimits::PBRStart, arc.getViewingMode() != ArchViewingMode::AVM_TopDown2d);
-            rsg.useSkybox(arc.getViewingMode() != ArchViewingMode::AVM_TopDown2d);
+            rsg.RR().showBucket(CommandBufferLimits::PBRStart, arc.getViewingMode() != ArchViewingMode::AVM_FloorPlan);
+            rsg.useSkybox(arc.getViewingMode() != ArchViewingMode::AVM_FloorPlan);
             if ( arc.getViewingMode() == ArchViewingMode::AVM_DollHouse ||
-                 arc.getViewingMode() == ArchViewingMode::AVM_TopDown3d ) {
+                 arc.getViewingMode() == ArchViewingMode::AVM_TopDown ) {
                 rsg.RR().setVisibilityOnTags(ArchType::CeilingT, false);
             }
         });

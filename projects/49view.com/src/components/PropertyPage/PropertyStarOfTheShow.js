@@ -5,11 +5,13 @@ import {
   EstateAgentRepIcon,
   EstateAgentRepMainNameTitle,
   PropertyCanvas,
+  PropertyFooter,
   PropertyManagingEstateAgent,
   PropertyMarketedBy,
   PropertyRightMenu,
   PropertySmallMapContainer,
   PropertyStarOfTheShowDiv,
+  PropertyToolbar,
   PropertyVirtualBooking
 } from "./Property.styled";
 import {useWasmContext, wasmAddScriptLine} from "../../futuremodules/reactwasmcanvas/localreacwasmcanvas";
@@ -26,7 +28,8 @@ import {
 import VideoPhoneChat from "../../futuremodules/webrtc/components/VideoPhoneChat";
 import {MapContainer, Marker, Popup, TileLayer} from 'react-leaflet'
 import {getPropertyLngLat} from "./PropertyLogic";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
+import {Tab, Tabs} from "react-bootstrap";
 
 export const EstateAgentRep = ({property}) => {
   return (
@@ -51,19 +54,42 @@ export const EstateAgentRep = ({property}) => {
 
 export const PropertyStarOfTheShow = ({property}) => {
   let {canvasContainer, dispatch} = useWasmContext(true);
+  const [toolbarKey, setToolbarKey] = useState("0");
   useEffect(() => {
-      dispatch([wasmAddScriptLine, `f9.loadHouse("${property._id}")`]);
+    dispatch([wasmAddScriptLine, `f9.loadHouse("${property._id}")`]);
   }, [dispatch, property]);
 
   return (
     <PropertyStarOfTheShowDiv>
+      <PropertyToolbar>
+        <Tabs defaultActiveKey={toolbarKey} id="property-toolbar-tab" onSelect={k => {
+          const wasmCommand = `f9.changeViewMode(${k})`;
+          console.log(wasmCommand);
+          dispatch([wasmAddScriptLine, wasmCommand]);
+          setToolbarKey(k);
+        }}>
+          <Tab eventKey="0" title="Tour">
+          </Tab>
+          <Tab eventKey="1" title="Assisted">
+          </Tab>
+          <Tab eventKey="2" title="Walk">
+          </Tab>
+          <Tab eventKey="3" title="Floorplan">
+          </Tab>
+          <Tab eventKey="4" title="Top-down">
+          </Tab>
+          <Tab eventKey="5" title="Doll house">
+          </Tab>
+        </Tabs>
+      </PropertyToolbar>
       <PropertyCanvas ref={canvasContainer}>
       </PropertyCanvas>
       <PropertyRightMenu>
         <PropertyMarketedBy>
           <Flex justifyContent={"center"}>
             <div>
-              <PropertyManagingEstateAgent src={`https://${process.env.REACT_APP_EH_CLOUD_HOST}/media/${property.estateAgent.logo}`}/>
+              <PropertyManagingEstateAgent
+                src={`https://${process.env.REACT_APP_EH_CLOUD_HOST}/media/${property.estateAgent.logo}`}/>
             </div>
           </Flex>
         </PropertyMarketedBy>
@@ -92,6 +118,9 @@ export const PropertyStarOfTheShow = ({property}) => {
           </MapContainer>
         </PropertySmallMapContainer>
       </PropertyRightMenu>
+      <PropertyFooter>
+        Sit back and relax
+      </PropertyFooter>
     </PropertyStarOfTheShowDiv>
   )
 }
