@@ -28,7 +28,11 @@ Showcaser::Showcaser( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchOrchestrato
 
 void Showcaser::postLoadHouseCallback() {
     asg.make3dHouse( [&]() {
-        asg.setWalkView(0.0f);
+        if ( HouseService::hasTour(asg.H()) ) {
+            asg.setTourView();
+        } else{
+            asg.setWalkView(0.0f);
+        }
     });
 }
 
