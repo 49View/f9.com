@@ -47,6 +47,7 @@ struct FrontEndStateMachineSML {
             ,state<class Browsing3d> + event<OnRecalculateFurnitureEvent> / FurnishHouse{}
             ,state<class Browsing3d> + event<OnPushTourPathEvent> / PushTourPath{}
             ,state<class Browsing3d> + event<OnPushKeyFrameTourPathEvent> / PushKeyFrameTourPath{}
+            ,state<class Browsing3d> + event<OnPopTourPathEvent> / PopTourPath{}
             ,state<class Browsing3d> + event<OnTourToggleEvent> / ActivateTourView{}
 
             ,state<class BrowsingDollyHouse> + event<OnBrowserTopDown3dToggleEvent> / ActivateTopDownView{} = state<class HouseMaker>

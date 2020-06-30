@@ -227,8 +227,8 @@ struct PushKeyFrameTourPath {
 };
 
 struct PopTourPath {
-    void operator()( ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) {
-        HouseService::popTourPath( asg.H() );
+    void operator()( OnPopTourPathEvent event, ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) {
+        HouseService::popTourPath(asg.H(), event.popIndex);
     }
 };
 

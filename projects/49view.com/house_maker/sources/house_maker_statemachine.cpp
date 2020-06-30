@@ -150,12 +150,6 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
         backEnd->process_event(OnIncrementalScaleEvent{0.05f});
     }
 
-//    if ( _aid.TI().checkKeyToggleOn(GMK_O) ) {
-//        backEnd->process_event(OnKeyToggleEvent{ GMK_O });
-//    }
-//    if ( _aid.TI().checkKeyToggleOn(GMK_P) ) {
-//        backEnd->process_event(OnKeyToggleEvent{ GMK_P });
-//    }
     if ( _aid.TI().checkKeyToggleOn(GMK_ENTER) ) {
         backEnd->process_event(OnFinaliseEvent{});
     }

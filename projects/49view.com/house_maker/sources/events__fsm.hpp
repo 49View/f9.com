@@ -93,3 +93,6 @@ struct OnPushTourPathEvent{};
 struct OnPushKeyFrameTourPathEvent {
     float timestamp = 5.0f;
 };
+struct OnPopTourPathEvent {
+    int popIndex = -1;
+};
