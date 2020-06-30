@@ -40,6 +40,15 @@ struct ActivateFloorplanView {
     }
 };
 
+struct ActivateTourView {
+    void
+    operator()( SceneGraph& sg, ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) noexcept {
+        show3dViewInternal( asg, [&]() {
+            asg.setTourView();
+        } );
+    }
+};
+
 struct ActivateTopDownView {
     void
     operator()( SceneGraph& sg, ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) noexcept {
@@ -205,10 +214,27 @@ struct FurnishHouse {
     }
 };
 
+struct PushTourPath {
+    void operator()( ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) {
+        HouseService::pushTourPath(asg.H(), CameraSpatialsKeyFrame{ rsg.DC()->getSpatials(), 0.0f } );
+    }
+};
+
+struct PushKeyFrameTourPath {
+    void operator()( OnPushKeyFrameTourPathEvent event, ArchOrchestrator& asg, RenderOrchestrator& rsg ) {
+        HouseService::pushKeyFrameTourPath(asg.H(), CameraSpatialsKeyFrame{ rsg.DC()->getSpatials(), event.timestamp } );
+    }
+};
+
+struct PopTourPath {
+    void operator()( ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) {
+        HouseService::popTourPath( asg.H() );
+    }
+};
+
 
 struct GlobalRescale {
-    void operator()( HouseMakerStateMachine& hm, OnGlobalRescaleEvent event, ArchRenderController& arc,
-                     ArchOrchestrator& asg ) {
+    void operator()( OnGlobalRescaleEvent event, ArchRenderController& arc, ArchOrchestrator& asg ) {
         float oldScaleFactor = event.oldScaleFactor;
         float currentScaleFactorMeters = event.currentScaleFactorMeters;
         if ( asg.H() ) {

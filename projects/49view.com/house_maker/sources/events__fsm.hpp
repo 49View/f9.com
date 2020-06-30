@@ -33,6 +33,7 @@ struct OnElaborateHouseBitmapEvent {};
 struct OnRecalculateFurnitureEvent {};
 
 struct OnHouseMakerToggleEvent{};
+struct OnTourToggleEvent{};
 struct OnBrowser3dToggleEvent{};
 struct OnBrowserTopDown3dToggleEvent{};
 struct OnBrowserDollyHouseToggleEvent{};
@@ -87,3 +88,8 @@ struct OnGlobalRescaleEvent {
 };
 
 struct OnEnterFittedFurnitureManipulationEvent{};
+
+struct OnPushTourPathEvent{};
+struct OnPushKeyFrameTourPathEvent {
+    float timestamp = 5.0f;
+};

@@ -26,6 +26,7 @@ struct FrontEndStateMachineSML {
             ,state<class HouseMaker> + event<OnCreateHouseTexturesEvent> / CreateHouseTextures{}
             ,state<class HouseMaker> + event<OnElaborateHouseBitmapEvent> / ElaborateHouseBitmap{}
             ,state<class HouseMaker> + event<OnRecalculateFurnitureEvent> / FurnishHouse{}
+            ,state<class HouseMaker> + event<OnTourToggleEvent> / ActivateTourView{}
             ,state<class HouseMaker> + event<OnBrowserTopDown3dToggleEvent> / ActivateTopDownView{}
             ,state<class HouseMaker> + event<OnBrowser3dToggleEvent> / ActivateWalkView{} = state<class Browsing3d>
             ,state<class HouseMaker> + event<OnBrowserDollyHouseToggleEvent> / ActivateDollyHouseView{} = state<class BrowsingDollyHouse>
@@ -44,6 +45,9 @@ struct FrontEndStateMachineSML {
             ,state<class Browsing3d> + event<OnMakeHouse3dEvent> / MakeHouse3d{}
             ,state<class Browsing3d> + event<OnElaborateHouseBitmapEvent> / ElaborateHouseBitmap{}
             ,state<class Browsing3d> + event<OnRecalculateFurnitureEvent> / FurnishHouse{}
+            ,state<class Browsing3d> + event<OnPushTourPathEvent> / PushTourPath{}
+            ,state<class Browsing3d> + event<OnPushKeyFrameTourPathEvent> / PushKeyFrameTourPath{}
+            ,state<class Browsing3d> + event<OnTourToggleEvent> / ActivateTourView{}
 
             ,state<class BrowsingDollyHouse> + event<OnBrowserTopDown3dToggleEvent> / ActivateTopDownView{} = state<class HouseMaker>
             ,state<class BrowsingDollyHouse> + event<OnHouseMakerToggleEvent> / ActivateFloorplanView{} = state<class HouseMaker>

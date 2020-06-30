@@ -163,6 +163,8 @@ public:
                 this->backEnd->process_event(OnGlobalRescaleEvent{ oldScaleFactor, currentScaleFactorMeters });
                 oldScaleFactor = asg.H()->sourceData.rescaleFactor;
             }
+            ImGui::Text("Walkable Area: %s", sqmToString(asg.H()->walkableArea).c_str());
+            ImGui::Text("Num floors: %lu", asg.H()->mFloors.size());
 
             static float fptf = arc.getFloorPlanTransparencyFactor();
             if ( ImGui::SliderFloat("floorPlanTransparencyFactor", &fptf, 0.0f, 1.0f) ) {
@@ -213,8 +215,6 @@ public:
 
         if ( asg.H() ) {
             ImGui::Begin("House Properties");
-            ImGui::Text("Walkable Area: %s", sqmToString(asg.H()->walkableArea).c_str());
-            ImGui::Text("Num floors: %lu", asg.H()->mFloors.size());
             ImGui::InputFloat3("Best viewing position", &asg.H()->bestInternalViewingPosition[0]);
             ImGui::InputFloat3("Best viewing angle", &asg.H()->bestInternalViewingAngle[0]);
             if ( ImGui::Button("Set Starting Position") ) {
@@ -224,6 +224,27 @@ public:
             if ( ImGui::Button("Set Dolly Position") ) {
                 asg.H()->bestDollyViewingPosition = rsg.DC()->getPosition();
                 asg.H()->bestDollyViewingAngle = rsg.DC()->getIncrementQuatAngles();
+            }
+            ImGui::Separator();
+            ImGui::Text("Camera paths");
+            int ki = 0;
+            for ( auto& tour : asg.H()->tourPaths ) {
+                for ( auto& path : tour.path ) {
+                    ImGui::PushID(ki++);
+                    ImGui::InputFloat("T", &path.timestamp);
+                    ImGui::PopID();
+                    ImGui::SameLine();
+                }
+                ImGui::NewLine();
+                ImGui::PushID(ki++);
+                if ( ImGui::Button("K") ) {
+                    this->backEnd->process_event(OnPushKeyFrameTourPathEvent{});
+                }
+                ImGui::PopID();
+            }
+            ImGui::NewLine();
+            if ( ImGui::Button("+") ) {
+                this->backEnd->process_event(OnPushTourPathEvent{});
             }
             ImGui::End();
 
