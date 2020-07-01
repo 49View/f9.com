@@ -77,6 +77,13 @@ export const SearchResultsContainer = styled.div` {
   font-size: var(--font-size-one);
 }`;
 
+export const SearchResultsPropertyRecap = styled.div` {
+  width: 90%;
+  margin: auto;
+  padding:7px;
+  border-radius: 5px;
+  background-color: var(--dark-color-transparent);
+}`;
 
 export const LocationSearchResultsContainer = styled.div` {
   display: block;
@@ -104,6 +111,6 @@ export const TaglineText = styled.span` {
   font-weight: bold;
   padding:7px;
   border-radius: 5px;
-  background-color: var(--dark-color-transparent-notmuch);
+  background-image: linear-gradient(var(--dark-color-transparent), var(--dark-color-transparent-very) );
 }`;
 

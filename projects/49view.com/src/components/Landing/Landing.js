@@ -1,8 +1,10 @@
-import React, {Fragment, useState} from "react";
+import React, {useState} from "react";
 import {
   LandingInner,
   LandingSearchBar,
-  LocationSearchResultsContainer, SearchResultsContainer,
+  LocationSearchResultsContainer,
+  SearchResultsContainer,
+  SearchResultsPropertyRecap,
   SearchText,
   SearchTextAlt,
   SearchTitleText,
@@ -17,6 +19,7 @@ import {AnimFadeSection} from "../../futuremodules/reactComponentStyles/reactCom
 import {useWasmContext} from "../../futuremodules/reactwasmcanvas/localreacwasmcanvas";
 import {ListGroup} from "react-bootstrap";
 import {
+  InfoTextSpan,
   LightColorTextSpan,
   LightColorTextSpanBold,
   Logo1TextSpanBold
@@ -28,13 +31,39 @@ const SearchResults = ({partialString}) => {
 
   return (
     <SearchResultsContainer>
-      {partialPropertySearch && partialPropertySearch.length > 0 && (
-        <LightColorTextSpan>
-          We've found 3 properties in JHG
-        </LightColorTextSpan>
-      )}
+      <SearchResultsPropertyRecap>
+        {partialPropertySearch && partialPropertySearch.properties.length > 0 && partialPropertySearch.withinRequestedArea && (
+          <>
+            <LightColorTextSpan>
+              We've found
+            </LightColorTextSpan>
+            {" "}
+            <InfoTextSpan>
+              {partialPropertySearch.properties.length}
+            </InfoTextSpan>
+            {" "}
+            {partialPropertySearch.properties.length === 1 && <LightColorTextSpan>
+              property
+            </LightColorTextSpan>}
+            {partialPropertySearch.properties.length > 1 && <LightColorTextSpan>
+              properties
+            </LightColorTextSpan>}
+            {" "}
+            <LightColorTextSpan>
+              around the area
+            </LightColorTextSpan>
+          </>
+        )}
+        {partialPropertySearch && partialPropertySearch.properties.length > 0 && !partialPropertySearch.withinRequestedArea && (
+          <>
+            <LightColorTextSpan>
+              We couldn't find any property at that location, here are the closest ones
+            </LightColorTextSpan>
+          </>
+        )}
+      </SearchResultsPropertyRecap>
       <AnimatePresence>
-        {partialPropertySearch && partialPropertySearch.map(elem => (
+        {partialPropertySearch && partialPropertySearch.properties.map(elem => (
             <motion.div
               key={elem._id}
               initial={{opacity: 0, translateX: -1000}}
@@ -59,7 +88,7 @@ const SearchResults = ({partialString}) => {
 const LocationSearchResults = () => {
 
   const [partialLocationString, setPartialLocationString] = useState(null);
-  const [partialLocationResultIndex, setPartialLocationResultIndex] = useState(0);
+  const [partialLocationResultIndex, setPartialLocationResultIndex] = useState(-1);
   const [propertySearch, setPropertySearch] = useState(null);
   const searchBox = useRefWithFocusOnMount();
   const {partialLocation, setPartialLocation} = useQLPartialLocation(partialLocationString);
@@ -75,14 +104,17 @@ const LocationSearchResults = () => {
         onKeyDown={(evt) => {
           if (evt.keyCode === 13 || evt.keyCode === 14) {
             if (partialLocation && partialLocation.length > 0) {
-              evt.target.value = partialLocation[partialLocationResultIndex].locationName;
-              setPropertySearch(partialLocation[partialLocationResultIndex].locationName);
+              if (partialLocationResultIndex >= 0 && partialLocation[partialLocationResultIndex]) {
+                evt.target.value = partialLocation[partialLocationResultIndex].locationName;
+              }
+              setPropertySearch(evt.target.value);
+              setPartialLocationResultIndex(-1);
             }
             setPartialLocationResultIndex(-1)
             setPartialLocation(null);
           }
           if (evt.keyCode === 38) { // ArrowUp
-            setPartialLocationResultIndex(partialLocationResultIndex === 0 ? 9 : partialLocationResultIndex - 1)
+            setPartialLocationResultIndex(partialLocationResultIndex <= 0 ? 9 : partialLocationResultIndex - 1)
           }
           if (evt.keyCode === 40) { // ArrowDown
             setPartialLocationResultIndex(partialLocationResultIndex === 9 ? 0 : partialLocationResultIndex + 1)
@@ -97,8 +129,14 @@ const LocationSearchResults = () => {
         <ListGroup>
           {partialLocation && partialLocation.map(elem => (
               <ListGroup.Item key={elem.locationName + elem.locality + elem.gridReference}
-                              active={partialLocationResultIndex >= 0 && elem === partialLocation[partialLocationResultIndex]}>
-                <Logo1TextSpanBold>{partialLocationString}</Logo1TextSpanBold>
+                              active={partialLocationResultIndex >= 0 && elem === partialLocation[partialLocationResultIndex]}
+                              action onClick={() => {
+                setPropertySearch(elem.locationName);
+                setPartialLocationResultIndex(-1);
+                setPartialLocation(null);
+              }}
+              >
+                <Logo1TextSpanBold>{elem.locationName.substring(0, partialLocationString.length)}</Logo1TextSpanBold>
                 <LightColorTextSpanBold>{elem.locationName.substring(partialLocationString.length)}{", "}</LightColorTextSpanBold>
                 {elem.locality}
               </ListGroup.Item>
@@ -107,7 +145,7 @@ const LocationSearchResults = () => {
         </ListGroup>
       </LocationSearchResultsContainer>
 
-      <SearchResults partialString={propertySearch}/>
+      {propertySearch && <SearchResults partialString={propertySearch}/>}
     </>
   )
 

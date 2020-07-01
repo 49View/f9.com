@@ -48,7 +48,12 @@ fragment PropertyMin on Property {
     priceUnity
 }
 
+type PropertySearchResult {
+    properties: [Property!]
+    withinRequestedArea: Boolean
+}
+
 type Query {
     property(_id: ID!): Property
-    propertyPartial(partialName: String): [Property]
+    propertyPartial(partialName: String): PropertySearchResult
 }

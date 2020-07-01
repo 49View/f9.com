@@ -14,7 +14,7 @@ const Navbar = () => {
         <NavbarLogoAndTitle/>
       </NavbarLeftHandSizeComponent>
       <NavbarTaglineText>
-        Immersive Virtual Experience
+        {/*Immersive Virtual Experiences*/}
       </NavbarTaglineText>
       <NavbarUser/>
     </NavbarComponent>
