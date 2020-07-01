@@ -27,3 +27,29 @@ export const useQLPartialPropertySearch = (partialName) => {
     setPartialPropertySearch,
   }
 };
+
+const partialLocationQuery = (partialName) => {
+  return gql`{
+      partialLocation(partialName:"${partialName}") {
+          locationName
+          locality
+          gridReference
+      }
+  }`;
+};
+
+export const useQLPartialLocation = (partialName) => {
+  const [partialLocation, setPartialLocation] = useState(null);
+  const queryRes = useQuery(partialLocationQuery(partialName));
+
+  useEffect(() => {
+    if (checkQueryHasLoadedWithData(queryRes)) {
+      setPartialLocation(getQueryLoadedWithValue(queryRes));
+    }
+  }, [queryRes, setPartialLocation]);
+
+  return {
+    partialLocation,
+    setPartialLocation,
+  }
+};

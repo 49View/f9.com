@@ -2,7 +2,7 @@ import {MongoDataSourceExtended} from "./common";
 
 export class propertyDataSource extends MongoDataSourceExtended {
   async findPartials(partialName) {
-    if ( partialName.length < 3 ) return null;
+    if ( !partialName || partialName.length === 0 ) return null;
     return await this.model.find(
       {
         $or: [
@@ -12,7 +12,7 @@ export class propertyDataSource extends MongoDataSourceExtended {
         ],
         status: "live"
       }
-    ).collation({locale: "en", strength: 2});
+    ).limit(10).collation({locale: "en", strength: 2});
   }
 
 }

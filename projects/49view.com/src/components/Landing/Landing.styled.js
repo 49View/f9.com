@@ -23,14 +23,15 @@ export const LandingInner = styled.div` {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  font-size: 3rem;
+  font-size: 3.2rem;
   font-family: Aileron-Thin,serif;
   font-weight: lighter;
-  margin: calc(var(--navbar-height)) auto;
+  margin: calc(var(--navbar-height)*0.5) auto;
 }`;
 
 export const LandingSearchBar = styled.input` {
   margin: 15px auto;
+  margin-bottom: 0;
   height: 38px;
   width: 90%;
   padding-left: 10px;
@@ -71,13 +72,17 @@ export const SearchBarResultContainer = styled.div` {
   padding: 0px 10px;
 }`;
 
-export const SearchBarResultTrendId = styled.div` {
-  color: var(--secondary-alt-color)
+export const SearchResultsContainer = styled.div` {
+  margin-top: 10px;
+  font-size: var(--font-size-one);
 }`;
 
-export const SearchBarResultUser = styled.div` {
-  color: var(--logo-color-2);
+
+export const LocationSearchResultsContainer = styled.div` {
+  display: block;
+  text-align: left;
   font-size: var(--font-size-one);
+  width: 90%;
 }`;
 
 export const SearchText = styled.span` {
@@ -89,6 +94,16 @@ export const SearchTextAlt = styled.span` {
 }`;
 
 export const SearchTitleText = styled.span` {
+  margin-top: 40px;
 }`;
 
+export const TaglineText = styled.span` {
+  margin-top: 5px;
+  color: var(--light);
+  font-size: var(--font-size-onemedium);
+  font-weight: bold;
+  padding:7px;
+  border-radius: 5px;
+  background-color: var(--dark-color-transparent-notmuch);
+}`;
 
