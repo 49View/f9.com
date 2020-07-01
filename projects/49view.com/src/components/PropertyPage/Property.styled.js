@@ -4,7 +4,9 @@ import React from "reactn";
 
 export const carouselHeight = "480px";
 const mainPadding = "15px";
-const wasmCanvasSize = {x: "720px", y: "540px"};
+const sectionHeader = "48px";
+const sectionFooter = "1em";
+const wasmCanvasSize = {x: "720px", y: "480px"};
 
 export const PropertyContainer = styled.div`{
   border: 1px solid #d1d1d110;
@@ -104,10 +106,13 @@ export const PropertyTitleAddressPostcode = styled.span`{
 
 export const PropertyStarOfTheShowDiv = styled.div`{
   display: grid;
-  margin-top: 20px;
-  grid-gap: 10px;
+  margin-top: 10px;
+  grid-gap: 0 10px;
   grid-template-columns: ${wasmCanvasSize.x} calc( var(--body-width) - ${mainPadding}*2 - ${wasmCanvasSize.x} - 10px );
-  grid-template-rows: 100%;
+  grid-template-rows: ${sectionHeader} ${wasmCanvasSize.y} ${sectionFooter};
+  grid-template-areas: "propertyToolbar propertyToolbar"
+                       "propertyWasm propertyRightMenu"
+                       "propertyFooter propertyFooter";
 }`;
 
 export const PropertyCarouselDiv = styled.div`{
@@ -118,7 +123,13 @@ export const PropertyCarouselDiv = styled.div`{
   grid-template-rows: 100%;
 }`;
 
+export const PropertyToolbar = styled.div`{
+  grid-area: propertyToolbar;
+  //display: flex;
+}`;
+
 export const PropertyCanvas = styled.div`{
+  grid-area: propertyWasm;
   min-width: 720px;
   height: 480px;
   //border-radius: 5px;
@@ -126,11 +137,18 @@ export const PropertyCanvas = styled.div`{
 }`;
 
 export const PropertyRightMenu = styled.div`{
+  grid-area: propertyRightMenu;
   display: flex;
   flex-direction: column;
   border-radius:4px;
   border: solid 1px var(--info);
   background-image: linear-gradient(var(--dark-color-transparent), var(--dark-color-transparent-very) );
+}`;
+
+export const PropertyFooter = styled.div`{
+  grid-area: propertyFooter;
+  display: flex;
+  margin: 10px 0;
 }`;
 
 const chatAnimIn = keyframes`

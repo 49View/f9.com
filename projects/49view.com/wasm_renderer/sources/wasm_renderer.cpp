@@ -27,20 +27,12 @@ Showcaser::Showcaser( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchOrchestrato
                                                                                                                         asg(_asg), arc(_ims) {}
 
 void Showcaser::postLoadHouseCallback() {
-
     asg.make3dHouse( [&]() {
-        floorplanNavigationMatrix = asg.calcFloorplanNavigationTransform(3.5f, 0.02f);
-        arc.pm(RDSPreMult(floorplanNavigationMatrix));
-        arc.renderMode(FloorPlanRenderMode::Normal2d);
-        HouseRender::IMHouseRender(rsg.RR(), sg, asg.H(), arc);
-
-        V3f pos{0.0f, 1.48f, 0.0f};
-        V3f rot{ 0.08f, -0.70f, 0.0f };
-        HouseService::bestStartingPositionAndAngle(asg.H(), pos, rot);
-        rsg.setRigCameraController(CameraControlType::Walk);
-        sg.setLastKnownGoodPosition(pos);
-        rsg.DC()->setQuatAngles(rot);
-        rsg.DC()->setPosition(pos);
+        if ( HouseService::hasTour(asg.H()) ) {
+            asg.setTourView();
+        } else{
+            asg.setWalkView(0.0f);
+        }
     });
 }
 
@@ -78,16 +70,13 @@ void Showcaser::luaFunctionsSetup() {
     rsg.addLuaFunction(nsKey, "loadHouse", [&]( const std::string _pid ) {
         asg.loadHouse(_pid, std::bind( &Showcaser::postLoadHouseCallback, this));
     });
+    rsg.addLuaFunction(nsKey, "setViewingMode", [&]( int _vm ) {
+        asg.setViewingMode( static_cast<ArchViewingMode>(_vm));
+    });
 }
 
 void Showcaser::activateImpl() {
     loadSceneEntities();
-}
-
-void Showcaser::updatePersonLocator() {
-    if ( asg.H() && rsg.getRigCameraController() == CameraControlType::Walk && floorplanNavigationMatrix != Matrix4f::IDENTITY ) {
-        rsg.drawCameraLocator(floorplanNavigationMatrix);
-    }
 }
 
 void Showcaser::updateImpl( const AggregatedInputData& _aid ) {
@@ -99,7 +88,7 @@ void Showcaser::updateImpl( const AggregatedInputData& _aid ) {
 //        LightmapManager::apply( scene, rsg.RR());
 //    }
 
-    updatePersonLocator();
+    asg.updateViewingModes();
 
 #ifdef _USE_IMGUI_
     ImGui::Begin("SceneGraph");

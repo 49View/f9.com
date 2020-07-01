@@ -29,5 +29,4 @@ protected:
 protected:
     ArchOrchestrator& asg;
     ArchRenderController& arc;
-    Matrix4f floorplanNavigationMatrix = Matrix4f::MIDENTITY();
 };

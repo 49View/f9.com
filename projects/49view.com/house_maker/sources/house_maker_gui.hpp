@@ -45,7 +45,6 @@ public:
         if ( _paths.empty() ) return;
         if ( !asg.H() ) {
             this->backEnd->process_event(OnCreateNewPropertyFromFloorplanImageEvent{ _paths[0] });
-//            this->backEnd->process_event(OnLoadFloorPlanEvent{ getFileNameOnly(_paths[0]), _paths[0] });
             _paths.clear();
         }
     }
@@ -96,12 +95,12 @@ public:
         static bool doc = true;
         dockSpaceStartUp(&doc);
 
-        ImGui::Begin("SceneGraph");
-        ImGui::Text("Scene nodes: %lu", sg.Nodes().size());
-        sg.visitNodes([]( const GeomSPConst& elem ) {
-            ImGui::Text("%s", elem->Name().c_str());
-        });
-        ImGui::End();
+//        ImGui::Begin("SceneGraph");
+//        ImGui::Text("Scene nodes: %lu", sg.Nodes().size());
+//        sg.visitNodes([]( const GeomSPConst& elem ) {
+//            ImGui::Text("%s", elem->Name().c_str());
+//        });
+//        ImGui::End();
 
         static bool boControl = true;
         ImGui::Begin("Control", &boControl, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoTitleBar);
@@ -149,7 +148,7 @@ public:
             }
             auto texBin = rsg.RR().TM()->get(asg.H()->propertyId + "_bin");
             if ( texBin ) {
-                float tSize = 500.0f;
+                float tSize = 250.0f;
                 auto ar = texBin->getAspectRatioVector();
                 ImGui::Image(reinterpret_cast<ImTextureID *>(texBin->getHandle()), ImVec2{ tSize, tSize / ar.y() });
             }
@@ -159,10 +158,13 @@ public:
             static float oldScaleFactor = asg.H()->sourceData.rescaleFactor;
             static float currentScaleFactorMeters = centimetersToMeters(asg.H()->sourceData.rescaleFactor);
 
+            currentScaleFactorMeters = centimetersToMeters(asg.H()->sourceData.rescaleFactor);
             if ( ImGui::InputFloat("Scale Factor", &currentScaleFactorMeters, 0.001f, 0.01f, 5) ) {
                 this->backEnd->process_event(OnGlobalRescaleEvent{ oldScaleFactor, currentScaleFactorMeters });
                 oldScaleFactor = asg.H()->sourceData.rescaleFactor;
             }
+            ImGui::Text("Walkable Area: %s", sqmToString(asg.H()->walkableArea).c_str());
+            ImGui::Text("Num floors: %lu", asg.H()->mFloors.size());
 
             static float fptf = arc.getFloorPlanTransparencyFactor();
             if ( ImGui::SliderFloat("floorPlanTransparencyFactor", &fptf, 0.0f, 1.0f) ) {
@@ -182,14 +184,14 @@ public:
         }
         ImGui::End();
 
-        ImGui::Begin("Camera");
-        std::ostringstream camDump;
-        camDump << *sg.DC();
-        auto lines = split(camDump.str(), '\n');
-        for ( const auto& line : lines ) {
-            ImGui::Text("%s", line.c_str());
-        }
-        ImGui::End();
+//        ImGui::Begin("Camera");
+//        std::ostringstream camDump;
+//        camDump << *sg.DC();
+//        auto lines = split(camDump.str(), '\n');
+//        for ( const auto& line : lines ) {
+//            ImGui::Text("%s", line.c_str());
+//        }
+//        ImGui::End();
 
         ImGui::Begin("Listing");
         for ( const auto& property : plo.PropertyList() ) {
@@ -213,17 +215,67 @@ public:
 
         if ( asg.H() ) {
             ImGui::Begin("House Properties");
-            ImGui::Text("Walkable Area: %s", sqmToString(asg.H()->walkableArea).c_str());
-            ImGui::Text("Num floors: %lu", asg.H()->mFloors.size());
-            ImGui::InputFloat3("Best viewing position", &asg.H()->bestInternalViewingPosition[0]);
-            ImGui::InputFloat3("Best viewing angle", &asg.H()->bestInternalViewingAngle[0]);
+            auto colorOk = C4f::SPRING_GREEN;
+            auto colorBad = C4f::INDIAN_RED;
+
             if ( ImGui::Button("Set Starting Position") ) {
                 asg.H()->bestInternalViewingPosition = rsg.DC()->getPosition();
                 asg.H()->bestInternalViewingAngle = rsg.DC()->getIncrementQuatAngles();
             }
+            {
+                bool bestInternalPositionSet = asg.H()->bestInternalViewingPosition != V3f::ZERO;
+                auto color = bestInternalPositionSet ? colorOk : colorBad;
+                std::string ackText = bestInternalPositionSet ? "OK" : "Not set";
+                ImGui::SameLine();
+                ImGui::TextColored(ImVec4(color.x(), color.y(), color.z(), 1.0f), "%s", ackText.c_str());
+            }
+            ImGui::SameLine();
             if ( ImGui::Button("Set Dolly Position") ) {
                 asg.H()->bestDollyViewingPosition = rsg.DC()->getPosition();
                 asg.H()->bestDollyViewingAngle = rsg.DC()->getIncrementQuatAngles();
+            }
+            {
+                bool bestDollyPositionSet = asg.H()->bestDollyViewingPosition != V3f::ZERO;
+                auto color = bestDollyPositionSet ? colorOk : colorBad;
+                std::string ackText = bestDollyPositionSet ? "OK" : "Not set";
+                ImGui::SameLine();
+                ImGui::TextColored(ImVec4(color.x(), color.y(), color.z(), 1.0f), "%s", ackText.c_str());
+            }
+            ImGui::Separator();
+            ImGui::Text("Camera paths");
+            ImGui::SameLine();
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(colorOk.x(), colorOk.y(), colorOk.z(), 1.0f));
+            if ( ImGui::Button("+") ) {
+                this->backEnd->process_event(OnPushTourPathEvent{});
+            }
+            ImGui::PopStyleColor(1);
+            int ki = 0;
+            int tourIndex = 0;
+            for ( auto& tour : asg.H()->tourPaths ) {
+                if ( !tour.path.empty() ) {
+                    ImGui::PushID(ki++);
+                    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(colorBad.x(), colorBad.y(), colorBad.z(), 1.0f));
+                    if ( ImGui::Button("-") ) {
+                        this->backEnd->process_event(OnPopTourPathEvent{tourIndex});
+                    }
+                    ImGui::PopStyleColor(1);
+                    ImGui::PopID();
+                    ImGui::SameLine();
+                }
+                for ( auto& path : tour.path ) {
+                    ImGui::PushID(ki++);
+                    ImGui::SetNextItemWidth(100.0f);
+                    ImGui::InputFloat("", &path.timestamp);
+                    ImGui::PopID();
+                    ImGui::SameLine();
+                }
+                ImGui::SameLine();
+                ImGui::PushID(ki++);
+                if ( ImGui::Button("K") ) {
+                    this->backEnd->process_event(OnPushKeyFrameTourPathEvent{});
+                }
+                ImGui::PopID();
+                tourIndex++;
             }
             ImGui::End();
 
@@ -236,7 +288,7 @@ public:
 
         selectionEditor.update(this->BackEnd(), *cli.getParam("mediaFolder"));
 
-//        ImGui::ShowDemoWindow();
+        ImGui::ShowDemoWindow();
 
         // Modal callbacks
         if ( !rsg.CallbackPaths().empty() ) {

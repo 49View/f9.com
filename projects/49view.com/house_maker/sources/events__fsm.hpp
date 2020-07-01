@@ -13,6 +13,7 @@ struct OnAltPressedEvent {};
 struct OnClearEvent {};
 struct OnDoubleTapEvent {};
 struct OnUndoEvent {};
+struct OnRedoEvent {};
 
 struct OnWhichRoomAmIEvent{};
 struct OnLoadFloorPlanEvent {
@@ -32,6 +33,7 @@ struct OnElaborateHouseBitmapEvent {};
 struct OnRecalculateFurnitureEvent {};
 
 struct OnHouseMakerToggleEvent{};
+struct OnTourToggleEvent{};
 struct OnBrowser3dToggleEvent{};
 struct OnBrowserTopDown3dToggleEvent{};
 struct OnBrowserDollyHouseToggleEvent{};
@@ -50,9 +52,18 @@ struct OnTouchMoveViewportSpaceEvent {
     V2f viewportPos{V2fc::HUGE_VALUE_NEG};
 };
 
+struct OnSingleTapEvent {
+    V2f mousePos{V2fc::HUGE_VALUE_NEG};
+};
+
 struct OnTouchUpEvent {
     V2f mousePos{V2fc::HUGE_VALUE_NEG};
 };
+
+struct OnSingleTapViewportSpaceEvent {
+    V2f viewportPos{V2fc::HUGE_VALUE_NEG};
+};
+
 struct OnTouchUpViewportSpaceEvent {
     V2f viewportPos{V2fc::HUGE_VALUE_NEG};
 };
@@ -77,3 +88,11 @@ struct OnGlobalRescaleEvent {
 };
 
 struct OnEnterFittedFurnitureManipulationEvent{};
+
+struct OnPushTourPathEvent{};
+struct OnPushKeyFrameTourPathEvent {
+    float timestamp = 5.0f;
+};
+struct OnPopTourPathEvent {
+    int popIndex = -1;
+};

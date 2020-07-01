@@ -14,100 +14,65 @@ struct ClearEverthing {
     }
 };
 
-struct ActivateHouseMaker {
-    void operator()( ArchRenderController& arc, RenderOrchestrator& rsg, ArchOrchestrator& asg ) noexcept {
-        arc.setViewingMode(ArchViewingMode::AVM_TopDown2d);
-        rsg.setRigCameraController(CameraControlType::Edit2d);
-        rsg.DC()->LockAtWalkingHeight(false);
-        auto quatAngles = V3f{ M_PI_2, 0.0f, 0.0f };
-        rsg.DC()->setIncrementQuatAngles(quatAngles);
-        rsg.useSkybox(false);
-        if ( asg.H() ) {
-            auto quat = quatCompose(quatAngles);
-            Timeline::play(rsg.DC()->QAngleAnim(), 0, KeyFramePair{ 0.9f, quat });
-            asg.centerCameraMiddleOfHouse();
-            arc.setFloorPlanTransparencyFactor(0.5f);
-            asg.showIMHouse();
-        }
-        fader(0.9f, 1.0f, rsg.RR().CLI(CommandBufferLimits::UI2dStart));
-        fader(0.9f, 1.0f, rsg.RR().CLI(CommandBufferLimits::GridStart));
-        fader(0.9f, 0.0f, rsg.RR().CLI(CommandBufferLimits::PBRStart));
-    }
-};
-
 struct InitializeHouseMaker {
-    void operator()( ArchRenderController& arc, RenderOrchestrator& rsg, ArchOrchestrator& asg,
+    void operator()( SceneGraph& sg, ArchRenderController& arc, RenderOrchestrator& rsg, ArchOrchestrator& asg,
                      OnActivateEvent ev ) noexcept {
         rsg.DC()->setQuatAngles(V3f{ M_PI_2, 0.0f, 0.0f });
         rsg.DC()->setPosition(V3f::UP_AXIS * 5.0f);
-        ActivateHouseMaker{}(arc, rsg, asg);
+        asg.setFloorPlanView();
         if ( ev.ccf ) ev.ccf();
     }
 };
 
-struct ActivateHouseMakerWithTopDown3d {
-    void operator()( ArchOrchestrator& asg, HouseMakerStateMachine& hm, RenderOrchestrator& rsg ) noexcept {
-        hm.ARC().setViewingMode(ArchViewingMode::AVM_TopDown3d);
-        rsg.setRigCameraController(CameraControlType::Edit2d);
-        rsg.DC()->LockAtWalkingHeight(false);
-        auto quatAngles = V3f{ M_PI_2, 0.0f, 0.0f };
-        rsg.DC()->setIncrementQuatAngles(quatAngles);
-        rsg.useSkybox(false);
-        if ( asg.H() ) {
-            hm.ARC().setFloorPlanTransparencyFactor(0.0f);
-            asg.showIMHouse();
-            auto quat = quatCompose(quatAngles);
-            Timeline::play(rsg.DC()->QAngleAnim(), 0, KeyFramePair{ 0.9f, quat });
-            asg.centerCameraMiddleOfHouse(2.0f);
-            rsg.RR().setVisibilityOnTags(ArchType::CeilingT, false);
-        }
-        fader(0.9f, 1.0f, rsg.RR().CLI(CommandBufferLimits::UI2dStart));
-        fader(0.9f, 0.0f, rsg.RR().CLI(CommandBufferLimits::GridStart));
-        fader(0.9f, 1.0f, rsg.RR().CLI(CommandBufferLimits::PBRStart));
+static inline void show3dViewInternal( ArchOrchestrator& asg, std::function<void()> callback ) {
+    if ( !asg.H() ) return;
+    if ( asg.HRC().houseId != asg.H()->propertyId ) {
+        asg.make3dHouse(callback);
+    } else {
+        callback();
+    }
+}
+
+struct ActivateFloorplanView {
+    void
+    operator()( SceneGraph& sg, ArchRenderController& arc, RenderOrchestrator& rsg, ArchOrchestrator& asg ) noexcept {
+        asg.setFloorPlanView();
     }
 };
 
-struct ActivateBrowsing3d {
-    void operator()( ArchOrchestrator& asg, HouseMakerStateMachine& hm, RenderOrchestrator& rsg ) noexcept {
-        hm.ARC().setViewingMode(ArchViewingMode::AVM_Walk);
-        rsg.setRigCameraController(CameraControlType::Walk);
-        rsg.useSkybox(true);
-        if ( asg.H() ) {
-            V3f pos = V3f::ZERO;
-            V3f quatAngles = V3f::ZERO;
-            HouseService::bestStartingPositionAndAngle(asg.H(), pos, quatAngles);
-            auto quat = quatCompose(quatAngles);
-            rsg.DC()->setIncrementQuatAngles(quatAngles);
-            Timeline::play(rsg.DC()->PosAnim(), 0,
-                           KeyFramePair{ 0.9f, pos });
-            Timeline::play(rsg.DC()->QAngleAnim(), 0, KeyFramePair{ 0.9f, quat });
-            rsg.RR().setVisibilityOnTags(ArchType::CeilingT, true);
-            fader(0.9f, 0.0f, rsg.RR().CLI(CommandBufferLimits::UI2dStart));
-            fader(0.9f, 0.0f, rsg.RR().CLI(CommandBufferLimits::GridStart));
-            fader(0.9f, 1.0f, rsg.RR().CLI(CommandBufferLimits::PBRStart));
-        }
+struct ActivateTourView {
+    void
+    operator()( SceneGraph& sg, ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) noexcept {
+        show3dViewInternal( asg, [&]() {
+            asg.setTourView();
+        } );
     }
 };
 
-struct ActivateBrowsingDollyHouse {
-    void operator()( ArchOrchestrator& asg, HouseMakerStateMachine& hm, RenderOrchestrator& rsg ) noexcept {
-        hm.ARC().setViewingMode(ArchViewingMode::AVM_DollHouse);
-        rsg.setRigCameraController(CameraControlType::Fly);
-        rsg.useSkybox(true);
-        if ( asg.H() ) {
-            V3f pos = V3f::ZERO;
-            V3f quatAngles = V3f::ZERO;
-            HouseService::bestDollyPositionAndAngle(asg.H(), pos, quatAngles);
-            auto quat = quatCompose(quatAngles);
-            rsg.DC()->setIncrementQuatAngles(quatAngles);
-            Timeline::play(rsg.DC()->PosAnim(), 0, KeyFramePair{ 0.9f, pos });
-            Timeline::play(rsg.DC()->QAngleAnim(), 0, KeyFramePair{ 0.9f, quat });
-            fader(0.9f, 0.0f, rsg.RR().CLI(CommandBufferLimits::UI2dStart));
-            fader(0.9f, 0.0f, rsg.RR().CLI(CommandBufferLimits::GridStart));
-            fader(0.9f, 1.0f, rsg.RR().CLI(CommandBufferLimits::PBRStart));
+struct ActivateTopDownView {
+    void
+    operator()( SceneGraph& sg, ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) noexcept {
+        show3dViewInternal( asg, [&]() {
+            asg.setTopDownView();
+        } );
+    }
+};
 
-            rsg.RR().setVisibilityOnTags(ArchType::CeilingT, false);
-        }
+struct ActivateWalkView {
+    void
+    operator()( SceneGraph& sg, ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) noexcept {
+        show3dViewInternal( asg, [&]() {
+            asg.setWalkView();
+        } );
+    }
+};
+
+struct ActivateDollyHouseView {
+    void
+    operator()( SceneGraph& sg, ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) noexcept {
+        show3dViewInternal( asg, [&]() {
+            asg.setDollHouseView();
+        } );
     }
 };
 
@@ -147,19 +112,22 @@ updateSourceImagesIntoScene( SceneGraph& sg, ArchOrchestrator& asg, const Source
 
 struct UpdateHMB {
     void operator()( SceneGraph& sg, ArchOrchestrator& asg ) {
-        updateSourceImagesIntoScene(sg, asg, HouseMakerBitmap::prepareImages(asg.H()));
+        updateSourceImagesIntoScene(sg, asg, HouseMakerBitmap::prepareImages(asg.H(), *sg.get<RawImage>(asg.H()->propertyId)));
     }
 };
 
 
-static inline void prepareProperty( const PropertyListing& property, ArchOrchestrator& asg, const std::string& mediaFolder ) {
+static inline void
+prepareProperty( const PropertyListing& property, ArchOrchestrator& asg, SceneGraph& sg, const std::string& mediaFolder ) {
 
-    asg.loadHouse(property._id, [&, property, mediaFolder]() {
-        HouseMakerBitmap::createSourceDataImage(asg.H(), property, mediaFolder);
+    auto floorplanImage = RawImage{ FM::readLocalFileC(mediaFolder + property.floorplanUrl) };
+    sg.addRawImageIM(property._id, floorplanImage);
+    asg.loadHouse(property._id, [&, property]() {
+        HouseMakerBitmap::prepareImages( asg.H(), *sg.get<RawImage>(property._id) );
         asg.centerCameraMiddleOfHouse();
         asg.onEvent(ArchIOEvents::AIOE_OnLoad);
     }, [&, property]() {
-        asg.setHouse(HouseMakerBitmap::makeEmpty(property, mediaFolder));
+        asg.setHouse(HouseMakerBitmap::makeEmpty(property, *sg.get<RawImage>(property._id)));
         asg.centerCameraMiddleOfHouse();
         asg.onEvent(ArchIOEvents::AIOE_OnLoad);
     });
@@ -169,7 +137,6 @@ static inline void prepareProperty( const PropertyListing& property, ArchOrchest
 struct CreateHouseTextures {
     void operator()( SceneGraph& sg, ArchOrchestrator& asg ) {
         updateSourceImagesIntoScene(sg, asg, HouseMakerBitmap::getSourceImages());
-        sg.addRawImageIM(asg.H()->propertyId, asg.H()->sourceData.image);
         asg.showIMHouse();
         asg.onEvent(ArchIOEvents::AIOE_OnLoadComplete);
     }
@@ -182,25 +149,27 @@ JSONDATA(ExcaliburPostBody, url, upsert)
 };
 
 struct ImportExcaliburLink {
-    void operator()( SceneGraph& sg, ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc, const CLIParamMap& cli,
+    void operator()( SceneGraph& sg, ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc,
+                     const CLIParamMap& cli,
                      OnImportExcaliburLinkEvent event ) {
         auto body = ExcaliburPostBody{ event.excaliburLink, false };
         Http::post(Url{ "/property/fetch/floorplan/excalibur" }, body.serialize(),
                    [&]( HttpResponeParams params ) {
                        PropertyListing property{ params.BufferString() };
-                       prepareProperty(property, asg, *cli.getParam("mediaFolder"));
+                       prepareProperty(property, asg, sg, *cli.getParam("mediaFolder"));
 //                    asg.saveHouse();
                    });
     }
 };
 
 struct CreateNewPropertyFromFloorplanImage {
-    void operator()( SceneGraph& sg, ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc, const CLIParamMap& cli,
+    void operator()( SceneGraph& sg, ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc,
+                     const CLIParamMap& cli,
                      OnCreateNewPropertyFromFloorplanImageEvent event ) {
         Http::post(Url{ "/property/newFromImage/" + url_encode(getFileName(event.floorplanFileName)) },
                    FM::readLocalFileC(event.floorplanFileName), [&]( HttpResponeParams params ) {
                     PropertyListing property{ params.BufferString() };
-                    prepareProperty(property, asg, *cli.getParam("mediaFolder"));
+                    prepareProperty(property, asg, sg, *cli.getParam("mediaFolder"));
                     asg.saveHouse();
                 });
     }
@@ -210,16 +179,17 @@ struct LoadFloorPlan {
     void operator()( SceneGraph& sg, ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc,
                      const CLIParamMap& cli,
                      OnLoadFloorPlanEvent event ) {
-        prepareProperty(event.property, asg, *cli.getParam("mediaFolder"));
+        prepareProperty(event.property, asg, sg, *cli.getParam("mediaFolder"));
     }
 };
 
 struct MakeHouse3d {
     void operator()( ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) {
-        //HouseService::guessFittings( asg.H(), asg.FurnitureMap() );
         asg.make3dHouse([&]() {
+            rsg.RR().showBucket(CommandBufferLimits::PBRStart, arc.getViewingMode() != ArchViewingMode::AVM_FloorPlan);
+            rsg.useSkybox(arc.getViewingMode() != ArchViewingMode::AVM_FloorPlan);
             if ( arc.getViewingMode() == ArchViewingMode::AVM_DollHouse ||
-                 arc.getViewingMode() == ArchViewingMode::AVM_TopDown3d ) {
+                 arc.getViewingMode() == ArchViewingMode::AVM_TopDown ) {
                 rsg.RR().setVisibilityOnTags(ArchType::CeilingT, false);
             }
         });
@@ -227,10 +197,11 @@ struct MakeHouse3d {
 };
 
 struct ElaborateHouseBitmap {
-    void operator()( ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) {
-        auto newHouse = HouseMakerBitmap::make(asg.H(), asg.FurnitureMap());
+    void operator()( SceneGraph& sg, ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) {
+        auto newHouse = HouseMakerBitmap::make(asg.H(), *sg.get<RawImage>(asg.H()->propertyId), asg.FurnitureMap());
         asg.setHouse(newHouse);
         asg.showIMHouse();
+        asg.pushHouseChange();
     }
 };
 
@@ -239,13 +210,31 @@ struct FurnishHouse {
         HouseService::guessFittings(asg.H(), asg.FurnitureMap());
         MakeHouse3d{}(asg, rsg, arc);
         asg.showIMHouse();
+        asg.pushHouseChange();
+    }
+};
+
+struct PushTourPath {
+    void operator()( ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) {
+        HouseService::pushTourPath(asg.H(), CameraSpatialsKeyFrame{ rsg.DC()->getSpatials(), 0.0f } );
+    }
+};
+
+struct PushKeyFrameTourPath {
+    void operator()( OnPushKeyFrameTourPathEvent event, ArchOrchestrator& asg, RenderOrchestrator& rsg ) {
+        HouseService::pushKeyFrameTourPath(asg.H(), CameraSpatialsKeyFrame{ rsg.DC()->getSpatials(), event.timestamp } );
+    }
+};
+
+struct PopTourPath {
+    void operator()( OnPopTourPathEvent event, ArchOrchestrator& asg, RenderOrchestrator& rsg, ArchRenderController& arc ) {
+        HouseService::popTourPath(asg.H(), event.popIndex);
     }
 };
 
 
 struct GlobalRescale {
-    void operator()( HouseMakerStateMachine& hm, OnGlobalRescaleEvent event, ArchRenderController& arc,
-                     ArchOrchestrator& asg ) {
+    void operator()( OnGlobalRescaleEvent event, ArchRenderController& arc, ArchOrchestrator& asg ) {
         float oldScaleFactor = event.oldScaleFactor;
         float currentScaleFactorMeters = event.currentScaleFactorMeters;
         if ( asg.H() ) {
@@ -265,6 +254,7 @@ struct GlobalRescale {
             HouseService::guessFittings(asg.H(), asg.FurnitureMap());
             asg.showIMHouse();
             asg.centerCameraMiddleOfHouse();
+            asg.pushHouseChange();
         }
     }
 };

@@ -71,7 +71,9 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
     }
 
     if ( _aid.TI().checkModKeyPressed(GMK_LEFT_CONTROL) ) {
-        if ( _aid.TI().checkKeyToggleOn(GMK_Z) ) {
+        if ( isShiftPressed && _aid.TI().checkKeyToggleOn(GMK_Z) ) {
+            backEnd->process_event(OnRedoEvent{});
+        } else if ( _aid.TI().checkKeyToggleOn(GMK_Z) ) {
             backEnd->process_event(OnUndoEvent{});
         }
         if ( _aid.TI().checkKeyToggleOn(GMK_T) ) {
@@ -87,9 +89,14 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
         backEnd->process_event(OnTouchMoveEvent{ _aid.mousePos(TOUCH_ZERO) });
         backEnd->process_event(OnTouchMoveViewportSpaceEvent{ _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC()) });
     }
-    if ( _aid.isMouseTouchedUp(TOUCH_ZERO) ) {
-        backEnd->process_event(OnTouchUpEvent{ _aid.mousePos(TOUCH_ZERO) });
-        backEnd->process_event(OnTouchUpViewportSpaceEvent{ _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC()) });
+    if ( _aid.isMouseSingleTap( TOUCH_ZERO) ) {
+        backEnd->process_event(OnSingleTapEvent{ _aid.mousePos(TOUCH_ZERO) });
+        backEnd->process_event(OnSingleTapViewportSpaceEvent{ _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC()) });
+    } else {
+        if ( _aid.isMouseTouchedUp(TOUCH_ZERO) ) {
+            backEnd->process_event(OnTouchUpEvent{ _aid.mousePos(TOUCH_ZERO) });
+            backEnd->process_event(OnTouchUpViewportSpaceEvent{ _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC()) });
+        }
     }
 
     if ( _aid.TI().checkKeyToggleOn(GMK_A) ) {
@@ -99,6 +106,9 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
         backEnd->process_event(OnKeyToggleEvent{ GMK_D, _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC()) });
     }
 
+    if ( _aid.TI().checkKeyToggleOn(GMK_5) ) {
+        backEnd->process_event(OnTourToggleEvent{});
+    }
     if ( _aid.TI().checkKeyToggleOn(GMK_1) ) {
         backEnd->process_event(OnHouseMakerToggleEvent{});
     }
@@ -125,6 +135,14 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
         backEnd->process_event(OnKeyToggleEvent{ GMK_R });
     }
 
+
+    if ( _aid.TI().checkKeyToggleOn(GMK_J) ) {
+        backEnd->process_event(OnPushTourPathEvent{});
+    }
+    if ( _aid.TI().checkKeyToggleOn(GMK_K) ) {
+        backEnd->process_event(OnPushKeyFrameTourPathEvent{});
+    }
+
     if ( _aid.TI().checkKeyToggleOn(GMK_MINUS) ) {
         backEnd->process_event(OnIncrementalScaleEvent{-0.05f});
     }
@@ -132,12 +150,6 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
         backEnd->process_event(OnIncrementalScaleEvent{0.05f});
     }
 
-//    if ( _aid.TI().checkKeyToggleOn(GMK_O) ) {
-//        backEnd->process_event(OnKeyToggleEvent{ GMK_O });
-//    }
-//    if ( _aid.TI().checkKeyToggleOn(GMK_P) ) {
-//        backEnd->process_event(OnKeyToggleEvent{ GMK_P });
-//    }
     if ( _aid.TI().checkKeyToggleOn(GMK_ENTER) ) {
         backEnd->process_event(OnFinaliseEvent{});
     }

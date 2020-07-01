@@ -1,0 +1,17 @@
+type Location {
+    type: String
+    coordinates: [Float]
+}
+
+type MapLocation {
+    _id: ID!
+    locationName: String!
+    locationLink: String
+    locality: String
+    location: Location
+    gridReference: String
+}
+
+type Query {
+    partialLocation(partialName: String): [MapLocation]
+}

@@ -11,6 +11,7 @@ const stripeRoute       = require("./restful-api/routes/stripeRoute");
 const shadersRoute      = require("./restful-api/routes/shadersRoute");
 const fsRoute           = require("./restful-api/routes/fsRoute");
 const entitiesRoute     = require("./restful-api/routes/entitiesRoute");
+const locationRoute     = require("./restful-api/routes/locationRoute");
 const furnitureSetRoute = require("./restful-api/routes/furnitureSetRoute");
 const propertyRoute     = require("./restful-api/routes/propertyRoute");
 const propertyBimRoute  = require("./restful-api/routes/propertyBimRoute");
@@ -29,6 +30,7 @@ const use = () => {
   app.use("/stripe", stripeRoute);
   app.use("/shaders", shadersRoute);
   app.use("/entities", entitiesRoute);
+  app.use("/location", locationRoute);
   app.use("/furnitureset", furnitureSetRoute);
   app.use("/propertyBim", propertyBimRoute);
   app.use(authController.authenticate);

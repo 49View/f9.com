@@ -3,7 +3,7 @@ import {ProgressBar} from "../../futuremodules/progressbar/ProgressBar";
 import {NavbarComponent} from "../../futuremodules/reactComponentStyles/reactCommon.styled";
 import {NavbarUser} from "../../futuremodules/navbar/components/NavbarUser";
 import {NavbarLogoAndTitle} from "./NavbarLogoAndTitle";
-import {NavbarLeftHandSizeComponent} from "../../futuremodules/navbar/components/navbar-styled";
+import {NavbarLeftHandSizeComponent, NavbarTaglineText} from "../../futuremodules/navbar/components/navbar-styled";
 
 const Navbar = () => {
 
@@ -13,6 +13,9 @@ const Navbar = () => {
       <NavbarLeftHandSizeComponent>
         <NavbarLogoAndTitle/>
       </NavbarLeftHandSizeComponent>
+      <NavbarTaglineText>
+        {/*Immersive Virtual Experiences*/}
+      </NavbarTaglineText>
       <NavbarUser/>
     </NavbarComponent>
   );
