@@ -28,6 +28,8 @@ Showcaser::Showcaser( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchOrchestrato
 
 void Showcaser::postLoadHouseCallback() {
     asg.make3dHouse( [&]() {
+        Renderer::clearColor(C4f::XTORGBA("e0e0e0"));
+//        asg.setFloorPlanView();
         if ( HouseService::hasTour(asg.H()) ) {
             asg.setTourView();
         } else{
@@ -39,8 +41,9 @@ void Showcaser::postLoadHouseCallback() {
 void Showcaser::activatePostLoad() {
 
     rsg.createSkybox(SkyBoxInitParams{ SkyBoxMode::CubeProcedural });
+//    rsg.RR().createGridV2(CommandBufferLimits::GridStart, 1.0f, ( Color4f::PASTEL_GRAYLIGHT ),
+//                        ( Color4f::DARK_GRAY ), V2f{ 15.0f }, 0.015f);
 
-    Renderer::clearColor(C4f::XTORGBA("8ae9e9"));
     rsg.useSkybox(false);
 //    rsgl.RR().setShadowOverBurnCofficient( appData.getRenderSettings().shadowOverBurnCofficient );
 //    rsgl.RR().setIndoorSceneCoeff(appData.getRenderSettings().indoorSceneCoeff);
@@ -56,7 +59,6 @@ void Showcaser::activatePostLoad() {
     rsg.changeTime("14:00");
     rsg.setRigCameraController(CameraControlType::Walk);
     rsg.DC()->setQuatAngles(V3f{ 0.08f, -0.00f, 0.0f });
-    rsg.DC()->setFoV(60.0f);
 
     // Load default property if passed trough command line
     LOGRS("CLI params:" << cliParams.printAll());
@@ -97,14 +99,14 @@ void Showcaser::updateImpl( const AggregatedInputData& _aid ) {
     });
     ImGui::End();
 
-//    ImGui::Begin("Camera");
-//    std::ostringstream camDump;
-//    camDump << *sg.DC().get();
-//    auto lines = split(camDump.str(), '\n');
-//    for ( const auto& line : lines ) {
-//        ImGui::Text("%s", line.c_str());
-//    }
-//    ImGui::End();
+    ImGui::Begin("Camera");
+    std::ostringstream camDump;
+    camDump << *sg.DC().get();
+    auto lines = split(camDump.str(), '\n');
+    for ( const auto& line : lines ) {
+        ImGui::Text("%s", line.c_str());
+    }
+    ImGui::End();
 
     ImGuiLuaConsole(rsg);
 #endif
