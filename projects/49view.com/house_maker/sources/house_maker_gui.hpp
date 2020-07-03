@@ -288,7 +288,7 @@ public:
 
         selectionEditor.update(this->BackEnd(), *cli.getParam("mediaFolder"));
 
-        ImGui::ShowDemoWindow();
+//        ImGui::ShowDemoWindow();
 
         // Modal callbacks
         if ( !rsg.CallbackPaths().empty() ) {
