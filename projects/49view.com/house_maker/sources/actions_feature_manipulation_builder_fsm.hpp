@@ -63,28 +63,28 @@ static inline bool touchSelection( const V2f& is, TouchedSelectionFlag tsf, Arch
         if ( tsf == TouchedSelectionFlag::Keep ) arc.singleSelectionKeep(afs, is, SelectionFlags::RemoveAtTouchUp);
         return arc.selectionCount() > 0;
     } else {
-        if ( auto door = HouseService::point<DoorBSData, IsInside>(asg.H(), is); door ) {
+        if ( auto door = HouseService::point2d<DoorBSData, IsInside>(asg.H(), is); door ) {
             afs.feature = ArchStructuralFeature::ASF_Poly;
             afs.elem = door.get();
             if ( tsf == TouchedSelectionFlag::Toggle ) arc.singleSelectionToggle(afs, is);
             if ( tsf == TouchedSelectionFlag::Keep ) arc.singleSelectionKeep(afs, is);
             return arc.selectionCount() > 0;
         }
-        if ( auto window = HouseService::point<WindowBSData, IsInside>(asg.H(), is); window ) {
+        if ( auto window = HouseService::point2d<WindowBSData, IsInside>(asg.H(), is); window ) {
             afs.feature = ArchStructuralFeature::ASF_Poly;
             afs.elem = window.get();
             if ( tsf == TouchedSelectionFlag::Toggle ) arc.singleSelectionToggle(afs, is);
             if ( tsf == TouchedSelectionFlag::Keep ) arc.singleSelectionKeep(afs, is);
             return arc.selectionCount() > 0;
         }
-        if ( auto ff = HouseService::point<FittedFurniture, IsInside>(asg.H(), is); ff ) {
+        if ( auto ff = HouseService::point2d<FittedFurniture, IsInside>(asg.H(), is); ff ) {
             afs.feature = ArchStructuralFeature::ASF_Poly;
             afs.elem = ff.get();
             if ( tsf == TouchedSelectionFlag::Toggle ) arc.singleSelectionToggle(afs, is);
             if ( tsf == TouchedSelectionFlag::Keep ) arc.singleSelectionKeep(afs, is);
             return arc.selectionCount() > 0;
         }
-        if ( auto room = HouseService::point<RoomBSData, IsInside>(asg.H(), is); room ) {
+        if ( auto room = HouseService::point2d<RoomBSData, IsInside>(asg.H(), is); room ) {
             afs.feature = ArchStructuralFeature::ASF_Poly;
             afs.elem = room.get();
             if ( tsf == TouchedSelectionFlag::Toggle ) arc.singleSelectionToggle(afs, is);
