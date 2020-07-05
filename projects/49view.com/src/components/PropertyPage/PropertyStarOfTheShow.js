@@ -70,15 +70,13 @@ export const PropertyStarOfTheShow = ({property}) => {
         }}>
           <Tab eventKey="0" title="Tour">
           </Tab>
-          <Tab eventKey="1" title="Assisted">
+          <Tab eventKey="1" title="Explore">
           </Tab>
-          <Tab eventKey="2" title="Walk">
+          <Tab eventKey="2" title="Floorplan">
           </Tab>
-          <Tab eventKey="3" title="Floorplan">
+          <Tab eventKey="3" title="Top-down">
           </Tab>
-          <Tab eventKey="4" title="Top-down">
-          </Tab>
-          <Tab eventKey="5" title="Doll house">
+          <Tab eventKey="4" title="Doll house">
           </Tab>
         </Tabs>
       </PropertyToolbar>

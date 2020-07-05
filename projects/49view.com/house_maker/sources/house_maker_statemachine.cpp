@@ -56,6 +56,7 @@ void HouseMakerStateMachine::activatePostLoad() {
 
 void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
 
+    asg.updateViewingModes(_aid);
     gui->update();
 
     bool isLeftAltPressed = _aid.TI().checkKeyPressed(GMK_LEFT_ALT);

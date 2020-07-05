@@ -29,7 +29,6 @@ Showcaser::Showcaser( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchOrchestrato
 void Showcaser::postLoadHouseCallback() {
     asg.make3dHouse( [&]() {
         Renderer::clearColor(C4f::XTORGBA("e0e0e0"));
-//        asg.setFloorPlanView();
         if ( HouseService::hasTour(asg.H()) ) {
             asg.setTourView();
         } else{
@@ -90,7 +89,18 @@ void Showcaser::updateImpl( const AggregatedInputData& _aid ) {
 //        LightmapManager::apply( scene, rsg.RR());
 //    }
 
-    asg.updateViewingModes();
+    asg.updateViewingModes(_aid);
+
+//    if ( _aid.isMouseSingleTap( TOUCH_ZERO) ) {
+//        auto fd = HouseService::rayFeatureIntersect( asg.H(), RayPair3{rsg.DC()->getPosition(), dir} );
+//        if ( fd.hasHit() ) {
+//            float safeDist = fd.nearV > 0.25f ? fd.nearV - 0.25f : 0.0f;
+//            ic = rsg.DC()->getPosition() + (dir * safeDist);
+//            Timeline::play(rsg.DC()->PosAnim(), 0, KeyFramePair{0.5f, ic });
+//        }
+//    }
+
+//    LOGRS("Mouse floor pick: " << _aid.mouseViewportPos(TouchIndex::TOUCH_ZERO, rsg.DC()));
 
 #ifdef _USE_IMGUI_
     ImGui::Begin("SceneGraph");

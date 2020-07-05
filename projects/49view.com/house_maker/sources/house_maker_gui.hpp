@@ -184,14 +184,14 @@ public:
         }
         ImGui::End();
 
-//        ImGui::Begin("Camera");
-//        std::ostringstream camDump;
-//        camDump << *sg.DC();
-//        auto lines = split(camDump.str(), '\n');
-//        for ( const auto& line : lines ) {
-//            ImGui::Text("%s", line.c_str());
-//        }
-//        ImGui::End();
+        ImGui::Begin("Camera");
+        std::ostringstream camDump;
+        camDump << *sg.DC();
+        auto lines = split(camDump.str(), '\n');
+        for ( const auto& line : lines ) {
+            ImGui::Text("%s", line.c_str());
+        }
+        ImGui::End();
 
         ImGui::Begin("Listing");
         for ( const auto& property : plo.PropertyList() ) {

@@ -26,7 +26,7 @@ struct FrontEndStateMachineSML {
             ,state<class HouseMaker> + event<OnCreateHouseTexturesEvent> / CreateHouseTextures{}
             ,state<class HouseMaker> + event<OnElaborateHouseBitmapEvent> / ElaborateHouseBitmap{}
             ,state<class HouseMaker> + event<OnRecalculateFurnitureEvent> / FurnishHouse{}
-            ,state<class HouseMaker> + event<OnTourToggleEvent> / ActivateTourView{}
+            ,state<class HouseMaker> + event<OnTourToggleEvent> / ActivateTourView{} = state<class TourView>
             ,state<class HouseMaker> + event<OnBrowserTopDown3dToggleEvent> / ActivateTopDownView{}
             ,state<class HouseMaker> + event<OnBrowser3dToggleEvent> / ActivateWalkView{} = state<class Browsing3d>
             ,state<class HouseMaker> + event<OnBrowserDollyHouseToggleEvent> / ActivateDollyHouseView{} = state<class BrowsingDollyHouse>
@@ -48,8 +48,9 @@ struct FrontEndStateMachineSML {
             ,state<class Browsing3d> + event<OnPushTourPathEvent> / PushTourPath{}
             ,state<class Browsing3d> + event<OnPushKeyFrameTourPathEvent> / PushKeyFrameTourPath{}
             ,state<class Browsing3d> + event<OnPopTourPathEvent> / PopTourPath{}
-            ,state<class Browsing3d> + event<OnTourToggleEvent> / ActivateTourView{}
+            ,state<class Browsing3d> + event<OnTourToggleEvent> / ActivateTourView{} = state<class TourView>
 
+            ,state<class BrowsingDollyHouse> + event<OnTourToggleEvent> / ActivateTourView{} = state<class TourView>
             ,state<class BrowsingDollyHouse> + event<OnBrowserTopDown3dToggleEvent> / ActivateTopDownView{} = state<class HouseMaker>
             ,state<class BrowsingDollyHouse> + event<OnHouseMakerToggleEvent> / ActivateFloorplanView{} = state<class HouseMaker>
             ,state<class BrowsingDollyHouse> + event<OnBrowser3dToggleEvent> / ActivateWalkView{} = state<class Browsing3d>
@@ -57,6 +58,12 @@ struct FrontEndStateMachineSML {
             ,state<class BrowsingDollyHouse> + event<OnMakeHouse3dEvent> / MakeHouse3d{}
             ,state<class BrowsingDollyHouse> + event<OnElaborateHouseBitmapEvent> / ElaborateHouseBitmap{}
             ,state<class BrowsingDollyHouse> + event<OnRecalculateFurnitureEvent> / FurnishHouse{}
+
+            ,state<class TourView> + event<OnBrowserTopDown3dToggleEvent> / ActivateTopDownView{} = state<class HouseMaker>
+            ,state<class TourView> + event<OnHouseMakerToggleEvent> / ActivateFloorplanView{} = state<class HouseMaker>
+            ,state<class TourView> + event<OnBrowser3dToggleEvent> / ActivateWalkView{} = state<class Browsing3d>
+            ,state<class TourView> + event<OnBrowserDollyHouseToggleEvent> / ActivateDollyHouseView{} = state<class BrowsingDollyHouse>
+            ,state<class TourView> + event<OnFirstTimeTouchDownViewportSpaceEvent> / ActivateWalkView{} = state<class Browsing3d>
 
             ,state<class Bespoke> + event<OnUndoEvent> / UndoBespoke{}
             ,state<class Bespoke> + event<OnClearEvent> / ClearBespoke{}

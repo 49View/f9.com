@@ -24,7 +24,6 @@ public:
 protected:
     void activatePostLoad() override;
     void luaFunctionsSetup() override;
-    void updatePersonLocator();
     void postLoadHouseCallback();
 protected:
     ArchOrchestrator& asg;
