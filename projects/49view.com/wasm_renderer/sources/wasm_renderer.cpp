@@ -28,12 +28,13 @@ Showcaser::Showcaser( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchOrchestrato
 
 void Showcaser::postLoadHouseCallback() {
     asg.make3dHouse( [&]() {
-        Renderer::clearColor(C4f::XTORGBA("e0e0e0"));
-        if ( HouseService::hasTour(asg.H()) ) {
-            asg.setTourView();
-        } else{
-            asg.setWalkView(0.0f);
-        }
+        asg.setWalkView(0.0f);
+//        Renderer::clearColor(C4f::XTORGBA("e0e0e0"));
+//        if ( HouseService::hasTour(asg.H()) ) {
+//            asg.setTourView();
+//        } else{
+//            asg.setWalkView(0.0f);
+//        }
     });
 }
 
@@ -57,7 +58,7 @@ void Showcaser::activatePostLoad() {
 
     rsg.changeTime("14:00");
     rsg.setRigCameraController(CameraControlType::Walk);
-    rsg.DC()->setQuatAngles(V3f{ 0.08f, -0.00f, 0.0f });
+    rsg.DC()->setQuat( quatCompose(V3f{ 0.08f, -0.00f, 0.0f }));
 
     // Load default property if passed trough command line
     LOGRS("CLI params:" << cliParams.printAll());
