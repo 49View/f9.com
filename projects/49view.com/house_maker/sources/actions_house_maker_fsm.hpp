@@ -17,7 +17,7 @@ struct ClearEverthing {
 struct InitializeHouseMaker {
     void operator()( SceneGraph& sg, ArchRenderController& arc, RenderOrchestrator& rsg, ArchOrchestrator& asg,
                      OnActivateEvent ev ) noexcept {
-        rsg.DC()->setQuatAngles(V3f{ M_PI_2, 0.0f, 0.0f });
+        rsg.DC()->setQuat( quatCompose(V3f{ M_PI_2, 0.0f, 0.0f }));
         rsg.DC()->setPosition(V3f::UP_AXIS * 5.0f);
         asg.setFloorPlanView();
         if ( ev.ccf ) ev.ccf();

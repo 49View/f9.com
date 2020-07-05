@@ -220,7 +220,7 @@ public:
 
             if ( ImGui::Button("Set Starting Position") ) {
                 asg.H()->bestInternalViewingPosition = rsg.DC()->getPosition();
-                asg.H()->bestInternalViewingAngle = rsg.DC()->getIncrementQuatAngles();
+                asg.H()->bestInternalViewingAngle = rsg.DC()->quatAngle();
             }
             {
                 bool bestInternalPositionSet = asg.H()->bestInternalViewingPosition != V3f::ZERO;
@@ -232,7 +232,7 @@ public:
             ImGui::SameLine();
             if ( ImGui::Button("Set Dolly Position") ) {
                 asg.H()->bestDollyViewingPosition = rsg.DC()->getPosition();
-                asg.H()->bestDollyViewingAngle = rsg.DC()->getIncrementQuatAngles();
+                asg.H()->bestDollyViewingAngle = rsg.DC()->quatAngle();
             }
             {
                 bool bestDollyPositionSet = asg.H()->bestDollyViewingPosition != V3f::ZERO;
