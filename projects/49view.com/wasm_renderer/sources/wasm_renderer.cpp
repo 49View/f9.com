@@ -76,7 +76,7 @@ void Showcaser::luaFunctionsSetup() {
                 backEnd->process_event(OnExploreToggleEvent{});
                 break;
             case AVM_FloorPlan:
-                backEnd->process_event(OnHouseMakerToggleEvent{});
+                backEnd->process_event(OnFlorPlanViewToggleEvent{});
                 break;
             case AVM_TopDown:
                 backEnd->process_event(OnTopDownToggleEvent{});
