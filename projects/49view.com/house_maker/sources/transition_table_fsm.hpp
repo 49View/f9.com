@@ -4,12 +4,19 @@
 
 #pragma once
 
+#define _49VIEW_EDITOR_MODE_
+
 #include <core/state_machine_helper.hpp>
+
 #include <eh_arch/state_machine/arch_sm_events__fsm.hpp>
+
 #include <eh_arch/state_machine/arch_sm_actions__fsm.hpp>
+#include "eh_arch/makers/arch_sm_actions_bespoke_builder.hpp"
+#include "eh_arch/makers/arch_sm_actions_maker_builder.hpp"
+
 #include <eh_arch/state_machine/arch_transition_tables_viewing_modes.hpp>
 #include <eh_arch/state_machine/arch_transition_tables_editing.hpp>
-#include <eh_arch/state_machine/arch_transition_tables_making.hpp>
+#include <eh_arch/makers/arch_transition_tables_making.hpp>
 
 // State machine Front End
 struct FrontEndStateMachineSML {
@@ -24,11 +31,10 @@ struct FrontEndStateMachineSML {
             ,state<MakerStateMachine> + event<OnFirstTimeTouchDownViewportSpaceEvent>[TouchedDownFirstTimeFeatureManipulationGuard{}] / EnterFeatureManipulation{} = state<EditStateMachine>
             ,state<MakerStateMachine> + event<OnSingleTapViewportSpaceEvent>[SingleTapViewportHouseMakerManipulationGuard{}] / EnterFeatureManipulation{} = state<EditStateMachine>
 
-            ,state<TourStateMachine> + event<OnHouseMakerToggleEvent> / ActivateFloorplanView{} = state<MakerStateMachine>
-            ,state<ExploreStateMachine> + event<OnHouseMakerToggleEvent> / ActivateFloorplanView{} = state<MakerStateMachine>
-            ,state<TopDownStateMachine> + event<OnHouseMakerToggleEvent> / ActivateFloorplanView{} = state<MakerStateMachine>
-            ,state<DollyHouseStateMachine> + event<OnHouseMakerToggleEvent> / ActivateFloorplanView{} = state<MakerStateMachine>
-//            ,state<EditStateMachine> + event<OnHouseMakerToggleEvent> / ActivateFloorplanView{} = state<MakerStateMachine>
+            ,state<TourStateMachine> + event<OnHouseMakerToggleEvent> / ActivateFloorplanView{FloorPlanRenderMode::Debug3d} = state<MakerStateMachine>
+            ,state<ExploreStateMachine> + event<OnHouseMakerToggleEvent> / ActivateFloorplanView{FloorPlanRenderMode::Debug3d} = state<MakerStateMachine>
+            ,state<TopDownStateMachine> + event<OnHouseMakerToggleEvent> / ActivateFloorplanView{FloorPlanRenderMode::Debug3d} = state<MakerStateMachine>
+            ,state<DollyHouseStateMachine> + event<OnHouseMakerToggleEvent> / ActivateFloorplanView{FloorPlanRenderMode::Debug3d} = state<MakerStateMachine>
 
             ,state<EditStateMachine> + event<OnTopDownToggleEvent> / ActivateTopDownView{} = state<TopDownStateMachine>
             ,state<EditStateMachine> + event<OnExploreToggleEvent> / ActivateWalkView{} = state<ExploreStateMachine>

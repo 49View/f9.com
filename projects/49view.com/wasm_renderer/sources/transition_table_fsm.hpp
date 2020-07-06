@@ -5,95 +5,48 @@
 #pragma once
 
 #include <core/state_machine_helper.hpp>
-#include "events__fsm.hpp"
-#include "actions__fsm.hpp"
+#include <eh_arch/state_machine/arch_sm_events__fsm.hpp>
+#include <eh_arch/state_machine/arch_sm_actions__fsm.hpp>
+#include <eh_arch/state_machine/arch_transition_tables_viewing_modes.hpp>
+#include <eh_arch/state_machine/arch_transition_tables_editing.hpp>
 
 // State machine Front End
 struct FrontEndStateMachineSML {
     auto operator()() const noexcept {
         return make_transition_table(
-                *state<class Initial> + event<OnActivateEvent> / InitializeHouseMaker{} = state<class HouseMaker>
+            *state<class Initial> + event<OnActivateEvent> / InitializeHouseMaker{} = state<TourStateMachine>
 
-                ,state<class HouseMaker> + event<OnAltPressedEvent> / []{} = state<class Bespoke>
-                ,state<class HouseMaker> + event<OnGlobalRescaleEvent> / GlobalRescale{}
-                ,state<class HouseMaker> + event<OnClearEvent> / ClearEverthing{}
-                ,state<class HouseMaker> + event<OnHouseMakerToggleEvent> / ActivateFloorplanView{}
-                ,state<class HouseMaker> + event<OnLoadFloorPlanEvent> / LoadFloorPlan{}
-                ,state<class HouseMaker> + event<OnCreateNewPropertyFromFloorplanImageEvent> / CreateNewPropertyFromFloorplanImage{}
-                ,state<class HouseMaker> + event<OnUpdateHMBEvent> / UpdateHMB{}
-                ,state<class HouseMaker> + event<OnMakeHouse3dEvent> / MakeHouse3d{}
-                ,state<class HouseMaker> + event<OnImportExcaliburLinkEvent> / ImportExcaliburLink{}
-                ,state<class HouseMaker> + event<OnCreateHouseTexturesEvent> / CreateHouseTextures{}
-                ,state<class HouseMaker> + event<OnElaborateHouseBitmapEvent> / ElaborateHouseBitmap{}
-                ,state<class HouseMaker> + event<OnRecalculateFurnitureEvent> / FurnishHouse{}
-                ,state<class HouseMaker> + event<OnTourToggleEvent> / ActivateTourView{} = state<class TourView>
-                ,state<class HouseMaker> + event<OnTopDownToggleEvent> / ActivateTopDownView{}
-                ,state<class HouseMaker> + event<OnExploreToggleEvent> / ActivateWalkView{} = state<class Browsing3d>
-                ,state<class HouseMaker> + event<OnDollyHouseToggleEvent> / ActivateDollyHouseView{} = state<class BrowsingDollyHouse>
-                ,state<class HouseMaker> + event<OnKeyToggleEvent> / KeyToggleHouseMaker{}
-                ,state<class HouseMaker> + event<OnUndoEvent> / UndoFeatureManipulation{}
-                ,state<class HouseMaker> + event<OnRedoEvent> / RedoFeatureManipulation{}
+            ,state<EditStateMachine> + event<OnTopDownToggleEvent> / ActivateTopDownView{} = state<TopDownStateMachine>
+            ,state<EditStateMachine> + event<OnExploreToggleEvent> / ActivateWalkView{} = state<ExploreStateMachine>
+            ,state<EditStateMachine> + event<OnDollyHouseToggleEvent> / ActivateDollyHouseView{} = state<DollyHouseStateMachine>
+            ,state<EditStateMachine> + event<OnTourToggleEvent> / ActivateTourView{} = state<TourStateMachine>
 
-                ,state<class HouseMaker> + event<OnFirstTimeTouchDownViewportSpaceEvent>[TouchedDownFirstTimeFeatureManipulationGuard{}] / EnterFeatureManipulation{} = state<class FeatureManipulation>
-                ,state<class HouseMaker> + event<OnSingleTapViewportSpaceEvent>[SingleTapViewportHouseMakerManipulationGuard{}] / EnterFeatureManipulation{} = state<class FeatureManipulation>
+            ,state<TourStateMachine> + event<OnTourToggleEvent> / ActivateTourView{} = state<TourStateMachine>
+            ,state<TourStateMachine> + event<OnFlorPlanViewToggleEvent> / ActivateFloorplanView{} = state<FloorPlanViewStateMachine>
+            ,state<TourStateMachine> + event<OnTopDownToggleEvent> / ActivateTopDownView{} = state<TopDownStateMachine>
+            ,state<TourStateMachine> + event<OnExploreToggleEvent> / ActivateWalkView{} = state<ExploreStateMachine>
+            ,state<TourStateMachine> + event<OnDollyHouseToggleEvent> / ActivateDollyHouseView{} = state<DollyHouseStateMachine>
+            ,state<TourStateMachine> + event<OnFirstTimeTouchDownViewportSpaceEvent> / ActivateWalkView{} = state<ExploreStateMachine>
 
-                ,state<class Browsing3d> + event<OnTopDownToggleEvent> / ActivateTopDownView{} = state<class HouseMaker>
-                ,state<class Browsing3d> + event<OnHouseMakerToggleEvent> / ActivateFloorplanView{} = state<class HouseMaker>
-                ,state<class Browsing3d> + event<OnDollyHouseToggleEvent> / ActivateDollyHouseView{} = state<class BrowsingDollyHouse>
-                ,state<class Browsing3d> + event<OnWhichRoomAmIEvent> / WhichRoomAmI{}
-                ,state<class Browsing3d> + event<OnLoadFloorPlanEvent> / LoadFloorPlan{}
-                ,state<class Browsing3d> + event<OnMakeHouse3dEvent> / MakeHouse3d{}
-                ,state<class Browsing3d> + event<OnElaborateHouseBitmapEvent> / ElaborateHouseBitmap{}
-                ,state<class Browsing3d> + event<OnRecalculateFurnitureEvent> / FurnishHouse{}
-                ,state<class Browsing3d> + event<OnPushTourPathEvent> / PushTourPath{}
-                ,state<class Browsing3d> + event<OnPushKeyFrameTourPathEvent> / PushKeyFrameTourPath{}
-                ,state<class Browsing3d> + event<OnPopTourPathEvent> / PopTourPath{}
-                ,state<class Browsing3d> + event<OnTourToggleEvent> / ActivateTourView{} = state<class TourView>
+            ,state<FloorPlanViewStateMachine> + event<OnFlorPlanViewToggleEvent> / ActivateFloorplanView{} = state<FloorPlanViewStateMachine>
+            ,state<FloorPlanViewStateMachine> + event<OnTopDownToggleEvent> / ActivateTopDownView{} = state<TopDownStateMachine>
+            ,state<FloorPlanViewStateMachine> + event<OnDollyHouseToggleEvent> / ActivateDollyHouseView{} = state<DollyHouseStateMachine>
+            ,state<FloorPlanViewStateMachine> + event<OnTourToggleEvent> / ActivateTourView{} = state<TourStateMachine>
 
-                ,state<class BrowsingDollyHouse> + event<OnTourToggleEvent> / ActivateTourView{} = state<class TourView>
-                ,state<class BrowsingDollyHouse> + event<OnTopDownToggleEvent> / ActivateTopDownView{} = state<class HouseMaker>
-                ,state<class BrowsingDollyHouse> + event<OnHouseMakerToggleEvent> / ActivateFloorplanView{} = state<class HouseMaker>
-                ,state<class BrowsingDollyHouse> + event<OnExploreToggleEvent> / ActivateWalkView{} = state<class Browsing3d>
-                ,state<class BrowsingDollyHouse> + event<OnLoadFloorPlanEvent> / LoadFloorPlan{}
-                ,state<class BrowsingDollyHouse> + event<OnMakeHouse3dEvent> / MakeHouse3d{}
-                ,state<class BrowsingDollyHouse> + event<OnElaborateHouseBitmapEvent> / ElaborateHouseBitmap{}
-                ,state<class BrowsingDollyHouse> + event<OnRecalculateFurnitureEvent> / FurnishHouse{}
+            ,state<ExploreStateMachine> + event<OnFlorPlanViewToggleEvent> / ActivateFloorplanView{} = state<FloorPlanViewStateMachine>
+            ,state<ExploreStateMachine> + event<OnTopDownToggleEvent> / ActivateTopDownView{} = state<TopDownStateMachine>
+            ,state<ExploreStateMachine> + event<OnDollyHouseToggleEvent> / ActivateDollyHouseView{} = state<DollyHouseStateMachine>
+            ,state<ExploreStateMachine> + event<OnTourToggleEvent> / ActivateTourView{} = state<TourStateMachine>
 
-                ,state<class TourView> + event<OnTopDownToggleEvent> / ActivateTopDownView{} = state<class HouseMaker>
-                ,state<class TourView> + event<OnHouseMakerToggleEvent> / ActivateFloorplanView{} = state<class HouseMaker>
-                ,state<class TourView> + event<OnExploreToggleEvent> / ActivateWalkView{} = state<class Browsing3d>
-                ,state<class TourView> + event<OnDollyHouseToggleEvent> / ActivateDollyHouseView{} = state<class BrowsingDollyHouse>
-                ,state<class TourView> + event<OnFirstTimeTouchDownViewportSpaceEvent> / ActivateWalkView{} = state<class Browsing3d>
+            ,state<TopDownStateMachine> + event<OnFlorPlanViewToggleEvent> / ActivateFloorplanView{} = state<FloorPlanViewStateMachine>
+            ,state<TopDownStateMachine> + event<OnExploreToggleEvent> / ActivateWalkView{} = state<ExploreStateMachine>
+            ,state<TopDownStateMachine> + event<OnDollyHouseToggleEvent> / ActivateDollyHouseView{} = state<DollyHouseStateMachine>
+            ,state<TopDownStateMachine> + event<OnTourToggleEvent> / ActivateTourView{} = state<TourStateMachine>
 
-                ,state<class Bespoke> + event<OnUndoEvent> / UndoBespoke{}
-                ,state<class Bespoke> + event<OnClearEvent> / ClearBespoke{}
-                ,state<class Bespoke> + event<OnTouchMoveEvent> / TouchMoveBespoke{}
-                ,state<class Bespoke> + event<OnTouchUpEvent> / TouchUpEventBespoke{}
-                ,state<class Bespoke> + event<OnKeyToggleEvent> / KeyToggleBespoke{}
-                ,state<class Bespoke> + event<OnFinaliseEvent> / FinaliseBespoke{} = state<class HouseMaker>
-                ,state<class Bespoke> + event<OnEscapeEvent> / ExitBespoke{} = state<class HouseMaker>
-                ,state<class Bespoke> + event<OnLoadFloorPlanEvent> / LoadFloorPlan{}
-                ,state<class Bespoke> + event<OnMakeHouse3dEvent> / MakeHouse3d{}
-                ,state<class Bespoke> + event<OnElaborateHouseBitmapEvent> / ElaborateHouseBitmap{}
-                ,state<class Bespoke> + event<OnRecalculateFurnitureEvent> / FurnishHouse{}
-
-                ,state<class FeatureManipulation> + event<OnUndoEvent> / UndoFeatureManipulation{}
-                ,state<class FeatureManipulation> + event<OnRedoEvent> / RedoFeatureManipulation{}
-                ,state<class FeatureManipulation> + event<OnTouchMoveViewportSpaceEvent>[TouchMoveFeatureManipulation{}] / UpdateFeatureManipulationIm{}
-                ,state<class FeatureManipulation> + event<OnKeyToggleEvent>[KeyToggleFeatureManipulation{}] / UpdateFeatureManipulationIm{}
-                ,state<class FeatureManipulation> + event<OnIncrementalScaleEvent> / IncrementalScaleFeatureManipulation{}
-                ,state<class FeatureManipulation> + event<OnSpaceEvent>[SpaceToggleFeatureManipulation{}] / UpdateFeatureManipulationIm{}
-                ,state<class FeatureManipulation> + event<OnSpecialSpaceEvent>[SpecialSpaceToggleFeatureManipulation{}] / UpdateFeatureManipulationIm{}
-                ,state<class FeatureManipulation> + event<OnDeleteEvent>[DeleteFeatureManipulation{}] / ExitFeatureManipulation{} = state<class HouseMaker>
-
-                ,state<class FeatureManipulation> + event<OnFirstTimeTouchDownViewportSpaceEvent>[TouchedDownFirstTimeFittedFurnitureGuard{}] / UpdateFeatureManipulationIm{} = state<class HouseMaker>
-                ,state<class FeatureManipulation> + event<OnTouchUpViewportSpaceEvent>[TouchUpEventFeatureManipulation{}] / UpdateFeatureManipulationIm{}
-                ,state<class FeatureManipulation> + event<OnSingleTapViewportSpaceEvent>[SingleTapViewportSpaceFeatureManipulationGuard{}] / ExitFeatureManipulation{} = state<class HouseMaker>
-
-                ,state<class FeatureManipulation> + event<OnLoadFloorPlanEvent> / LoadFloorPlan{}
-                ,state<class FeatureManipulation> + event<OnMakeHouse3dEvent> / MakeHouse3d{}
-                ,state<class FeatureManipulation> + event<OnElaborateHouseBitmapEvent> / ElaborateHouseBitmap{}
-                ,state<class FeatureManipulation> + event<OnRecalculateFurnitureEvent> / FurnishHouse{}
+            ,state<DollyHouseStateMachine> + event<OnFlorPlanViewToggleEvent> / ActivateFloorplanView{} = state<FloorPlanViewStateMachine>
+            ,state<DollyHouseStateMachine> + event<OnTopDownToggleEvent> / ActivateTopDownView{} = state<TopDownStateMachine>
+            ,state<DollyHouseStateMachine> + event<OnExploreToggleEvent> / ActivateWalkView{} = state<ExploreStateMachine>
+            ,state<DollyHouseStateMachine> + event<OnTourToggleEvent> / ActivateTourView{} = state<TourStateMachine>
         );
     }
 };

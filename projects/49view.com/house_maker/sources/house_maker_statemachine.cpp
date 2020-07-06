@@ -48,10 +48,7 @@ void HouseMakerStateMachine::activatePostLoad() {
     rsg.RR().useFilmGrain(false);
 
 
-    backEnd->process_event(OnActivateEvent{ [&]() {
-//    rb->loadSegments(FM::readLocalFileC("/home/dado/Documents/GitHub/f9.com/builds/house_maker/debug/bespoke_segments529417476917197912") );
-//    finaliseBespoke();
-    }});
+    backEnd->process_event(OnActivateEvent{FloorPlanRenderMode::Debug3d});
 }
 
 void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
