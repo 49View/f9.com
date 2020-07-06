@@ -34,9 +34,9 @@ struct OnRecalculateFurnitureEvent {};
 
 struct OnHouseMakerToggleEvent{};
 struct OnTourToggleEvent{};
-struct OnBrowser3dToggleEvent{};
-struct OnBrowserTopDown3dToggleEvent{};
-struct OnBrowserDollyHouseToggleEvent{};
+struct OnExploreToggleEvent{};
+struct OnTopDownToggleEvent{};
+struct OnDollyHouseToggleEvent{};
 
 struct OnFirstTimeTouchDownEvent {
     V2f mousePos{V2fc::HUGE_VALUE_NEG};
