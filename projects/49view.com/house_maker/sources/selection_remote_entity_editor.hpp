@@ -70,8 +70,10 @@ public:
                     const auto& meta = metadataMaterialList[m + t];
                     auto imr = sg.get<RawImage>(meta.thumb);
                     if ( !imr ) {
-                        sg.addRawImageIM(meta.thumb, RawImage{ FM::readLocalFileC(
-                                mediaFolder + "entities/" + meta.group + "/" + meta.thumb) });
+                        auto fileData = FM::readLocalFileC(mediaFolder + "entities/" + meta.group + "/" + meta.thumb);
+                        if ( !fileData.empty() ) {
+                            sg.addRawImageIM(meta.thumb, RawImage{fileData});
+                        }
                     }
                     auto im = rsg.TH(meta.thumb);
                     if ( im ) {
