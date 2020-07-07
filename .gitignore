@@ -34,3 +34,5 @@ projects/49view.com-graphql-api/runcli.sh
 projects/49view.com/runcli.sh
 run_asset_daemon_debug.sh
 /projects/49view.com-graphql-api/runcli.sh
+/projects/49view.com/build
+/projects/49view.com-graphql-api/build
