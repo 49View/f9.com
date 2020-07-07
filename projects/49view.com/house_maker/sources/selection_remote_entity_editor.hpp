@@ -13,7 +13,7 @@
 #include <eh_arch/controller/arch_render_controller.hpp>
 #include <eh_arch/models/htypes_functions.hpp>
 
-#include "events__fsm.hpp"
+#include "eh_arch/state_machine/arch_sm_events__fsm.hpp"
 #include "selection_editor.hpp"
 
 class RemoteEntitySelector {

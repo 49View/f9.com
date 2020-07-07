@@ -7,7 +7,7 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 
 #include "selection_editor.hpp"
-#include "events__fsm.hpp"
+#include "eh_arch/state_machine/arch_sm_events__fsm.hpp"
 
 #include <core/util.h>
 #include <core/camera.h>
@@ -184,14 +184,14 @@ public:
         }
         ImGui::End();
 
-//        ImGui::Begin("Camera");
-//        std::ostringstream camDump;
-//        camDump << *sg.DC();
-//        auto lines = split(camDump.str(), '\n');
-//        for ( const auto& line : lines ) {
-//            ImGui::Text("%s", line.c_str());
-//        }
-//        ImGui::End();
+        ImGui::Begin("Camera");
+        std::ostringstream camDump;
+        camDump << *sg.DC();
+        auto lines = split(camDump.str(), '\n');
+        for ( const auto& line : lines ) {
+            ImGui::Text("%s", line.c_str());
+        }
+        ImGui::End();
 
         ImGui::Begin("Listing");
         for ( const auto& property : plo.PropertyList() ) {
@@ -220,7 +220,7 @@ public:
 
             if ( ImGui::Button("Set Starting Position") ) {
                 asg.H()->bestInternalViewingPosition = rsg.DC()->getPosition();
-                asg.H()->bestInternalViewingAngle = rsg.DC()->getIncrementQuatAngles();
+                asg.H()->bestInternalViewingAngle = rsg.DC()->quatAngle();
             }
             {
                 bool bestInternalPositionSet = asg.H()->bestInternalViewingPosition != V3f::ZERO;
@@ -232,7 +232,7 @@ public:
             ImGui::SameLine();
             if ( ImGui::Button("Set Dolly Position") ) {
                 asg.H()->bestDollyViewingPosition = rsg.DC()->getPosition();
-                asg.H()->bestDollyViewingAngle = rsg.DC()->getIncrementQuatAngles();
+                asg.H()->bestDollyViewingAngle = rsg.DC()->quatAngle();
             }
             {
                 bool bestDollyPositionSet = asg.H()->bestDollyViewingPosition != V3f::ZERO;

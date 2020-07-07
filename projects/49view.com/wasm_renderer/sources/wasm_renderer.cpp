@@ -18,22 +18,24 @@
 #include <eh_arch/render/house_render.hpp>
 #include <eh_arch/controller/arch_render_controller.hpp>
 #include <eh_arch/models/house_service.hpp>
+#include "transition_table_fsm.hpp"
 
 //scene_t scene{ 0 };
 //const std::string skyboxName = "tropical,beach";
 
-Showcaser::Showcaser( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchOrchestrator& _asg, ArchRenderController& _ims ) : RunLoopBackEndBase(_sg, _rsg),
+Showcaser::Showcaser( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchOrchestrator& _asg, ArchRenderController& _arc ) : RunLoopBackEndBase(_sg, _rsg),
                                                                                                                         ScenePreLoader(_sg, _rsg),
-                                                                                                                        asg(_asg), arc(_ims) {}
+                                                                                                                        asg(_asg), arc(_arc) {
+    backEnd = std::make_shared<FrontEnd>(*this, this->cliParams, _asg, _sg, _rsg, _arc);
+}
 
 void Showcaser::postLoadHouseCallback() {
     asg.make3dHouse( [&]() {
         Renderer::clearColor(C4f::XTORGBA("e0e0e0"));
-//        asg.setFloorPlanView();
         if ( HouseService::hasTour(asg.H()) ) {
-            asg.setTourView();
+            backEnd->process_event(OnTourToggleEvent{});
         } else{
-            asg.setWalkView(0.0f);
+            backEnd->process_event(OnExploreToggleEvent{});
         }
     });
 }
@@ -41,30 +43,21 @@ void Showcaser::postLoadHouseCallback() {
 void Showcaser::activatePostLoad() {
 
     rsg.createSkybox(SkyBoxInitParams{ SkyBoxMode::CubeProcedural });
-//    rsg.RR().createGridV2(CommandBufferLimits::GridStart, 1.0f, ( Color4f::PASTEL_GRAYLIGHT ),
-//                        ( Color4f::DARK_GRAY ), V2f{ 15.0f }, 0.015f);
-
     rsg.useSkybox(false);
-//    rsgl.RR().setShadowOverBurnCofficient( appData.getRenderSettings().shadowOverBurnCofficient );
-//    rsgl.RR().setIndoorSceneCoeff(appData.getRenderSettings().indoorSceneCoeff);
-//    rsgl.RR().setShadowZFightCofficient(appData.getRenderSettings().shadowZFightCofficient);
     rsg.RR().setShadowZFightCofficient(0.002f*0.15f*0.5f);
     rsg.RR().useVignette(true);
     rsg.useSSAO(true);
     rsg.RR().useFilmGrain(false);
-
-//    rsg.RR().useMotionBlur(true);
-//    rsg.RR().useDOF(true);
-
     rsg.changeTime("14:00");
-    rsg.setRigCameraController(CameraControlType::Walk);
-    rsg.DC()->setQuatAngles(V3f{ 0.08f, -0.00f, 0.0f });
+
+    backEnd->process_event(OnActivateEvent{FloorPlanRenderMode::Debug3d});
 
     // Load default property if passed trough command line
     LOGRS("CLI params:" << cliParams.printAll());
     if ( auto pid = cliParams.getParam("pid"); pid ) {
         asg.loadHouse(*pid, std::bind( &Showcaser::postLoadHouseCallback, this));
     }
+
 }
 
 void Showcaser::luaFunctionsSetup() {
@@ -73,6 +66,26 @@ void Showcaser::luaFunctionsSetup() {
         asg.loadHouse(_pid, std::bind( &Showcaser::postLoadHouseCallback, this));
     });
     rsg.addLuaFunction(nsKey, "setViewingMode", [&]( int _vm ) {
+        switch ( _vm ) {
+            case AVM_Hidden:
+                break;
+            case AVM_Tour:
+                backEnd->process_event(OnTourToggleEvent{});
+                break;
+            case AVM_Walk:
+                backEnd->process_event(OnExploreToggleEvent{});
+                break;
+            case AVM_FloorPlan:
+                backEnd->process_event(OnFlorPlanViewToggleEvent{});
+                break;
+            case AVM_TopDown:
+                backEnd->process_event(OnTopDownToggleEvent{});
+                break;
+            case AVM_DollHouse:
+                backEnd->process_event(OnDollyHouseToggleEvent{});
+                break;
+        }
+
         asg.setViewingMode( static_cast<ArchViewingMode>(_vm));
     });
 }
@@ -90,7 +103,54 @@ void Showcaser::updateImpl( const AggregatedInputData& _aid ) {
 //        LightmapManager::apply( scene, rsg.RR());
 //    }
 
-    asg.updateViewingModes();
+    asg.updateViewingModes(_aid);
+
+    bool isShiftPressed = _aid.TI().checkKeyPressed(GMK_LEFT_SHIFT);
+
+    if ( _aid.TI().checkModKeyPressed(GMK_LEFT_CONTROL) ) {
+        if ( isShiftPressed && _aid.TI().checkKeyToggleOn(GMK_Z) ) {
+            backEnd->process_event(OnRedoEvent{});
+        } else if ( _aid.TI().checkKeyToggleOn(GMK_Z) ) {
+            backEnd->process_event(OnUndoEvent{});
+        }
+        if ( _aid.TI().checkKeyToggleOn(GMK_T) ) {
+            backEnd->process_event(OnSpecialSpaceEvent{});
+        }
+    }
+
+    if ( _aid.isMouseTouchedDownFirstTime(TOUCH_ZERO) ) {
+        backEnd->process_event(OnFirstTimeTouchDownEvent{ _aid.mousePos(TOUCH_ZERO) });
+        backEnd->process_event(OnFirstTimeTouchDownViewportSpaceEvent{ _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC()) });
+    }
+    if ( _aid.hasMouseMoved(TOUCH_ZERO) && _aid.isMouseTouchedDown(TOUCH_ZERO) ) {
+        backEnd->process_event(OnTouchMoveEvent{ _aid.mousePos(TOUCH_ZERO) });
+        backEnd->process_event(OnTouchMoveViewportSpaceEvent{ _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC()) });
+    }
+    if ( _aid.isMouseSingleTap( TOUCH_ZERO) ) {
+        backEnd->process_event(OnSingleTapEvent{ _aid.mousePos(TOUCH_ZERO) });
+        backEnd->process_event(OnSingleTapViewportSpaceEvent{ _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC()) });
+    } else {
+        if ( _aid.isMouseTouchedUp(TOUCH_ZERO) ) {
+            backEnd->process_event(OnTouchUpEvent{ _aid.mousePos(TOUCH_ZERO) });
+            backEnd->process_event(OnTouchUpViewportSpaceEvent{ _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC()) });
+        }
+    }
+
+    if ( _aid.TI().checkKeyToggleOn(GMK_5) ) {
+        backEnd->process_event(OnTourToggleEvent{});
+    }
+    if ( _aid.TI().checkKeyToggleOn(GMK_1) ) {
+        backEnd->process_event(OnFlorPlanViewToggleEvent{});
+    }
+    if ( _aid.TI().checkKeyToggleOn(GMK_2) ) {
+        backEnd->process_event(OnTopDownToggleEvent{});
+    }
+    if ( _aid.TI().checkKeyToggleOn(GMK_3) ) {
+        backEnd->process_event(OnExploreToggleEvent{});
+    }
+    if ( _aid.TI().checkKeyToggleOn(GMK_4) ) {
+        backEnd->process_event(OnDollyHouseToggleEvent{});
+    }
 
 #ifdef _USE_IMGUI_
     ImGui::Begin("SceneGraph");

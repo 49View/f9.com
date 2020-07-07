@@ -48,14 +48,12 @@ void HouseMakerStateMachine::activatePostLoad() {
     rsg.RR().useFilmGrain(false);
 
 
-    backEnd->process_event(OnActivateEvent{ [&]() {
-//    rb->loadSegments(FM::readLocalFileC("/home/dado/Documents/GitHub/f9.com/builds/house_maker/debug/bespoke_segments529417476917197912") );
-//    finaliseBespoke();
-    }});
+    backEnd->process_event(OnActivateEvent{FloorPlanRenderMode::Debug3d});
 }
 
 void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
 
+    asg.updateViewingModes(_aid);
     gui->update();
 
     bool isLeftAltPressed = _aid.TI().checkKeyPressed(GMK_LEFT_ALT);
@@ -113,13 +111,13 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
         backEnd->process_event(OnHouseMakerToggleEvent{});
     }
     if ( _aid.TI().checkKeyToggleOn(GMK_2) ) {
-        backEnd->process_event(OnBrowserTopDown3dToggleEvent{});
+        backEnd->process_event(OnTopDownToggleEvent{});
     }
     if ( _aid.TI().checkKeyToggleOn(GMK_3) ) {
-        backEnd->process_event(OnBrowser3dToggleEvent{});
+        backEnd->process_event(OnExploreToggleEvent{});
     }
     if ( _aid.TI().checkKeyToggleOn(GMK_4) ) {
-        backEnd->process_event(OnBrowserDollyHouseToggleEvent{});
+        backEnd->process_event(OnDollyHouseToggleEvent{});
     }
 
     if ( _aid.TI().checkKeyToggleOn(GMK_Z) ) {
@@ -165,9 +163,3 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
 
 }
 
-ArchOrchestrator& HouseMakerStateMachine::ASG() {
-    return asg;
-}
-ArchRenderController& HouseMakerStateMachine::ARC() {
-    return arc;
-}

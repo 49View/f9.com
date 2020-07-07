@@ -32,9 +32,6 @@ public:
     void updateImpl( const AggregatedInputData& _aid ) override;
     void activateImpl() override;
 
-    ArchOrchestrator& ASG();
-    ArchRenderController& ARC();
-
 protected:
     void activatePostLoad() override;
 

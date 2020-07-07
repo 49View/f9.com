@@ -14,7 +14,7 @@
 #include <eh_arch/controller/arch_orchestrator.hpp>
 #include <eh_arch/controller/arch_render_controller.hpp>
 
-#include "events__fsm.hpp"
+#include "eh_arch/state_machine/arch_sm_events__fsm.hpp"
 #include "property_listing_orchestrator.hpp"
 #include "selection_remote_entity_editor.hpp"
 

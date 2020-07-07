@@ -12,8 +12,15 @@
 
 class ArchRenderController;
 
+struct FrontEndStateMachineSML;
+using FrontEnd = sm<FrontEndStateMachineSML>;
+
 // Back End
-class Showcaser : public RunLoopBackEndBase, public LoginActivation<LoginFieldsPrecached>, public ScenePreLoader {
+class Showcaser :
+        public RunLoopBackEndBase,
+        public LoginActivation<LoginFieldsPrecached>,
+        public ScenePreLoader,
+        public BackEndService<FrontEnd> {
 public:
     Showcaser( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchOrchestrator& _asg, ArchRenderController& _ims );
     ~Showcaser() override = default;
@@ -24,7 +31,6 @@ public:
 protected:
     void activatePostLoad() override;
     void luaFunctionsSetup() override;
-    void updatePersonLocator();
     void postLoadHouseCallback();
 protected:
     ArchOrchestrator& asg;
