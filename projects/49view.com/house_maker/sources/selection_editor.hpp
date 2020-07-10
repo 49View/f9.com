@@ -364,7 +364,7 @@ private:
         for ( auto fth = 0; fth < FurnitureTypeHandler::FT_Invalid; fth++ ) {
             auto ft = static_cast<FurnitureTypeHandler::Type>(fth);
             if ( ImGui::Button(FurnitureTypeHandler::name(ft).c_str()) ) {
-                RoomServiceFurniture::addFurnitureSingle( HouseService::findFloorOf(asg.H(), room->hash), room, asg.FurnitureMap(), ft );
+                backEnd->process_event(OnAddFurnitureSingleEvent{room, ft});
             }
             ImGui::NextColumn();
         }
