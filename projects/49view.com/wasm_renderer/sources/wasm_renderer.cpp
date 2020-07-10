@@ -44,6 +44,7 @@ void Showcaser::activatePostLoad() {
 
     rsg.createSkybox(SkyBoxInitParams{ SkyBoxMode::CubeProcedural });
     rsg.useSkybox(false);
+    rsg.useSunLighting(true);
     rsg.RR().setShadowZFightCofficient(0.002f*0.15f*0.5f);
     rsg.RR().useVignette(true);
     rsg.useSSAO(true);
