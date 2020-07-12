@@ -54,8 +54,7 @@ export const Excalibur = () => {
                              padding={"5px"} {...getRootProps()} cursor={"pointer"}>
               <Div>
                 <input {...getInputProps()} />
-                <h4>Drop your files here</h4>
-                {state.stage > 0 && <AssetLoadingStage state={state}/>}
+                {state.stage > 0 ? <AssetLoadingStage state={state}/> : <h4>Drop your files here</h4>}
               </Div>
             </FlexDragAndDrop>
           </DivDropZone>

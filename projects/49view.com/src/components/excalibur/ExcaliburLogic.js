@@ -9,6 +9,7 @@ import {useMutation, useQuery} from "@apollo/react-hooks";
 import {checkQueryHasLoadedWithData, getQueryLoadedWithValue} from "../../futuremodules/graphqlclient/query";
 import {getFileName, getFileNameOnlyNoExt} from "../../futuremodules/utils/utils";
 import {connect} from "../../futuremodules/webrtc/client";
+import {FlexVertical} from "../../futuremodules/reactComponentStyles/reactCommon.styled";
 
 export const useExcaliburDragAndDropCallback = (dispatch) => {
   const entitiesApi = useApi('entities');
@@ -135,21 +136,27 @@ export const AssetLoadingStage = ({state}) => {
   }
 
   return (
-    <div>
-      <p>{state.fileDragged}</p>
+    <FlexVertical justifyContent={"flex-start"}>
+      <div overflow={"hidden"}>{state.fileDragged}</div>
+      <div>
       <h3><Badge variant={variantStages(state, 1)}>Read </Badge>
         {state.stage === 1 && <Spinner animation={"grow"}
                                        variant={"warning"}/>}
       </h3>
+      </div>
+      <div>
       <h3><Badge variant={variantStages(state, 2)}>Upload </Badge>
         {state.stage === 2 && <Spinner animation={"grow"}
                                        variant={"warning"}/>}
       </h3>
+      </div>
+        <div>
       <h3><Badge variant={variantStages(state, 3)}>Elaborate </Badge>
         {state.stage === 3 && <Spinner animation={"grow"}
                                        variant={"warning"}/>}
       </h3>
-    </div>
+        </div>
+    </FlexVertical>
   );
 };
 
@@ -235,6 +242,7 @@ const entityMetaQuery = (partialSearch) => {
   return gql`{
       entities(partialSearch:"${partialSearch}") {
           name
+          hash
           tags
       }
   }`;

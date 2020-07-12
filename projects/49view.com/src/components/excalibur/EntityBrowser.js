@@ -12,15 +12,16 @@ export const EntityBrowser = ({width}) => {
     <Flex width={width}>
       <InputGroup>
         <FormControl
-          onKeyUp={(evt) => {
-            if ((evt.keyCode === 13 || evt.keyCode === 14)) {
-              setSearchQuery(evt.target.value);
-            }
-          }}
+          onChange={e => setSearchQuery(e.target.value)}
+          // onKeyUp={(evt) => {
+          //   if ((evt.keyCode === 13 || evt.keyCode === 14)) {
+          //     setSearchQuery(evt.target.value);
+          //   }
+          // }}
         />
       </InputGroup>
       <Div margin={"0 0 0 10px"}>
-        <Button>Geoms</Button>
+        <Button onClick={() => setSearchQuery(searchQuery)}>Geoms</Button>
       </Div>
       <Div margin={"0 0 0 10px"}>
         <Button>Materials</Button>
@@ -32,10 +33,12 @@ export const EntityBrowser = ({width}) => {
         <Button>Profiles</Button>
       </Div>
     </Flex>
-    <Flex>
-      {entityMeta && entityMeta.map( elem=> {
-        return elem.name;
-      })}
+    <Flex flexWrap={"wrap"}>
+      {entityMeta && entityMeta.map(elem =>
+        <Button onClick={ () =>
+          window.Module.addScriptLine(`rr.addSceneObject("${elem.hash}", "geom")`)
+        }>{elem.name}</Button>
+      )}
     </Flex>
   </>
 }

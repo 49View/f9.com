@@ -24,6 +24,8 @@ export const DivReports = styled.div`{
 
 export const DivDropZone = styled.div`{
   grid-area: dropzone;
+  width: 100%;
+  overflow: hidden;
 }`;
 
 export const ExcaliburScriptGrid = styled.div`{
