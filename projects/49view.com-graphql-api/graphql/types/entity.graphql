@@ -2,7 +2,7 @@ type Entity {
     _id: ID!
     group: String
     source: String
-    name: String
+    name: String!
     project: String
     isPublic: Boolean
     isRestricted: Boolean
@@ -16,6 +16,7 @@ type Entity {
 
 type Query {
     entity(name: String): Entity
+    entities(partialSearch: String): [Entity!]
     entityRefresh(name: String, refreshToken: String): Entity
 }
 

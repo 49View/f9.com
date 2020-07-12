@@ -50,7 +50,7 @@ export const EntityAndTags = ({entity, dispatch}) => {
   }
 
   return (
-    <DivBorder margin={"0"} padding={"10px"}>
+    <DivBorder margin={"10px 0"} padding={"10px"} overflowX={"hidden"}>
       <Logo1TextSpan>
         {entity.name}
       </Logo1TextSpan>

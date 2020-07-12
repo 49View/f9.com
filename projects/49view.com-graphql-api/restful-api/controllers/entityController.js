@@ -948,7 +948,6 @@ module.exports = {
     }
 
     const result = await asyncModelOperations.aggregate(entityModel, aggregationQueries);
-    // const result = await entityModel.aggregate(aggregationQueries).exec();
     return result;
   },
   getColorsInCategory: async category => {

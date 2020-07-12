@@ -1,13 +1,14 @@
 import {api, useApi} from "../../futuremodules/api/apiEntryPoint";
 import React, {useCallback, useEffect, useState} from "react";
 import {addEntity} from "../../futuremodules/entities/entitiesApiCalls";
-import {useAlertWarning, useMultiChoiceAlert} from "../../futuremodules/alerts/alerts";
+import {useAlertDangerNoMovie, useAlertWarning, useMultiChoiceAlert} from "../../futuremodules/alerts/alerts";
 import {getPossibleGroupFromFilename} from "../../futuremodules/entities/entitiesAccessors";
 import {Badge, Spinner} from "react-bootstrap";
 import gql from "graphql-tag";
 import {useMutation, useQuery} from "@apollo/react-hooks";
 import {checkQueryHasLoadedWithData, getQueryLoadedWithValue} from "../../futuremodules/graphqlclient/query";
-import {getFileName} from "../../futuremodules/utils/utils";
+import {getFileName, getFileNameOnlyNoExt} from "../../futuremodules/utils/utils";
+import {connect} from "../../futuremodules/webrtc/client";
 
 export const useExcaliburDragAndDropCallback = (dispatch) => {
   const entitiesApi = useApi('entities');
@@ -172,12 +173,12 @@ const entityByNameQuery = (name, refreshToken) => gql`{
 
 export const addEntityTagsMutation = gql`
     mutation AddEntityTagsMutation($entityId: ID!, $tags: [String!]) {
-        addEntityTagsMutation(entityId: $entityId, tags: $tags ) 
+        addEntityTagsMutation(entityId: $entityId, tags: $tags )
     }`;
 
 export const removeEntityTagMutation = gql`
     mutation RemoveEntityTagMutation($entityId: ID!, $tag: String!) {
-        removeEntityTagMutation(entityId: $entityId, tag: $tag) 
+        removeEntityTagMutation(entityId: $entityId, tag: $tag)
     }`;
 
 export const useAddEntityTags = () => {
@@ -229,3 +230,60 @@ export const useQLEntityByName = (name, refreshToken) => {
     setEntityByName,
   }
 };
+
+const entityMetaQuery = (partialSearch) => {
+  return gql`{
+      entities(partialSearch:"${partialSearch}") {
+          name
+          tags
+      }
+  }`;
+};
+
+export const useQLEntityMeta = (name) => {
+  const [entityMeta, setEntityMeta] = useState(null);
+  const queryRes = useQuery(entityMetaQuery(name));
+
+  useEffect(() => {
+    if (checkQueryHasLoadedWithData(queryRes)) {
+      setEntityMeta(getQueryLoadedWithValue(queryRes));
+    }
+  }, [queryRes, setEntityMeta]);
+
+  return {
+    entityMeta,
+    setEntityMeta,
+  }
+};
+
+export const useEHImportFlow = (auth, state, dispatch) => {
+  const [wsconnection, setWSConnection] = useState(null);
+  const alertDanger = useAlertDangerNoMovie();
+
+  useEffect(() => {
+    const messageCallback = (msg) => {
+      console.log(msg.data);
+      if (msg.data && msg.data.operationType === "update" && msg.data.ns.coll === "uploads") {
+        dispatch(['completed']);
+      }
+      if (msg.data && msg.data.operationType === "insert") {
+        if (msg.data.ns.coll === "daemon_crashes") {
+          alertDanger(msg.data.fullDocument.crash);
+          dispatch(['reset']);
+        } else if (msg.data.ns.coll === "uploads") {
+          dispatch(['fileDraggedUploaded', true]);
+        }
+      }
+    }
+
+    if (state.stage === 0) {
+      const fname = getFileNameOnlyNoExt(state.fileDragged);
+      window.Module.addScriptLine(`rr.addSceneObject("${fname}", "${state.group}", "1")`)
+      dispatch(['completeAndReset']);
+    }
+
+    if (!wsconnection && auth.user) {
+      setWSConnection(connect(auth.user.name, null, messageCallback));
+    }
+  }, [auth, wsconnection, state, alertDanger, dispatch]);
+}
