@@ -1,5 +1,5 @@
 import {Div, Flex} from "../../futuremodules/reactComponentStyles/reactCommon.styled";
-import {Button, FormControl, InputGroup} from "react-bootstrap";
+import {Button, Card, CardDeck, FormControl, InputGroup} from "react-bootstrap";
 import React, {useState} from "react";
 import {useQLEntityMeta} from "./ExcaliburLogic";
 
@@ -34,11 +34,22 @@ export const EntityBrowser = ({width}) => {
       </Div>
     </Flex>
     <Flex flexWrap={"wrap"}>
+      <CardDeck>
       {entityMeta && entityMeta.map(elem =>
-        <Button onClick={ () =>
-          window.Module.addScriptLine(`rr.addSceneObject("${elem.hash}", "geom")`)
-        }>{elem.name}</Button>
+        <Card style={{ width: '18rem' }}>
+          <Card.Img variant="top" width={"128px"} src={`https://${process.env.REACT_APP_EH_CLOUD_HOST}/media/entities/${elem.group}/${elem.thumb}`} />
+          <Card.Body>
+            <Card.Title>{elem.name}</Card.Title>
+            <Card.Text>
+              {elem.hash}
+            </Card.Text>
+            <Button onClick={ () =>
+              window.Module.addScriptLine(`rr.addSceneObject("${elem.hash}", "geom")`)
+            }>Open</Button>
+          </Card.Body>
+        </Card>
       )}
+      </CardDeck>
     </Flex>
   </>
 }

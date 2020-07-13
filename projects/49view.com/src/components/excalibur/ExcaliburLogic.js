@@ -74,6 +74,7 @@ export const excaliburInitialState = {
   fileDragged: null,
   filenameKey: null,
   group: null,
+  entityId: null,
   fileDraggedReadStatus: null,
   fileDraggedUploaded: null,
   completed: null,
@@ -103,8 +104,10 @@ export const excaliburStateReducer = (state, action) => {
         stage: 3
       };
     case 'completed':
+      console.log("EntityId ", action[1]);
       return {
         ...state,
+        entityId: action[1],
         stage: 0
       }
     case 'reset':
@@ -114,7 +117,8 @@ export const excaliburStateReducer = (state, action) => {
       return {
         ...excaliburInitialState,
         refreshToken: d1.toString(),
-        filenameKey: state.filenameKey
+        filenameKey: state.filenameKey,
+        entityId: state.entityId
       };
     case 'entityTagsChanged':
       const d = new Date();
@@ -241,7 +245,10 @@ export const useQLEntityByName = (name, refreshToken) => {
 const entityMetaQuery = (partialSearch) => {
   return gql`{
       entities(partialSearch:"${partialSearch}") {
+          _id
           name
+          group
+          thumb
           hash
           tags
       }
@@ -272,7 +279,7 @@ export const useEHImportFlow = (auth, state, dispatch) => {
     const messageCallback = (msg) => {
       console.log(msg.data);
       if (msg.data && msg.data.operationType === "update" && msg.data.ns.coll === "uploads") {
-        dispatch(['completed']);
+        dispatch(['completed', msg.data.updateDescription.updatedFields.entityId]);
       }
       if (msg.data && msg.data.operationType === "insert") {
         if (msg.data.ns.coll === "daemon_crashes") {
@@ -285,8 +292,8 @@ export const useEHImportFlow = (auth, state, dispatch) => {
     }
 
     if (state.stage === 0) {
-      const fname = getFileNameOnlyNoExt(state.fileDragged);
-      window.Module.addScriptLine(`rr.addSceneObject("${fname}", "${state.group}", "1")`)
+      const fid = state.entityId ? state.entityId : getFileNameOnlyNoExt(state.fileDragged);
+      window.Module.addScriptLine(`rr.addSceneObject("${fid}", "${state.group}", "1")`)
       dispatch(['completeAndReset']);
     }
 

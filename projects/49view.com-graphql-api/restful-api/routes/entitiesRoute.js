@@ -89,9 +89,14 @@ router.get("/list/:group/:tags", async (req, res, next) => {
   }
 });
 
-router.put("/:upsertThumb/:group/:id", async (req, res, next) => {
+router.post("/:upsertThumb/:group/:id", async (req, res, next) => {
   try {
-    const entity = await entityController.getEntityById(req.params.id);
+    logger.info(req.url);
+    let entity = await entityController.getEntityById(req.params.id);
+    if ( !entity ) {
+      entity = await entityController.getEntityByName(req.params.id);
+    }
+    logger.info("Body length: ", req.body.length);
     const thumbName = entity.hash + "_thumb.jpg";
     await writeFileComplete(req.body, `entities/${req.params.group}`, thumbName);
     await entityController.upsertThumb(entity, thumbName);
