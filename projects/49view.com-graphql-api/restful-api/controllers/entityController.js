@@ -517,22 +517,6 @@ const thumbFromContent = async (content, presetThumb, gtr) => {
   return thumbBuff === null ? "" : thumbBuff.toString("base64");
 };
 
-const upsertThumb = async entityId => {
-  const entity = await module.exports.getEntityById(entityId);
-  if (entity.metadata.thumb.length === 0) {
-    try {
-      const gtr = groupThumbnailCalcRule(entity.group);
-      const content = await groupThumbnailSourceContent(entity, gtr);
-      entity.metadata.thumb = await thumbFromContent(content.Body, null, gtr);
-      return await updateById(entityId, entity);
-    } catch (error) {
-      console.log("Upsert thumb on id " + entityId + " failed. Cause:" + error);
-      return null;
-    }
-  }
-  return {};
-}
-
 const upsertTags = async (entityId, tags) => {
   try {
     const entity = await module.exports.getEntityById(entityId);
@@ -875,7 +859,10 @@ module.exports = {
   updateEntity: updateEntity,
   upsertTags: upsertTags,
   groupThumbnailCalcRule: groupThumbnailCalcRule,
-  upsertThumb: upsertThumb,
+  upsertThumb: async (entity, thumbName) => {
+        entity.thumb = thumbName;
+        return await updateById(entity._id, entity);
+  },
   thumbFromContent: thumbFromContent,
   deleteEntity: deleteEntity,
   deleteEntityComplete: async (entity) => {

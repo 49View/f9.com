@@ -18,6 +18,7 @@
 #include <eh_arch/render/house_render.hpp>
 #include <eh_arch/controller/arch_render_controller.hpp>
 #include <eh_arch/models/house_service.hpp>
+#include <graphics/vertex_processing_anim.h>
 #include "transition_table_fsm.hpp"
 
 //scene_t scene{ 0 };
@@ -56,6 +57,7 @@ void Showcaser::activatePostLoad() {
     // Load default property if passed trough command line
 //    LOGRS("CLI params:" << cliParams.printAll());
 
+//    sg.resetAndLoadEntity("5eb61ea76de3db21c01568f6", "geom");
     if ( auto pid = cliParams.getParam("pid"); pid ) {
         asg.loadHouse(*pid, std::bind( &Showcaser::postLoadHouseCallback, this));
     }
@@ -151,6 +153,22 @@ void Showcaser::updateImpl( const AggregatedInputData& _aid ) {
     }
     if ( _aid.TI().checkKeyToggleOn(GMK_4) ) {
         backEnd->process_event(OnDollyHouseToggleEvent{});
+    }
+    if ( _aid.TI().checkKeyToggleOn(GMK_G) ) {
+        fader(0.33f, 1.0f, rsg.RR().CLI(CommandBufferLimits::GridStart));
+    }
+    if ( _aid.TI().checkKeyToggleOn(GMK_H) ) {
+        fader(0.33f, 0.0f, rsg.RR().CLI(CommandBufferLimits::GridStart));
+    }
+    if ( _aid.TI().checkKeyToggleOn(GMK_0) ) {
+        backEnd->process_event(OnTakeScreenShotEvent{
+            [&]( const SerializableContainer& image ) {
+                auto resourceID = sg.getCurrLoadedEntityId();
+                if ( !resourceID.empty() ) {
+                    Http::put( Url{"/entities/upsertThumb/geom/"+resourceID}, image );
+                }
+            }
+        });
     }
 
 #ifdef _USE_IMGUI_
