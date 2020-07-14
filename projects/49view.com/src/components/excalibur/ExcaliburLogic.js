@@ -75,6 +75,7 @@ export const excaliburInitialState = {
   filenameKey: null,
   group: null,
   entityId: null,
+  thumb: null,
   fileDraggedReadStatus: null,
   fileDraggedUploaded: null,
   completed: null,
@@ -104,11 +105,16 @@ export const excaliburStateReducer = (state, action) => {
         stage: 3
       };
     case 'completed':
-      console.log("EntityId ", action[1]);
       return {
         ...state,
         entityId: action[1],
         stage: 0
+      }
+    case 'thumbLoaded':
+      return {
+        ...state,
+        thumb: action[1],
+        stage: -1
       }
     case 'reset':
       return excaliburInitialState;
@@ -118,7 +124,8 @@ export const excaliburStateReducer = (state, action) => {
         ...excaliburInitialState,
         refreshToken: d1.toString(),
         filenameKey: state.filenameKey,
-        entityId: state.entityId
+        entityId: state.entityId,
+        thumb: state.thumb
       };
     case 'entityTagsChanged':
       const d = new Date();
@@ -174,6 +181,7 @@ const entityByNameQuery = (name, refreshToken) => gql`{
         name
         group
         tags
+        thumb
         bboxSize
     }
 }`;
@@ -279,21 +287,29 @@ export const useEHImportFlow = (auth, state, dispatch) => {
     const messageCallback = (msg) => {
       console.log(msg.data);
       if (msg.data && msg.data.operationType === "update" && msg.data.ns.coll === "uploads") {
-        dispatch(['completed', msg.data.updateDescription.updatedFields.entityId]);
+        // dispatch(['completed', msg.data.updateDescription.updatedFields.entityId, msg.data.updateDescription.updatedFields.thumb]);
       }
       if (msg.data && msg.data.operationType === "insert") {
         if (msg.data.ns.coll === "daemon_crashes") {
           alertDanger(msg.data.fullDocument.crash);
           dispatch(['reset']);
         } else if (msg.data.ns.coll === "uploads") {
-          dispatch(['fileDraggedUploaded', true]);
+          if ( !msg.data.fullDocument.entityId && !msg.data.fullDocument.thumb ) {
+            dispatch(['fileDraggedUploaded', true]);
+          } else if (msg.data.fullDocument.entityId && !msg.data.fullDocument.thumb) {
+            dispatch(['completed', msg.data.fullDocument.entityId]);
+          }else if (msg.data.fullDocument.thumb) {
+            dispatch(['thumbLoaded', msg.data.fullDocument.thumb]);
+          }
         }
       }
     }
 
     if (state.stage === 0) {
-      const fid = state.entityId ? state.entityId : getFileNameOnlyNoExt(state.fileDragged);
-      window.Module.addScriptLine(`rr.addSceneObject("${fid}", "${state.group}", "1")`)
+      const fid = state.entityId;// ? state.entityId : getFileNameOnlyNoExt(state.fileDragged);
+      if ( fid ) {
+        window.Module.addScriptLine(`rr.addSceneObject("${fid}", "${state.group}", "1")`)
+      }
       dispatch(['completeAndReset']);
     }
 

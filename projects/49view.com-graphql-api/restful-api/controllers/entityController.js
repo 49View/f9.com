@@ -1,5 +1,6 @@
 import * as asyncModelOperations from "../assistants/asyncModelOperations";
 import {entityModel} from "../../models/entity";
+import {uploadModel} from "../../models/upload";
 import {colorModel} from "../../models/color";
 
 const mongoose = require("mongoose");
@@ -861,6 +862,16 @@ module.exports = {
   groupThumbnailCalcRule: groupThumbnailCalcRule,
   upsertThumb: async (entity, thumbName) => {
         entity.thumb = thumbName;
+        console.log("Entity ", entity);
+        await uploadModel.create(
+          {
+            filename: entity.filename,
+            group: entity.group,
+            thumb: entity.thumb,
+            userId: entity.userId,
+            entityId: entity._id
+          }
+          );
         return await updateById(entity._id, entity);
   },
   thumbFromContent: thumbFromContent,

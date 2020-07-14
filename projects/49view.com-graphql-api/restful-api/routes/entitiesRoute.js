@@ -92,15 +92,21 @@ router.get("/list/:group/:tags", async (req, res, next) => {
 router.post("/:upsertThumb/:group/:id", async (req, res, next) => {
   try {
     logger.info(req.url);
-    let entity = await entityController.getEntityById(req.params.id);
+    let entity = null;
+    if ( req.params.id.length === 12 || req.params.id.length === 24 ) {
+      entity = await entityController.getEntityById(req.params.id);
+    }
     if ( !entity ) {
       entity = await entityController.getEntityByName(req.params.id);
     }
-    logger.info("Body length: ", req.body.length);
-    const thumbName = entity.hash + "_thumb.jpg";
-    await writeFileComplete(req.body, `entities/${req.params.group}`, thumbName);
-    await entityController.upsertThumb(entity, thumbName);
-    res.send("OK");
+    if ( entity ) {
+      const thumbName = entity.hash + "_thumb.jpg";
+      await writeFileComplete(req.body, `entities/${req.params.group}`, thumbName);
+      await entityController.upsertThumb(entity, thumbName);
+      res.send("OK");
+      return;
+    }
+    res.sendStatus(204);
   } catch (ex) {
     logger.error("Error upsertThumb: ", ex);
     res.status(400).send(ex);
