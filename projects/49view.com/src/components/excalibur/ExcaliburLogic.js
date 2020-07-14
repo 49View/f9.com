@@ -7,7 +7,7 @@ import {Badge, Spinner} from "react-bootstrap";
 import gql from "graphql-tag";
 import {useMutation, useQuery} from "@apollo/react-hooks";
 import {checkQueryHasLoadedWithData, getQueryLoadedWithValue} from "../../futuremodules/graphqlclient/query";
-import {getFileName, getFileNameOnlyNoExt} from "../../futuremodules/utils/utils";
+import {getFileName} from "../../futuremodules/utils/utils";
 import {connect} from "../../futuremodules/webrtc/client";
 import {FlexVertical} from "../../futuremodules/reactComponentStyles/reactCommon.styled";
 
@@ -83,6 +83,7 @@ export const excaliburInitialState = {
 };
 
 export const excaliburStateReducer = (state, action) => {
+  const d1 = new Date();
   switch (action[0]) {
     case 'fileDragged':
       return {
@@ -113,13 +114,12 @@ export const excaliburStateReducer = (state, action) => {
     case 'thumbLoaded':
       return {
         ...state,
-        thumb: action[1],
-        stage: -1
+        refreshToken: d1.toString(),
+        thumb: action[1]
       }
     case 'reset':
       return excaliburInitialState;
     case 'completeAndReset':
-      const d1 = new Date();
       return {
         ...excaliburInitialState,
         refreshToken: d1.toString(),
@@ -128,10 +128,9 @@ export const excaliburStateReducer = (state, action) => {
         thumb: state.thumb
       };
     case 'entityTagsChanged':
-      const d = new Date();
       return {
         ...state,
-        refreshToken: d.toString()
+        refreshToken: d1.toString()
       };
     default:
       throw new Error("dashBoardManager reducer is handling an invalid action: " + JSON.stringify(action));
@@ -286,21 +285,19 @@ export const useEHImportFlow = (auth, state, dispatch) => {
   useEffect(() => {
     const messageCallback = (msg) => {
       console.log(msg.data);
-      if (msg.data && msg.data.operationType === "update" && msg.data.ns.coll === "uploads") {
-        // dispatch(['completed', msg.data.updateDescription.updatedFields.entityId, msg.data.updateDescription.updatedFields.thumb]);
-      }
+      // if (msg.data && msg.data.operationType === "update" && msg.data.ns.coll === "uploads") {
+      //   dispatch(['completed', msg.data.updateDescription.updatedFields.entityId]);
+      // }
       if (msg.data && msg.data.operationType === "insert") {
         if (msg.data.ns.coll === "daemon_crashes") {
           alertDanger(msg.data.fullDocument.crash);
           dispatch(['reset']);
         } else if (msg.data.ns.coll === "uploads") {
-          if ( !msg.data.fullDocument.entityId && !msg.data.fullDocument.thumb ) {
             dispatch(['fileDraggedUploaded', true]);
-          } else if (msg.data.fullDocument.entityId && !msg.data.fullDocument.thumb) {
-            dispatch(['completed', msg.data.fullDocument.entityId]);
-          }else if (msg.data.fullDocument.thumb) {
-            dispatch(['thumbLoaded', msg.data.fullDocument.thumb]);
-          }
+        } else if (msg.data.ns.coll === "completed_uploads") {
+          dispatch(['completed', msg.data.fullDocument.entityId]);
+        } else if (msg.data.ns.coll === "thumbnail_makers") {
+          dispatch(['thumbLoaded', msg.data.fullDocument.thumb]);
         }
       }
     }

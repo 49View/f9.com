@@ -2,6 +2,7 @@ import * as asyncModelOperations from "../assistants/asyncModelOperations";
 import {entityModel} from "../../models/entity";
 import {uploadModel} from "../../models/upload";
 import {colorModel} from "../../models/color";
+import {thumbnailMakerModel} from "../../models/thumbnail_maker";
 
 const mongoose = require("mongoose");
 const zlib = require("zlib");
@@ -863,16 +864,16 @@ module.exports = {
   upsertThumb: async (entity, thumbName) => {
         entity.thumb = thumbName;
         console.log("Entity ", entity);
-        await uploadModel.create(
+        const updatedEntity = await updateById(entity._id, entity);
+        await thumbnailMakerModel.create(
           {
             filename: entity.filename,
             group: entity.group,
             thumb: entity.thumb,
             userId: entity.userId,
             entityId: entity._id
-          }
-          );
-        return await updateById(entity._id, entity);
+          });
+        return updatedEntity;
   },
   thumbFromContent: thumbFromContent,
   deleteEntity: deleteEntity,
