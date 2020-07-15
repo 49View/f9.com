@@ -78,7 +78,7 @@ export const Excalibur = () => {
             </Flex>
           </ExcaliburScriptGrid>
         </ExcaliburGrid>
-        <EntityBrowser width={wasmCanvasSize.x}/>
+        <EntityBrowser width={wasmCanvasSize.x} dispatch={dispatch}/>
       </ContainerSectionShadowedInfinite>
       }
     </AnimFadeSection>

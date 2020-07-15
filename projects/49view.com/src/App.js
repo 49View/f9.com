@@ -21,17 +21,6 @@ const App = () => {
 
   return (
       <Content>
-        <AnimFadeSection>
-        <WasmCanvas
-          wasmName='../wasm_renderer'
-          borderRadius={"5px"}
-          border={"1px solid var(--middle-grey-color)"}
-          argumentList={[
-            `hostname=${window.location.hostname}`,
-          ]}
-          mandatoryWebGLVersionSupporNumber="webgl2"
-        />
-        </AnimFadeSection>
         <Navbar/>
         <FakeNavBar/>
         <Body>
@@ -48,6 +37,17 @@ const App = () => {
           {/*</AnimatePresence>*/}
         </Body>
         <EHAlert/>
+        <AnimFadeSection>
+          <WasmCanvas
+            wasmName='../wasm_renderer'
+            borderRadius={"5px"}
+            border={"1px solid var(--middle-grey-color)"}
+            argumentList={[
+              `hostname=${window.location.hostname}`,
+            ]}
+            mandatoryWebGLVersionSupporNumber="webgl2"
+          />
+        </AnimFadeSection>
       </Content>
   );
 };

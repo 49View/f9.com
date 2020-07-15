@@ -111,6 +111,11 @@ export const excaliburStateReducer = (state, action) => {
         entityId: action[1],
         stage: 0
       }
+    case 'loadEntity':
+      return {
+        ...state,
+        filenameKey: action[1].name
+      }
     case 'thumbLoaded':
       console.log("FileKey to reload thumbnail ", state.filenameKey);
       return {
