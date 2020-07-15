@@ -44,7 +44,7 @@ export const EntityBrowser = ({width}) => {
               {elem.hash}
             </Card.Text>
             <Button onClick={ () =>
-              window.Module.addScriptLine(`rr.addSceneObject("${elem.hash}", "geom")`)
+              window.Module.addScriptLine(`rr.addSceneObject("${elem.hash}", "geom", false)`)
             }>Open</Button>
           </Card.Body>
         </Card>

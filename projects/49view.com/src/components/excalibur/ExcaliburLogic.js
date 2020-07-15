@@ -83,7 +83,7 @@ export const excaliburInitialState = {
 };
 
 export const excaliburStateReducer = (state, action) => {
-  const d1 = new Date();
+  const d1 = Date.now();
   switch (action[0]) {
     case 'fileDragged':
       return {
@@ -112,6 +112,7 @@ export const excaliburStateReducer = (state, action) => {
         stage: 0
       }
     case 'thumbLoaded':
+      console.log("FileKey to reload thumbnail ", state.filenameKey);
       return {
         ...state,
         refreshToken: d1.toString(),
@@ -305,7 +306,7 @@ export const useEHImportFlow = (auth, state, dispatch) => {
     if (state.stage === 0) {
       const fid = state.entityId;// ? state.entityId : getFileNameOnlyNoExt(state.fileDragged);
       if ( fid ) {
-        window.Module.addScriptLine(`rr.addSceneObject("${fid}", "${state.group}", "1")`)
+        window.Module.addScriptLine(`rr.addSceneObject("${fid}", "${state.group}", true)`)
       }
       dispatch(['completeAndReset']);
     }
