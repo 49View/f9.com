@@ -16,7 +16,7 @@
 
 #include "eh_arch/state_machine/arch_sm_events__fsm.hpp"
 #include "property_listing_orchestrator.hpp"
-#include "selection_remote_entity_editor.hpp"
+#include "remote_entity_selector.hpp"
 
 static inline void showGizmo2( Selectable& _node, std::shared_ptr<Camera> _cam ) {
 
@@ -283,7 +283,7 @@ private:
         C4f target = targetMP->color;
         if ( ImGui::ImageButton(ImGuiRenderTexture(im), ImVec2(thumbSize, thumbSize), ImVec2(0, 0), ImVec2(1, 1), -1,
                                 ImVec4(0, 0, 0, 0), ImVec4(target.x(), target.y(), target.z(), 1.0f)) ) {
-            res.prepare(label);
+            res.prepare(label, "", ResourceGroup::Material);
             currLabel = label;
         }
         if ( ImGui::IsItemHovered() ) {
@@ -353,7 +353,10 @@ private:
         ImGui::Separator();
         ImGui::Columns(3);
         for ( const auto& ff : room->mFittedFurniture ) {
-            ImGui::Button( ff->name.c_str() );
+            if ( ImGui::Button( ff->name.c_str() ) ) {
+                res.prepare(GHType::Furniture, ff->name, ResourceGroup::Geom);
+                currLabel = GHType::Furniture;
+            }
             ImGui::NextColumn();
         }
         ImGui::Columns(1);
@@ -364,7 +367,8 @@ private:
         for ( auto fth = 0; fth < FurnitureTypeHandler::FT_Invalid; fth++ ) {
             auto ft = static_cast<FurnitureTypeHandler::Type>(fth);
             if ( ImGui::Button(FurnitureTypeHandler::name(ft).c_str()) ) {
-                RoomServiceFurniture::addFurnitureSingle( HouseService::findFloorOf(asg.H(), room->hash), room, asg.FurnitureMap(), ft );
+                res.prepare(GHType::Furniture, FurnitureTypeHandler::name(ft), ResourceGroup::Geom);
+                currLabel = GHType::Furniture;
             }
             ImGui::NextColumn();
         }

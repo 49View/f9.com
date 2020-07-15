@@ -1,13 +1,15 @@
 import {api, useApi} from "../../futuremodules/api/apiEntryPoint";
 import React, {useCallback, useEffect, useState} from "react";
 import {addEntity} from "../../futuremodules/entities/entitiesApiCalls";
-import {useAlertWarning, useMultiChoiceAlert} from "../../futuremodules/alerts/alerts";
+import {useAlertDangerNoMovie, useAlertWarning, useMultiChoiceAlert} from "../../futuremodules/alerts/alerts";
 import {getPossibleGroupFromFilename} from "../../futuremodules/entities/entitiesAccessors";
 import {Badge, Spinner} from "react-bootstrap";
 import gql from "graphql-tag";
 import {useMutation, useQuery} from "@apollo/react-hooks";
 import {checkQueryHasLoadedWithData, getQueryLoadedWithValue} from "../../futuremodules/graphqlclient/query";
 import {getFileName} from "../../futuremodules/utils/utils";
+import {connect} from "../../futuremodules/webrtc/client";
+import {FlexVertical} from "../../futuremodules/reactComponentStyles/reactCommon.styled";
 
 export const useExcaliburDragAndDropCallback = (dispatch) => {
   const entitiesApi = useApi('entities');
@@ -72,6 +74,8 @@ export const excaliburInitialState = {
   fileDragged: null,
   filenameKey: null,
   group: null,
+  entityId: null,
+  thumb: null,
   fileDraggedReadStatus: null,
   fileDraggedUploaded: null,
   completed: null,
@@ -79,6 +83,7 @@ export const excaliburInitialState = {
 };
 
 export const excaliburStateReducer = (state, action) => {
+  const d1 = Date.now();
   switch (action[0]) {
     case 'fileDragged':
       return {
@@ -103,22 +108,30 @@ export const excaliburStateReducer = (state, action) => {
     case 'completed':
       return {
         ...state,
+        entityId: action[1],
         stage: 0
+      }
+    case 'thumbLoaded':
+      console.log("FileKey to reload thumbnail ", state.filenameKey);
+      return {
+        ...state,
+        refreshToken: d1.toString(),
+        thumb: action[1]
       }
     case 'reset':
       return excaliburInitialState;
     case 'completeAndReset':
-      const d1 = new Date();
       return {
         ...excaliburInitialState,
         refreshToken: d1.toString(),
-        filenameKey: state.filenameKey
+        filenameKey: state.filenameKey,
+        entityId: state.entityId,
+        thumb: state.thumb
       };
     case 'entityTagsChanged':
-      const d = new Date();
       return {
         ...state,
-        refreshToken: d.toString()
+        refreshToken: d1.toString()
       };
     default:
       throw new Error("dashBoardManager reducer is handling an invalid action: " + JSON.stringify(action));
@@ -134,21 +147,27 @@ export const AssetLoadingStage = ({state}) => {
   }
 
   return (
-    <div>
-      <p>{state.fileDragged}</p>
+    <FlexVertical justifyContent={"flex-start"}>
+      <div overflow={"hidden"}>{state.fileDragged}</div>
+      <div>
       <h3><Badge variant={variantStages(state, 1)}>Read </Badge>
         {state.stage === 1 && <Spinner animation={"grow"}
                                        variant={"warning"}/>}
       </h3>
+      </div>
+      <div>
       <h3><Badge variant={variantStages(state, 2)}>Upload </Badge>
         {state.stage === 2 && <Spinner animation={"grow"}
                                        variant={"warning"}/>}
       </h3>
+      </div>
+        <div>
       <h3><Badge variant={variantStages(state, 3)}>Elaborate </Badge>
         {state.stage === 3 && <Spinner animation={"grow"}
                                        variant={"warning"}/>}
       </h3>
-    </div>
+        </div>
+    </FlexVertical>
   );
 };
 
@@ -162,6 +181,7 @@ const entityByNameQuery = (name, refreshToken) => gql`{
         name
         group
         tags
+        thumb
         bboxSize
     }
 }`;
@@ -172,12 +192,12 @@ const entityByNameQuery = (name, refreshToken) => gql`{
 
 export const addEntityTagsMutation = gql`
     mutation AddEntityTagsMutation($entityId: ID!, $tags: [String!]) {
-        addEntityTagsMutation(entityId: $entityId, tags: $tags ) 
+        addEntityTagsMutation(entityId: $entityId, tags: $tags )
     }`;
 
 export const removeEntityTagMutation = gql`
     mutation RemoveEntityTagMutation($entityId: ID!, $tag: String!) {
-        removeEntityTagMutation(entityId: $entityId, tag: $tag) 
+        removeEntityTagMutation(entityId: $entityId, tag: $tag)
     }`;
 
 export const useAddEntityTags = () => {
@@ -229,3 +249,70 @@ export const useQLEntityByName = (name, refreshToken) => {
     setEntityByName,
   }
 };
+
+const entityMetaQuery = (partialSearch) => {
+  return gql`{
+      entities(partialSearch:"${partialSearch}") {
+          _id
+          name
+          group
+          thumb
+          hash
+          tags
+      }
+  }`;
+};
+
+export const useQLEntityMeta = (name) => {
+  const [entityMeta, setEntityMeta] = useState(null);
+  const queryRes = useQuery(entityMetaQuery(name));
+
+  useEffect(() => {
+    if (checkQueryHasLoadedWithData(queryRes)) {
+      setEntityMeta(getQueryLoadedWithValue(queryRes));
+    }
+  }, [queryRes, setEntityMeta]);
+
+  return {
+    entityMeta,
+    setEntityMeta,
+  }
+};
+
+export const useEHImportFlow = (auth, state, dispatch) => {
+  const [wsconnection, setWSConnection] = useState(null);
+  const alertDanger = useAlertDangerNoMovie();
+
+  useEffect(() => {
+    const messageCallback = (msg) => {
+      console.log(msg.data);
+      // if (msg.data && msg.data.operationType === "update" && msg.data.ns.coll === "uploads") {
+      //   dispatch(['completed', msg.data.updateDescription.updatedFields.entityId]);
+      // }
+      if (msg.data && msg.data.operationType === "insert") {
+        if (msg.data.ns.coll === "daemon_crashes") {
+          alertDanger(msg.data.fullDocument.crash);
+          dispatch(['reset']);
+        } else if (msg.data.ns.coll === "uploads") {
+            dispatch(['fileDraggedUploaded', true]);
+        } else if (msg.data.ns.coll === "completed_uploads") {
+          dispatch(['completed', msg.data.fullDocument.entityId]);
+        } else if (msg.data.ns.coll === "thumbnail_makers") {
+          dispatch(['thumbLoaded', msg.data.fullDocument.thumb]);
+        }
+      }
+    }
+
+    if (state.stage === 0) {
+      const fid = state.entityId;// ? state.entityId : getFileNameOnlyNoExt(state.fileDragged);
+      if ( fid ) {
+        window.Module.addScriptLine(`rr.addSceneObject("${fid}", "${state.group}", true)`)
+      }
+      dispatch(['completeAndReset']);
+    }
+
+    if (!wsconnection && auth.user) {
+      setWSConnection(connect(auth.user.name, null, messageCallback));
+    }
+  }, [auth, wsconnection, state, alertDanger, dispatch]);
+}

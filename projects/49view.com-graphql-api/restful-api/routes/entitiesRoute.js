@@ -1,5 +1,7 @@
 import * as metaAssistant from "../assistants/metadataAssistant";
 import * as fsController from "../controllers/fsController";
+import {writeFileComplete} from "../controllers/fsController";
+import {uploadModel} from "../../models/upload";
 
 const entityController = require("../controllers/entityController");
 const express = require("express");
@@ -87,5 +89,28 @@ router.get("/list/:group/:tags", async (req, res, next) => {
   }
 });
 
+router.post("/:upsertThumb/:group/:id", async (req, res, next) => {
+  try {
+    logger.info(req.url);
+    let entity = null;
+    if ( req.params.id.length === 12 || req.params.id.length === 24 ) {
+      entity = await entityController.getEntityById(req.params.id);
+    }
+    if ( !entity ) {
+      entity = await entityController.getEntityByName(req.params.id);
+    }
+    if ( entity ) {
+      const thumbName = entity.hash + "_thumb.jpg";
+      await writeFileComplete(req.body, `entities/${req.params.group}`, thumbName);
+      await entityController.upsertThumb(entity, thumbName);
+      res.send("OK");
+      return;
+    }
+    res.sendStatus(204);
+  } catch (ex) {
+    logger.error("Error upsertThumb: ", ex);
+    res.status(400).send(ex);
+  }
+});
 
 module.exports = router;

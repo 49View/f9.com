@@ -21,6 +21,7 @@ struct FrontEndStateMachineSML {
             ,state<EditStateMachine> + event<OnDollyHouseToggleEvent> / ActivateDollyHouseView{} = state<DollyHouseStateMachine>
             ,state<EditStateMachine> + event<OnTourToggleEvent> / ActivateTourView{} = state<TourStateMachine>
 
+            ,state<TourStateMachine> + event<OnOrbitModeEvent> / ActivateOrbitMode{} = state<OrbitModeStateMachine>
             ,state<TourStateMachine> + event<OnTourToggleEvent> / ActivateTourView{} = state<TourStateMachine>
             ,state<TourStateMachine> + event<OnFlorPlanViewToggleEvent> / ActivateFloorplanView{} = state<FloorPlanViewStateMachine>
             ,state<TourStateMachine> + event<OnTopDownToggleEvent> / ActivateTopDownView{} = state<TopDownStateMachine>

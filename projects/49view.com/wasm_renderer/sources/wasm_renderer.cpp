@@ -8,6 +8,7 @@
 #include <core/TTF.h>
 #include <core/camera.h>
 #include <core/resources/profile.hpp>
+#include <core/resources/resource_builder.hpp>
 #include <render_scene_graph/render_orchestrator.h>
 #include <core/math/vector_util.hpp>
 #include <core/lightmap_exchange_format.h>
@@ -18,23 +19,26 @@
 #include <eh_arch/render/house_render.hpp>
 #include <eh_arch/controller/arch_render_controller.hpp>
 #include <eh_arch/models/house_service.hpp>
+#include <graphics/vertex_processing_anim.h>
+#include <poly/scene_graph.h>
 #include "transition_table_fsm.hpp"
 
 //scene_t scene{ 0 };
 //const std::string skyboxName = "tropical,beach";
 
-Showcaser::Showcaser( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchOrchestrator& _asg, ArchRenderController& _arc ) : RunLoopBackEndBase(_sg, _rsg),
-                                                                                                                        ScenePreLoader(_sg, _rsg),
-                                                                                                                        asg(_asg), arc(_arc) {
+Showcaser::Showcaser( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchOrchestrator& _asg, ArchRenderController& _arc )
+        : RunLoopBackEndBase(_sg, _rsg),
+          ScenePreLoader(_sg, _rsg),
+          asg(_asg), arc(_arc) {
     backEnd = std::make_shared<FrontEnd>(*this, this->cliParams, _asg, _sg, _rsg, _arc);
 }
 
 void Showcaser::postLoadHouseCallback() {
-    asg.make3dHouse( [&]() {
+    asg.make3dHouse([&]() {
         Renderer::clearColor(C4f::XTORGBA("e0e0e0"));
         if ( HouseService::hasTour(asg.H()) ) {
             backEnd->process_event(OnTourToggleEvent{});
-        } else{
+        } else {
             backEnd->process_event(OnExploreToggleEvent{});
         }
     });
@@ -45,26 +49,30 @@ void Showcaser::activatePostLoad() {
     rsg.createSkybox(SkyBoxInitParams{ SkyBoxMode::CubeProcedural });
     rsg.useSkybox(false);
     rsg.useSunLighting(true);
-    rsg.RR().setShadowZFightCofficient(0.002f*0.15f*0.5f);
+    rsg.RR().setShadowZFightCofficient(0.002f * 0.15f * 0.5f);
     rsg.RR().useVignette(true);
     rsg.useSSAO(true);
     rsg.RR().useFilmGrain(false);
     rsg.changeTime("14:00");
 
-    backEnd->process_event(OnActivateEvent{FloorPlanRenderMode::Debug3d});
+    backEnd->process_event(OnActivateEvent{ FloorPlanRenderMode::Debug3d });
 
     // Load default property if passed trough command line
 //    LOGRS("CLI params:" << cliParams.printAll());
 
+//    rsg.setLuaScriptHotReload(R"(rr.addSceneObject("cactus", "geom", false))");
+//    sg.resetAndLoadEntity("cactus", "geom", false);
+//    sg.GB<GT::Shape>(ShapeType::Sphere);
+
     if ( auto pid = cliParams.getParam("pid"); pid ) {
-        asg.loadHouse(*pid, std::bind( &Showcaser::postLoadHouseCallback, this));
+        asg.loadHouse(*pid, std::bind(&Showcaser::postLoadHouseCallback, this));
     }
 }
 
 void Showcaser::luaFunctionsSetup() {
     const std::string nsKey = "f9";
     rsg.addLuaFunction(nsKey, "loadHouse", [&]( const std::string _pid ) {
-        asg.loadHouse(_pid, std::bind( &Showcaser::postLoadHouseCallback, this));
+        asg.loadHouse(_pid, std::bind(&Showcaser::postLoadHouseCallback, this));
     });
     rsg.addLuaFunction(nsKey, "setViewingMode", [&]( int _vm ) {
         switch ( _vm ) {
@@ -85,9 +93,11 @@ void Showcaser::luaFunctionsSetup() {
             case AVM_DollHouse:
                 backEnd->process_event(OnDollyHouseToggleEvent{});
                 break;
+            default:
+                break;
         }
 
-        asg.setViewingMode( static_cast<ArchViewingMode>(_vm));
+        asg.setViewingMode(static_cast<ArchViewingMode>(_vm));
     });
 }
 
@@ -127,7 +137,7 @@ void Showcaser::updateImpl( const AggregatedInputData& _aid ) {
         backEnd->process_event(OnTouchMoveEvent{ _aid.mousePos(TOUCH_ZERO) });
         backEnd->process_event(OnTouchMoveViewportSpaceEvent{ _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC()) });
     }
-    if ( _aid.isMouseSingleTap( TOUCH_ZERO) ) {
+    if ( _aid.isMouseSingleTap(TOUCH_ZERO) ) {
         backEnd->process_event(OnSingleTapEvent{ _aid.mousePos(TOUCH_ZERO) });
         backEnd->process_event(OnSingleTapViewportSpaceEvent{ _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC()) });
     } else {
@@ -139,6 +149,9 @@ void Showcaser::updateImpl( const AggregatedInputData& _aid ) {
 
     if ( _aid.TI().checkKeyToggleOn(GMK_5) ) {
         backEnd->process_event(OnTourToggleEvent{});
+    }
+    if ( _aid.TI().checkKeyToggleOn(GMK_6) ) {
+        backEnd->process_event(OnOrbitModeEvent{});
     }
     if ( _aid.TI().checkKeyToggleOn(GMK_1) ) {
         backEnd->process_event(OnFlorPlanViewToggleEvent{});
@@ -152,20 +165,53 @@ void Showcaser::updateImpl( const AggregatedInputData& _aid ) {
     if ( _aid.TI().checkKeyToggleOn(GMK_4) ) {
         backEnd->process_event(OnDollyHouseToggleEvent{});
     }
+    if ( _aid.TI().checkKeyToggleOn(GMK_G) ) {
+        fader(0.33f, 1.0f, rsg.RR().CLI(CommandBufferLimits::GridStart));
+    }
+    if ( _aid.TI().checkKeyToggleOn(GMK_H) ) {
+        fader(0.33f, 0.0f, rsg.RR().CLI(CommandBufferLimits::GridStart));
+    }
+    if ( _aid.TI().checkKeyToggleOn(GMK_0) ) {
+        fader(0.33f, 0.0f, rsg.RR().CLI(CommandBufferLimits::GridStart), AnimEndCallback{
+            [&]() {
+                backEnd->process_event(OnTakeScreenShotEvent{
+                        [&]( const SerializableContainer& image ) {
+                            auto resourceID = sg.getCurrLoadedEntityId();
+                            if ( !resourceID.empty() ) {
+                                Http::post(Url{ "/entities/upsertThumb/geom/" + resourceID }, image);
+                            }
+                        }
+                });
+            }
+        });
+    }
 
 #ifdef _USE_IMGUI_
     ImGui::Begin("SceneGraph");
-    sg.visitNodes([]( const GeomSPConst elem ) {
-        ImGui::Text("%s", elem->Name().c_str());
+    sg.visitNodes([](
+            const GeomSPConst elem
+    ) {
+        ImGui::Text("%s", elem->
+                        Name()
+                .
+                        c_str()
+        );
     });
     ImGui::End();
 
     ImGui::Begin("Camera");
     std::ostringstream camDump;
-    camDump << *sg.DC().get();
+    camDump << *sg.
+                    DC()
+            .
+                    get();
     auto lines = split(camDump.str(), '\n');
-    for ( const auto& line : lines ) {
-        ImGui::Text("%s", line.c_str());
+    for (
+        const auto& line
+            : lines ) {
+        ImGui::Text("%s", line.
+                c_str()
+        );
     }
     ImGui::End();
 

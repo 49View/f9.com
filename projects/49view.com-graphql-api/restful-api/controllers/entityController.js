@@ -1,6 +1,8 @@
 import * as asyncModelOperations from "../assistants/asyncModelOperations";
 import {entityModel} from "../../models/entity";
+import {uploadModel} from "../../models/upload";
 import {colorModel} from "../../models/color";
+import {thumbnailMakerModel} from "../../models/thumbnail_maker";
 
 const mongoose = require("mongoose");
 const zlib = require("zlib");
@@ -517,22 +519,6 @@ const thumbFromContent = async (content, presetThumb, gtr) => {
   return thumbBuff === null ? "" : thumbBuff.toString("base64");
 };
 
-const upsertThumb = async entityId => {
-  const entity = await module.exports.getEntityById(entityId);
-  if (entity.metadata.thumb.length === 0) {
-    try {
-      const gtr = groupThumbnailCalcRule(entity.group);
-      const content = await groupThumbnailSourceContent(entity, gtr);
-      entity.metadata.thumb = await thumbFromContent(content.Body, null, gtr);
-      return await updateById(entityId, entity);
-    } catch (error) {
-      console.log("Upsert thumb on id " + entityId + " failed. Cause:" + error);
-      return null;
-    }
-  }
-  return {};
-}
-
 const upsertTags = async (entityId, tags) => {
   try {
     const entity = await module.exports.getEntityById(entityId);
@@ -875,7 +861,20 @@ module.exports = {
   updateEntity: updateEntity,
   upsertTags: upsertTags,
   groupThumbnailCalcRule: groupThumbnailCalcRule,
-  upsertThumb: upsertThumb,
+  upsertThumb: async (entity, thumbName) => {
+        entity.thumb = thumbName;
+        console.log("Entity ", entity);
+        const updatedEntity = await updateById(entity._id, entity);
+        await thumbnailMakerModel.create(
+          {
+            filename: entity.filename,
+            group: entity.group,
+            thumb: entity.thumb,
+            userId: entity.userId,
+            entityId: entity._id
+          });
+        return updatedEntity;
+  },
   thumbFromContent: thumbFromContent,
   deleteEntity: deleteEntity,
   deleteEntityComplete: async (entity) => {
@@ -948,7 +947,6 @@ module.exports = {
     }
 
     const result = await asyncModelOperations.aggregate(entityModel, aggregationQueries);
-    // const result = await entityModel.aggregate(aggregationQueries).exec();
     return result;
   },
   getColorsInCategory: async category => {

@@ -1,7 +1,9 @@
 import {apolloServerInstance} from "./apolloServer";
 import {uploadModel} from "./models/upload";
+import {thumbnailMakerModel} from "./models/thumbnail_maker";
 import {sendToOneUser} from "./websocketServer";
 import {daemonCrashModel} from "./models/daemon_crash";
+import {completedUploadModel} from "./models/completed_upload";
 
 const globalConfig = require("eh_config");
 const http = require('http');
@@ -28,6 +30,24 @@ export const initServer = () => {
   uploadModel.watch().on('change', async data => {
     console.log("Uploads have changes", data);
     const updateDoc = await uploadModel.findById(data.documentKey._id);
+    const user = await usersModel.findById(updateDoc.toObject().userId);
+    sendToOneUser( user.toObject().name, JSON.stringify({
+      type: "watchmessage",
+      data
+    }));
+  });
+  completedUploadModel.watch().on('change', async data => {
+    console.log("Completed uplaods have changes", data);
+    const updateDoc = await completedUploadModel.findById(data.documentKey._id);
+    const user = await usersModel.findById(updateDoc.toObject().userId);
+    sendToOneUser( user.toObject().name, JSON.stringify({
+      type: "watchmessage",
+      data
+    }));
+  });
+  thumbnailMakerModel.watch().on('change', async data => {
+    console.log("Thumbnail have been created", data);
+    const updateDoc = await thumbnailMakerModel.findById(data.documentKey._id);
     const user = await usersModel.findById(updateDoc.toObject().userId);
     sendToOneUser( user.toObject().name, JSON.stringify({
       type: "watchmessage",

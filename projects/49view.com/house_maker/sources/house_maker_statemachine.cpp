@@ -46,6 +46,7 @@ void HouseMakerStateMachine::activatePostLoad() {
     rsg.RR().useVignette(true);
     rsg.useSSAO(true);
     rsg.RR().useFilmGrain(false);
+    rsg.useSunLighting(true);
 
 
     backEnd->process_event(OnActivateEvent{FloorPlanRenderMode::Debug3d});

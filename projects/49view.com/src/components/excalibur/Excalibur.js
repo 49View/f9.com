@@ -1,4 +1,4 @@
-import React, {useContext, useReducer, useState} from "react";
+import React, {useContext, useReducer} from "react";
 import {AuthContext} from "../../futuremodules/auth/authContext";
 import {SpinnerTopMiddle} from "../../futuremodules/spinner/Spinner";
 import {Redirect} from "react-router-dom";
@@ -7,23 +7,24 @@ import {useDropzone} from "react-dropzone";
 import {
   ContainerSectionShadowedInfinite,
   Div,
+  Flex,
   FlexDragAndDrop
 } from "../../futuremodules/reactComponentStyles/reactCommon.styled";
 import {
   AssetLoadingStage,
   excaliburInitialState,
   excaliburStateReducer,
+  useEHImportFlow,
   useExcaliburDragAndDropCallback,
   useQLEntityByName
 } from "./ExcaliburLogic";
 import {useWasmContext} from "../../futuremodules/reactwasmcanvas/localreacwasmcanvas";
 import {DivDropZone, DivReports, DivWasm, ExcaliburGrid, ExcaliburScriptGrid} from "./Excalibur.styled";
 import {Button, FormControl, InputGroup} from "react-bootstrap";
-import {getFileNameOnlyNoExt} from "../../futuremodules/utils/utils";
-import {useEffect} from "reactn";
-import {connect} from "../../futuremodules/webrtc/client";
-import {useAlertDangerNoMovie} from "../../futuremodules/alerts/alerts";
 import {EntityAndTags} from "./EntityAndTags";
+import {EntityBrowser} from "./EntityBrowser";
+
+const wasmCanvasSize = {x: "720px", y: "480px"};
 
 const WasmGridCell = () => {
   const {canvasContainer} = useWasmContext(true);
@@ -37,35 +38,8 @@ export const Excalibur = () => {
   const {entityByName} = useQLEntityByName(state.filenameKey, state.refreshToken);
   const onDrop = useExcaliburDragAndDropCallback(dispatch);
   const {getRootProps, getInputProps} = useDropzone({onDrop});
-  const [wsconnection, setWSConnection] = useState(null);
-  const alertDanger = useAlertDangerNoMovie();
 
-  useEffect(() => {
-    const messageCallback = (msg) => {
-      console.log(msg.data);
-      if (msg.data && msg.data.operationType === "update" && msg.data.ns.coll === "uploads") {
-        dispatch(['completed']);
-      }
-      if (msg.data && msg.data.operationType === "insert") {
-        if (msg.data.ns.coll === "daemon_crashes") {
-          alertDanger(msg.data.fullDocument.crash);
-          dispatch(['reset']);
-        } else if (msg.data.ns.coll === "uploads") {
-          dispatch(['fileDraggedUploaded', true]);
-        }
-      }
-    }
-
-    if (state.stage === 0) {
-      const fname = getFileNameOnlyNoExt(state.fileDragged);
-      window.Module.addScriptLine(`rr.addSceneObject("${fname}", "${state.group}", "1")`)
-      dispatch(['completeAndReset']);
-    }
-
-    if (!wsconnection && auth.user) {
-      setWSConnection(connect(auth.user.name, null, messageCallback));
-    }
-  }, [auth, wsconnection, state, alertDanger]);
+  useEHImportFlow(auth, state, dispatch);
 
   return (
     <AnimFadeSection>
@@ -73,15 +47,14 @@ export const Excalibur = () => {
       {auth.user === undefined && <SpinnerTopMiddle/>}
       {auth.user &&
       <ContainerSectionShadowedInfinite>
-        <ExcaliburGrid>
+        <ExcaliburGrid wasmCanvasSize={wasmCanvasSize}>
           <WasmGridCell/>
           <DivDropZone>
             <FlexDragAndDrop alignItems={"center"} justifyContent={"center"} width={"100%"} height={"100%"}
                              padding={"5px"} {...getRootProps()} cursor={"pointer"}>
               <Div>
                 <input {...getInputProps()} />
-                <h4>Drop your files here</h4>
-                {state.stage > 0 && <AssetLoadingStage state={state}/>}
+                {state.stage > 0 ? <AssetLoadingStage state={state}/> : <h4>Drop your files here</h4>}
               </Div>
             </FlexDragAndDrop>
           </DivDropZone>
@@ -89,20 +62,23 @@ export const Excalibur = () => {
             {entityByName && <EntityAndTags entity={entityByName} dispatch={dispatch}/>}
           </DivReports>
           <ExcaliburScriptGrid>
-            <InputGroup className="mb-3">
-              <FormControl
-                onKeyUp={(evt) => {
-                  if ((evt.keyCode === 13 || evt.keyCode === 14)) {
-                    window.Module.addScriptLine(evt.target.value);
-                  }
-                }}
-              />
-            </InputGroup>
-            <div>
-              <Button onClick={() => window.Module.reloadShadersViaHttp()}>Reload shaders</Button>
-            </div>
+            <Flex>
+              <InputGroup>
+                <FormControl
+                  onKeyUp={(evt) => {
+                    if ((evt.keyCode === 13 || evt.keyCode === 14)) {
+                      window.Module.addScriptLine(evt.target.value);
+                    }
+                  }}
+                />
+              </InputGroup>
+              <Div margin={"0 0 0 10px"}>
+                <Button onClick={() => window.Module.reloadShadersViaHttp()}>Shaders</Button>
+              </Div>
+            </Flex>
           </ExcaliburScriptGrid>
         </ExcaliburGrid>
+        <EntityBrowser width={wasmCanvasSize.x}/>
       </ContainerSectionShadowedInfinite>
       }
     </AnimFadeSection>
