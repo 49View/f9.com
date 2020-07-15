@@ -65,6 +65,7 @@ export const Excalibur = () => {
             <Flex>
               <InputGroup>
                 <FormControl
+                  placeHolder={"LUA mini command line..."}
                   onKeyUp={(evt) => {
                     if ((evt.keyCode === 13 || evt.keyCode === 14)) {
                       window.Module.addScriptLine(evt.target.value);
@@ -78,7 +79,7 @@ export const Excalibur = () => {
             </Flex>
           </ExcaliburScriptGrid>
         </ExcaliburGrid>
-        <EntityBrowser width={wasmCanvasSize.x} dispatch={dispatch}/>
+        <EntityBrowser width={wasmCanvasSize.x} dispatch={dispatch} refreshToken={state.refreshToken}/>
       </ContainerSectionShadowedInfinite>
       }
     </AnimFadeSection>

@@ -1,16 +1,19 @@
-import React, {Fragment} from "react";
+import React from "react";
 import {DivTags} from "./Excalibur.styled";
-import {Div, Img100, Logo1TextSpan, Mx05, My05} from "../../futuremodules/reactComponentStyles/reactCommon.styled";
+import {Div, DivBorder, Img100, Logo1TextSpan, My05} from "../../futuremodules/reactComponentStyles/reactCommon.styled";
 import {useAddEntityTags, useRemoveEntityTag} from "./ExcaliburLogic";
 import {Button} from "react-bootstrap";
-// import {addTagsToEntity} from "../../../actions/entities";
-// import {useGetCurrentEntity} from "../../../futuremodules/entities/entitiesAccessors";
+import {useConfirmAlert} from "../../futuremodules/alerts/alerts";
+import {api, useApi} from "../../futuremodules/api/apiEntryPoint";
+import {deleteEntity} from "../../futuremodules/entities/entitiesApiCalls";
 const ReactTags = require("react-tag-autocomplete");
 
 export const EntityAndTags = ({entity, dispatch}) => {
 
   const addEntityTag = useAddEntityTags();
   const removeEntityTag = useRemoveEntityTag();
+  const deleteObject = useConfirmAlert();
+  const entityManager = useApi('entities');
 
   const tagsObject = [];
   for (let i = 0; i < entity.tags.length; i++) {
@@ -39,16 +42,21 @@ export const EntityAndTags = ({entity, dispatch}) => {
   ]
   const suggestionsObject = [];
   for (let i = entity.tags.length; i < entity.tags.length + suggestions.length; i++) {
-    suggestionsObject.push({id: i, name: suggestions[i-entity.tags.length]});
+    suggestionsObject.push({id: i, name: suggestions[i - entity.tags.length]});
   }
 
   return (
     <Div margin={"10px 0"} overflowX={"hidden"}>
-      <Logo1TextSpan>
-        {entity.name}
-      </Logo1TextSpan>
+      <Div wordWrap={"break-word"}>
+        <Logo1TextSpan>
+          {entity.name}
+        </Logo1TextSpan>
+      </Div>
       <My05/>
-      {entity.thumb && <Img100 width={"128px"} src={`https://${process.env.REACT_APP_EH_CLOUD_HOST}/media/entities/${entity.group}/${entity.thumb}`} />}
+      <DivBorder>
+        {entity.thumb && <Img100 width={"128px"}
+                                 src={`https://${process.env.REACT_APP_EH_CLOUD_HOST}/media/entities/${entity.group}/${entity.thumb}`}/>}
+      </DivBorder>
       <My05/>
       <DivTags>
         <i className="fas fa-tags"/> Tags
@@ -64,11 +72,15 @@ export const EntityAndTags = ({entity, dispatch}) => {
           allowNew={true}
         />
       </DivTags>
-      <Div margin={"5px"}>
-      {suggestions.map( elem=> {
-        return (<Fragment key={elem}><Button onClick={() => addEntityTag(entity._id, [elem], dispatch)}>{elem}</Button><Mx05/></Fragment>)
-      })}
-      </Div>
+      <My05/>
+      <Button variant={"danger"} block onClick={() => deleteObject(entity.name, () => {
+        api(entityManager, deleteEntity, entity._id).then(r => {
+          dispatch(['reset']);
+          window.Module.addScriptLine(`rr.clear()`);
+        });
+      })}>
+        <i className="fa fa-trash fa-fw"/>&nbsp; Delete
+      </Button>
     </Div>
   );
 };

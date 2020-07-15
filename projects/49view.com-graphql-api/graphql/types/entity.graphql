@@ -16,7 +16,7 @@ type Entity {
 
 type Query {
     entity(name: String): Entity
-    entities(partialSearch: String): [Entity!]
+    entities(partialSearch: String, refreshToken: String): [Entity!]
     entityRefresh(name: String, refreshToken: String): Entity
 }
 

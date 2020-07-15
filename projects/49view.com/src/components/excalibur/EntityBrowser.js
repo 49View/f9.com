@@ -11,10 +11,10 @@ import {Badge, Button, FormControl, InputGroup} from "react-bootstrap";
 import React, {useState} from "react";
 import {useQLEntityMeta} from "./ExcaliburLogic";
 
-export const EntityBrowser = ({width, dispatch}) => {
+export const EntityBrowser = ({width, dispatch, refreshToken}) => {
 
   const [searchQuery, setSearchQuery] = useState(null);
-  const {entityMeta} = useQLEntityMeta(searchQuery);
+  const {entityMeta} = useQLEntityMeta(searchQuery, refreshToken);
 
   return <>
     <Flex width={width}>

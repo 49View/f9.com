@@ -878,9 +878,6 @@ module.exports = {
   thumbFromContent: thumbFromContent,
   deleteEntity: deleteEntity,
   deleteEntityComplete: async (entity) => {
-    //Remove file from storage
-    await db.fsDeleteWithName(db.bucketEntities, entity.name, entity.project);
-    await db.fsDeleteWithName(db.bucketSourceAssets, entity.name, entity.project);
     //Delete existing entity
     await module.exports.deleteEntity(entity._id);
   },
