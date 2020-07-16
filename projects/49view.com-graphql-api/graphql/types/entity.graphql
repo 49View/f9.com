@@ -14,9 +14,14 @@ type Entity {
     bboxSize: [Float]
 }
 
+type EntityPage {
+    nodes: [Entity!]
+    pageInfo: PageInfo!
+}
+
 type Query {
     entity(name: String): Entity
-    entities(partialSearch: String, refreshToken: String): [Entity!]
+    entitiesPage(partialSearch: String, group: String, page: Int, pageLimit: Int, refreshToken: String): EntityPage
     entityRefresh(name: String, refreshToken: String): Entity
 }
 

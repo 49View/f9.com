@@ -5,7 +5,7 @@ const dbi = require("eh_db");
 export default {
   Query: {
     entity: (_, {name}, {dataSources}) => dataSources.entities.findOne({name: name}),
-    entities: (_, {partialSearch,refreshToken}, {dataSources}) => dataSources.entities.findPartials({partialSearch}),
+    entitiesPage: (_, {partialSearch, group, page, pageLimit, refreshToken}, {dataSources}) => dataSources.entities.findPartials({partialSearch, group, page, pageLimit}),
     entityRefresh: (_, {name,refreshToken}, {dataSources}) => dataSources.entities.findOne({name: name}),
   },
 

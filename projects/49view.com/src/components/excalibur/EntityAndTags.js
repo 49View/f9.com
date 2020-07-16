@@ -54,8 +54,7 @@ export const EntityAndTags = ({entity, dispatch}) => {
       </Div>
       <My05/>
       <DivBorder>
-        {entity.thumb && <Img100 width={"128px"}
-                                 src={`https://${process.env.REACT_APP_EH_CLOUD_HOST}/media/entities/${entity.group}/${entity.thumb}`}/>}
+        {entity.thumb && <Img100 src={`https://${process.env.REACT_APP_EH_CLOUD_HOST}/media/entities/${entity.group}/${entity.thumb}`}/>}
       </DivBorder>
       <My05/>
       <DivTags>

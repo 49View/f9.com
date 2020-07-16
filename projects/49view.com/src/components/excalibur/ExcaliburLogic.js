@@ -264,32 +264,42 @@ export const useQLEntityByName = (name, refreshToken) => {
   }
 };
 
-const entityMetaQuery = (partialSearch, refreshToken) => {
+const entityMetaQuery = (partialSearch, group, page, pageLimit, refreshToken) => {
   return gql`{
-      entities(partialSearch:"${partialSearch}", refreshToken:"${refreshToken}") {
-          _id
-          name
-          group
-          thumb
-          hash
-          tags
+      entitiesPage(partialSearch:"${partialSearch}", page: ${page}, pageLimit: ${pageLimit}, group:"${group}", refreshToken:"${refreshToken}") {
+          nodes {
+              _id
+              name
+              group
+              thumb
+              hash
+              tags
+          }
+          pageInfo {
+              page
+              pageLimit
+              totalCount
+              lastPage
+              hasPreviousPage
+              hasNextPage
+          }
       }
   }`;
 };
 
-export const useQLEntityMeta = (name, refreshToken) => {
+export const useQLEntityMeta = (name, group, page, pageLimit, refreshToken) => {
   const [entityMeta, setEntityMeta] = useState(null);
-  const queryRes = useQuery(entityMetaQuery(name, refreshToken));
+  const queryRes = useQuery(entityMetaQuery(name, group, page, pageLimit, refreshToken));
 
   useEffect(() => {
     if (checkQueryHasLoadedWithData(queryRes)) {
       setEntityMeta(getQueryLoadedWithValue(queryRes));
     }
-  }, [queryRes, setEntityMeta]);
+  }, [queryRes, setEntityMeta, page, pageLimit]);
 
   return {
-    entityMeta,
-    setEntityMeta,
+    entities: entityMeta && entityMeta.nodes,
+    pageInfo: entityMeta && entityMeta.pageInfo
   }
 };
 

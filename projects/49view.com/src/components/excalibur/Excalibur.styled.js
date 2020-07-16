@@ -8,7 +8,7 @@ export const ExcaliburGrid = styled.div`{
   grid-gap: 0 10px;
   height: calc(${props => props.wasmCanvasSize.y} + 50px);
   grid-template-columns: ${props => props.wasmCanvasSize.x} calc( var(--body-width) - ${mainPadding}*2 - ${props => props.wasmCanvasSize.x} - 10px );
-  grid-template-rows: 50px calc(${props => props.wasmCanvasSize.y} * 0.3) calc(${props => props.wasmCanvasSize.y} * 0.7);
+  grid-template-rows: 50px calc(${props => props.wasmCanvasSize.y} * 0.1) calc(${props => props.wasmCanvasSize.y} * 0.9);
   grid-template-areas: "wscript dropzone"
                        "wasm dropzone"
                        "wasm report";

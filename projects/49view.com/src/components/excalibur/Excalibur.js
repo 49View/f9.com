@@ -8,7 +8,7 @@ import {
   ContainerSectionShadowedInfinite,
   Div,
   Flex,
-  FlexDragAndDrop
+  FlexDragAndDrop, My1
 } from "../../futuremodules/reactComponentStyles/reactCommon.styled";
 import {
   AssetLoadingStage,
@@ -65,7 +65,7 @@ export const Excalibur = () => {
             <Flex>
               <InputGroup>
                 <FormControl
-                  placeHolder={"LUA mini command line..."}
+                  placeholder={"LUA command line..."}
                   onKeyUp={(evt) => {
                     if ((evt.keyCode === 13 || evt.keyCode === 14)) {
                       window.Module.addScriptLine(evt.target.value);
@@ -79,6 +79,7 @@ export const Excalibur = () => {
             </Flex>
           </ExcaliburScriptGrid>
         </ExcaliburGrid>
+        <My1/>
         <EntityBrowser width={wasmCanvasSize.x} dispatch={dispatch} refreshToken={state.refreshToken}/>
       </ContainerSectionShadowedInfinite>
       }
