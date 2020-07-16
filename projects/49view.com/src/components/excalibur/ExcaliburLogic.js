@@ -9,7 +9,7 @@ import {useMutation, useQuery} from "@apollo/react-hooks";
 import {checkQueryHasLoadedWithData, getQueryLoadedWithValue} from "../../futuremodules/graphqlclient/query";
 import {getFileName} from "../../futuremodules/utils/utils";
 import {connect} from "../../futuremodules/webrtc/client";
-import {FlexVertical} from "../../futuremodules/reactComponentStyles/reactCommon.styled";
+import {Div, Flex, Mx1, My25} from "../../futuremodules/reactComponentStyles/reactCommon.styled";
 
 export const useExcaliburDragAndDropCallback = (dispatch) => {
   const entitiesApi = useApi('entities');
@@ -155,27 +155,27 @@ export const AssetLoadingStage = ({state}) => {
   }
 
   return (
-    <FlexVertical justifyContent={"flex-start"}>
-      <div overflow={"hidden"}>{state.fileDragged}</div>
-      <div>
-        <h3><Badge variant={variantStages(state, 1)}>Read </Badge>
-          {state.stage === 1 && <Spinner animation={"grow"}
+    <Flex flexDirection={"column"} flexWrap={"wrap"} justifyContent={"flex-start"}>
+      <Div wordBreak={"break-all"}>{state.fileDragged}</Div>
+      <My25/>
+      <Flex>
+        <Mx1/>
+        <h5><Badge variant={variantStages(state, 1)}>Read </Badge>
+          {state.stage === 1 && <Spinner animation={"grow"} size="sm"
                                          variant={"warning"}/>}
-        </h3>
-      </div>
-      <div>
-        <h3><Badge variant={variantStages(state, 2)}>Upload </Badge>
-          {state.stage === 2 && <Spinner animation={"grow"}
+        </h5>
+        <Mx1/>
+        <h5><Badge variant={variantStages(state, 2)}>Upload </Badge>
+          {state.stage === 2 && <Spinner animation={"grow"} size="sm"
                                          variant={"warning"}/>}
-        </h3>
-      </div>
-      <div>
-        <h3><Badge variant={variantStages(state, 3)}>Elaborate </Badge>
-          {state.stage === 3 && <Spinner animation={"grow"}
+        </h5>
+        <Mx1/>
+        <h5><Badge variant={variantStages(state, 3)}>Elaborate </Badge>
+          {state.stage === 3 && <Spinner animation={"grow"} size="sm"
                                          variant={"warning"}/>}
-        </h3>
-      </div>
-    </FlexVertical>
+        </h5>
+      </Flex>
+    </Flex>
   );
 };
 
