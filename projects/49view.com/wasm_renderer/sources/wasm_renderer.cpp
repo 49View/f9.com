@@ -9,6 +9,8 @@
 #include <core/lightmap_exchange_format.h>
 #include <graphics/render_light_manager.h>
 #include <graphics/shader_manager.h>
+#include <graphics/imgui/imgui.h>
+#include <graphics/imgui/im_gui_console.h>
 #include <eh_arch/controller/arch_render_controller.hpp>
 #include <eh_arch/models/house_service.hpp>
 #include <poly/scene_graph.h>
