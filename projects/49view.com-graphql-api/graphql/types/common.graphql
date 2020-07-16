@@ -1,0 +1,8 @@
+type PageInfo {
+    page: Int
+    pageLimit: Int
+    totalCount: Int
+    lastPage: Int
+    hasPreviousPage: Boolean
+    hasNextPage: Boolean
+}

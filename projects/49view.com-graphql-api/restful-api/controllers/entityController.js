@@ -1,6 +1,5 @@
 import * as asyncModelOperations from "../assistants/asyncModelOperations";
 import {entityModel} from "../../models/entity";
-import {uploadModel} from "../../models/upload";
 import {colorModel} from "../../models/color";
 import {thumbnailMakerModel} from "../../models/thumbnail_maker";
 
@@ -752,6 +751,59 @@ const getEntitiesRemap = async (project, entities) => {
   }
 };
 
+const buildTagsQuery = (tagsWithUnions) => {
+  return tagsWithUnions.splitType === 0 ? {
+    tags: {
+      $all: tagsWithUnions.elements
+    }
+  } : {
+    tags: {
+      $elemMatch: {$in: tagsWithUnions.elements}
+    }
+  };
+}
+
+const buildProjectGroupTagQuery = (project, group, tagsQuery, tagsWithUnions, fullName) => {
+  return [
+    {
+      $match: {
+        $and: [
+          {isRestricted: false},
+          {group: group},
+          {
+            $or: [{project: project}, {isPublic: true}]
+          },
+          {
+            $or: [
+              tagsQuery,
+              {"name": tagsWithUnions.elements[0]},
+              {"hash": tagsWithUnions.elements[0]},
+              {"name": fullName},
+              {
+                _id:
+                  tagsWithUnions.elements[0].length === 12 || tagsWithUnions.elements[0].length === 24
+                    ? mongoose.Types.ObjectId(tagsWithUnions.elements[0])
+                    : "DDDDDDDDDDDD"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ];
+}
+
+const getProjectGroupTagsCount = async (project, group, tags, tagsWithUnions, fullName) => {
+  const aggregationQueries = buildProjectGroupTagQuery(project, group, tags, tagsWithUnions, fullName);
+
+  aggregationQueries.push({
+    $count: "totalCount"
+  });
+
+  const result = await asyncModelOperations.aggregate(entityModel, aggregationQueries);
+  return result;
+};
+
 function RGBAToHexA(r, g, b, a) {
   r = Math.round(r * 255).toString(16);
   g = Math.round(g * 255).toString(16);
@@ -862,25 +914,22 @@ module.exports = {
   upsertTags: upsertTags,
   groupThumbnailCalcRule: groupThumbnailCalcRule,
   upsertThumb: async (entity, thumbName) => {
-        entity.thumb = thumbName;
-        console.log("Entity ", entity);
-        const updatedEntity = await updateById(entity._id, entity);
-        await thumbnailMakerModel.create(
-          {
-            filename: entity.filename,
-            group: entity.group,
-            thumb: entity.thumb,
-            userId: entity.userId,
-            entityId: entity._id
-          });
-        return updatedEntity;
+    entity.thumb = thumbName;
+    console.log("Entity ", entity);
+    const updatedEntity = await updateById(entity._id, entity);
+    await thumbnailMakerModel.create(
+      {
+        filename: entity.filename,
+        group: entity.group,
+        thumb: entity.thumb,
+        userId: entity.userId,
+        entityId: entity._id
+      });
+    return updatedEntity;
   },
   thumbFromContent: thumbFromContent,
   deleteEntity: deleteEntity,
   deleteEntityComplete: async (entity) => {
-    //Remove file from storage
-    await db.fsDeleteWithName(db.bucketEntities, entity.name, entity.project);
-    await db.fsDeleteWithName(db.bucketSourceAssets, entity.name, entity.project);
     //Delete existing entity
     await module.exports.deleteEntity(entity._id);
   },
@@ -901,42 +950,7 @@ module.exports = {
     fullName,
     randomElements
   ) => {
-    const tagsQuery = tagsWithUnions.splitType === 0 ? {
-      tags: {
-        $all: tagsWithUnions.elements
-      }
-    } : {
-      tags: {
-        $elemMatch: { $in: tagsWithUnions.elements }
-      }
-    };
-    const aggregationQueries = [
-      {
-        $match: {
-          $and: [
-            {isRestricted: false},
-            {group: group},
-            {
-              $or: [{project: project}, {isPublic: true}]
-            },
-            {
-              $or: [
-                tagsQuery,
-                {"name": tagsWithUnions.elements[0]},
-                {"hash": tagsWithUnions.elements[0]},
-                {"name": fullName},
-                {
-                  _id:
-                    tagsWithUnions.elements[0].length === 12 || tagsWithUnions.elements[0].length === 24
-                      ? mongoose.Types.ObjectId(tagsWithUnions.elements[0])
-                      : "DDDDDDDDDDDD"
-                }
-              ]
-            }
-          ]
-        }
-      }
-    ];
+    const aggregationQueries = buildProjectGroupTagQuery(project, group, buildTagsQuery(tagsWithUnions), tagsWithUnions, fullName);
 
     if (randomElements) {
       aggregationQueries.push({
@@ -946,8 +960,51 @@ module.exports = {
       });
     }
 
-    const result = await asyncModelOperations.aggregate(entityModel, aggregationQueries);
-    return result;
+    return await asyncModelOperations.aggregate(entityModel, aggregationQueries);
+  },
+  getEntitiesByProjectGroupTagsPaginated: async (
+    project,
+    group,
+    tagsWithUnions,
+    fullName,
+    page = 0,
+    pageLimit = 0,
+    randomElements
+  ) => {
+    const tags = buildTagsQuery(tagsWithUnions);
+    const aggregationQueries = buildProjectGroupTagQuery(project, group, tags, tagsWithUnions, fullName);
+
+    aggregationQueries.push({
+      $skip: Number(page * pageLimit)
+    });
+
+    aggregationQueries.push({
+      $limit: Number(pageLimit)
+    });
+
+    if (randomElements) {
+      aggregationQueries.push({
+        $sample: {
+          size: randomElements
+        }
+      });
+    }
+    const entities = await asyncModelOperations.aggregate(entityModel, aggregationQueries);
+
+    const totalCountArray = await getProjectGroupTagsCount("", group, tags, tagsWithUnions, fullName);
+    const totalCount = totalCountArray && totalCountArray.length === 1 ? totalCountArray[0].totalCount : 0;
+    const cursor = page * pageLimit;
+    return {
+      nodes: entities ? [...entities] : [],
+      pageInfo: {
+        page: page,
+        pageLimit: pageLimit,
+        totalCount: totalCount,
+        lastPage: totalCount > 0 ? Math.ceil(totalCount / pageLimit) -1 : 0,
+        hasNextPage: (page + 1) * pageLimit < totalCount,
+        hasPreviousPage: cursor - pageLimit >= 0
+      }
+    };
   },
   getColorsInCategory: async category => {
     const result = await colorModel.find({category});

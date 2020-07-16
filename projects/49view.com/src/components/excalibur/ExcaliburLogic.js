@@ -111,6 +111,11 @@ export const excaliburStateReducer = (state, action) => {
         entityId: action[1],
         stage: 0
       }
+    case 'loadEntity':
+      return {
+        ...state,
+        filenameKey: action[1].name
+      }
     case 'thumbLoaded':
       console.log("FileKey to reload thumbnail ", state.filenameKey);
       return {
@@ -119,7 +124,10 @@ export const excaliburStateReducer = (state, action) => {
         thumb: action[1]
       }
     case 'reset':
-      return excaliburInitialState;
+      return {
+        ...excaliburInitialState,
+        refreshToken: d1.toString(),
+      };
     case 'completeAndReset':
       return {
         ...excaliburInitialState,
@@ -150,23 +158,23 @@ export const AssetLoadingStage = ({state}) => {
     <FlexVertical justifyContent={"flex-start"}>
       <div overflow={"hidden"}>{state.fileDragged}</div>
       <div>
-      <h3><Badge variant={variantStages(state, 1)}>Read </Badge>
-        {state.stage === 1 && <Spinner animation={"grow"}
-                                       variant={"warning"}/>}
-      </h3>
+        <h3><Badge variant={variantStages(state, 1)}>Read </Badge>
+          {state.stage === 1 && <Spinner animation={"grow"}
+                                         variant={"warning"}/>}
+        </h3>
       </div>
       <div>
-      <h3><Badge variant={variantStages(state, 2)}>Upload </Badge>
-        {state.stage === 2 && <Spinner animation={"grow"}
-                                       variant={"warning"}/>}
-      </h3>
+        <h3><Badge variant={variantStages(state, 2)}>Upload </Badge>
+          {state.stage === 2 && <Spinner animation={"grow"}
+                                         variant={"warning"}/>}
+        </h3>
       </div>
-        <div>
-      <h3><Badge variant={variantStages(state, 3)}>Elaborate </Badge>
-        {state.stage === 3 && <Spinner animation={"grow"}
-                                       variant={"warning"}/>}
-      </h3>
-        </div>
+      <div>
+        <h3><Badge variant={variantStages(state, 3)}>Elaborate </Badge>
+          {state.stage === 3 && <Spinner animation={"grow"}
+                                         variant={"warning"}/>}
+        </h3>
+      </div>
     </FlexVertical>
   );
 };
@@ -242,7 +250,13 @@ export const useQLEntityByName = (name, refreshToken) => {
     if (checkQueryHasLoadedWithData(queryRes)) {
       setEntityByName(getQueryLoadedWithValue(queryRes));
     }
-  }, [queryRes, setEntityByName]);
+    // We might need to add this to the code template. What this condition is doing is to check if the main input of
+    // the query is null, in that case we shall reset the query, the reason being sometimes on null query the cache
+    // thinks nothing has changed so it will keep refreshing the previous result
+    if (!name) {
+      setEntityByName(null);
+    }
+  }, [name, queryRes, setEntityByName]);
 
   return {
     entityByName,
@@ -250,32 +264,42 @@ export const useQLEntityByName = (name, refreshToken) => {
   }
 };
 
-const entityMetaQuery = (partialSearch) => {
+const entityMetaQuery = (partialSearch, group, page, pageLimit, refreshToken) => {
   return gql`{
-      entities(partialSearch:"${partialSearch}") {
-          _id
-          name
-          group
-          thumb
-          hash
-          tags
+      entitiesPage(partialSearch:"${partialSearch}", page: ${page}, pageLimit: ${pageLimit}, group:"${group}", refreshToken:"${refreshToken}") {
+          nodes {
+              _id
+              name
+              group
+              thumb
+              hash
+              tags
+          }
+          pageInfo {
+              page
+              pageLimit
+              totalCount
+              lastPage
+              hasPreviousPage
+              hasNextPage
+          }
       }
   }`;
 };
 
-export const useQLEntityMeta = (name) => {
+export const useQLEntityMeta = (name, group, page, pageLimit, refreshToken) => {
   const [entityMeta, setEntityMeta] = useState(null);
-  const queryRes = useQuery(entityMetaQuery(name));
+  const queryRes = useQuery(entityMetaQuery(name, group, page, pageLimit, refreshToken));
 
   useEffect(() => {
     if (checkQueryHasLoadedWithData(queryRes)) {
       setEntityMeta(getQueryLoadedWithValue(queryRes));
     }
-  }, [queryRes, setEntityMeta]);
+  }, [queryRes, setEntityMeta, page, pageLimit]);
 
   return {
-    entityMeta,
-    setEntityMeta,
+    entities: entityMeta && entityMeta.nodes,
+    pageInfo: entityMeta && entityMeta.pageInfo
   }
 };
 
@@ -294,7 +318,7 @@ export const useEHImportFlow = (auth, state, dispatch) => {
           alertDanger(msg.data.fullDocument.crash);
           dispatch(['reset']);
         } else if (msg.data.ns.coll === "uploads") {
-            dispatch(['fileDraggedUploaded', true]);
+          dispatch(['fileDraggedUploaded', true]);
         } else if (msg.data.ns.coll === "completed_uploads") {
           dispatch(['completed', msg.data.fullDocument.entityId]);
         } else if (msg.data.ns.coll === "thumbnail_makers") {
@@ -305,7 +329,7 @@ export const useEHImportFlow = (auth, state, dispatch) => {
 
     if (state.stage === 0) {
       const fid = state.entityId;// ? state.entityId : getFileNameOnlyNoExt(state.fileDragged);
-      if ( fid ) {
+      if (fid) {
         window.Module.addScriptLine(`rr.addSceneObject("${fid}", "${state.group}", true)`)
       }
       dispatch(['completeAndReset']);
