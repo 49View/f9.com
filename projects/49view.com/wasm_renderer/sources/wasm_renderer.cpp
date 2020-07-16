@@ -4,22 +4,13 @@
 
 #include "wasm_renderer.h"
 #include <poly/scene_events.h>
-#include <core/raw_image.h>
 #include <core/TTF.h>
-#include <core/camera.h>
-#include <core/resources/profile.hpp>
-#include <core/resources/resource_builder.hpp>
 #include <render_scene_graph/render_orchestrator.h>
-#include <core/math/vector_util.hpp>
 #include <core/lightmap_exchange_format.h>
 #include <graphics/render_light_manager.h>
 #include <graphics/shader_manager.h>
-#include <graphics/imgui/imgui.h>
-#include <graphics/imgui/im_gui_console.h>
-#include <eh_arch/render/house_render.hpp>
 #include <eh_arch/controller/arch_render_controller.hpp>
 #include <eh_arch/models/house_service.hpp>
-#include <graphics/vertex_processing_anim.h>
 #include <poly/scene_graph.h>
 #include "transition_table_fsm.hpp"
 
@@ -147,44 +138,44 @@ void Showcaser::updateImpl( const AggregatedInputData& _aid ) {
         }
     }
 
-    if ( _aid.TI().checkKeyToggleOn(GMK_5) ) {
-        backEnd->process_event(OnTourToggleEvent{});
-    }
-    if ( _aid.TI().checkKeyToggleOn(GMK_6) ) {
-        backEnd->process_event(OnOrbitModeEvent{});
-    }
-    if ( _aid.TI().checkKeyToggleOn(GMK_1) ) {
-        backEnd->process_event(OnFlorPlanViewToggleEvent{});
-    }
-    if ( _aid.TI().checkKeyToggleOn(GMK_2) ) {
-        backEnd->process_event(OnTopDownToggleEvent{});
-    }
-    if ( _aid.TI().checkKeyToggleOn(GMK_3) ) {
-        backEnd->process_event(OnExploreToggleEvent{});
-    }
-    if ( _aid.TI().checkKeyToggleOn(GMK_4) ) {
-        backEnd->process_event(OnDollyHouseToggleEvent{});
-    }
-    if ( _aid.TI().checkKeyToggleOn(GMK_G) ) {
-        fader(0.33f, 1.0f, rsg.RR().CLI(CommandBufferLimits::GridStart));
-    }
-    if ( _aid.TI().checkKeyToggleOn(GMK_H) ) {
-        fader(0.33f, 0.0f, rsg.RR().CLI(CommandBufferLimits::GridStart));
-    }
-    if ( _aid.TI().checkKeyToggleOn(GMK_0) ) {
-        fader(0.33f, 0.0f, rsg.RR().CLI(CommandBufferLimits::GridStart), AnimEndCallback{
-            [&]() {
-                backEnd->process_event(OnTakeScreenShotEvent{
-                        [&]( const SerializableContainer& image ) {
-                            auto resourceID = sg.getCurrLoadedEntityId();
-                            if ( !resourceID.empty() ) {
-                                Http::post(Url{ "/entities/upsertThumb/geom/" + resourceID }, image);
-                            }
-                        }
-                });
-            }
-        });
-    }
+//    if ( _aid.TI().checkKeyToggleOn(GMK_5) ) {
+//        backEnd->process_event(OnTourToggleEvent{});
+//    }
+//    if ( _aid.TI().checkKeyToggleOn(GMK_6) ) {
+//        backEnd->process_event(OnOrbitModeEvent{});
+//    }
+//    if ( _aid.TI().checkKeyToggleOn(GMK_1) ) {
+//        backEnd->process_event(OnFlorPlanViewToggleEvent{});
+//    }
+//    if ( _aid.TI().checkKeyToggleOn(GMK_2) ) {
+//        backEnd->process_event(OnTopDownToggleEvent{});
+//    }
+//    if ( _aid.TI().checkKeyToggleOn(GMK_3) ) {
+//        backEnd->process_event(OnExploreToggleEvent{});
+//    }
+//    if ( _aid.TI().checkKeyToggleOn(GMK_4) ) {
+//        backEnd->process_event(OnDollyHouseToggleEvent{});
+//    }
+//    if ( _aid.TI().checkKeyToggleOn(GMK_G) ) {
+//        fader(0.33f, 1.0f, rsg.RR().CLI(CommandBufferLimits::GridStart));
+//    }
+//    if ( _aid.TI().checkKeyToggleOn(GMK_H) ) {
+//        fader(0.33f, 0.0f, rsg.RR().CLI(CommandBufferLimits::GridStart));
+//    }
+//    if ( _aid.TI().checkKeyToggleOn(GMK_0) ) {
+//        fader(0.33f, 0.0f, rsg.RR().CLI(CommandBufferLimits::GridStart), AnimEndCallback{
+//            [&]() {
+//                backEnd->process_event(OnTakeScreenShotEvent{
+//                        [&]( const SerializableContainer& image ) {
+//                            auto resourceID = sg.getCurrLoadedEntityId();
+//                            if ( !resourceID.empty() ) {
+//                                Http::post(Url{ "/entities/upsertThumb/geom/" + resourceID }, image);
+//                            }
+//                        }
+//                });
+//            }
+//        });
+//    }
 
 #ifdef _USE_IMGUI_
     ImGui::Begin("SceneGraph");

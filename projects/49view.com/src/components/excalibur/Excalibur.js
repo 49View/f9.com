@@ -59,7 +59,7 @@ export const Excalibur = () => {
             </FlexDragAndDrop>
           </DivDropZone>
           <DivReports>
-            {entityByName && <EntityAndTags entity={entityByName} dispatch={dispatch}/>}
+            {entityByName && <EntityAndTags entity={entityByName} dispatch={dispatch} refreshToken={state.refreshToken}/>}
           </DivReports>
           <ExcaliburScriptGrid>
             <Flex>
