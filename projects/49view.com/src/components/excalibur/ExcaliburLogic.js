@@ -117,11 +117,15 @@ export const excaliburStateReducer = (state, action) => {
         filenameKey: action[1].name
       }
     case 'thumbLoaded':
-      console.log("FileKey to reload thumbnail ", state.filenameKey);
       return {
         ...state,
         refreshToken: d1.toString(),
         thumb: action[1]
+      }
+    case 'refreshToken':
+      return {
+        ...state,
+        refreshToken: d1.toString(),
       }
     case 'reset':
       return {
@@ -187,6 +191,7 @@ const entityByNameQuery = (name, refreshToken) => gql`{
     entityRefresh(name:"${name}", refreshToken:"${refreshToken}"){
         _id
         name
+        hash
         group
         tags
         thumb

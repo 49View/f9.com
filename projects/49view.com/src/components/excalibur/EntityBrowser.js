@@ -2,7 +2,6 @@ import {
   ButtonDiv,
   DivBorder,
   Flex,
-  Img100,
   My05,
   My075,
   My25
@@ -11,6 +10,7 @@ import {Badge, FormControl, InputGroup, Tab, Tabs} from "react-bootstrap";
 import React, {useState} from "react";
 import {useQLEntityMeta} from "./ExcaliburLogic";
 import {PaginationResults} from "../../futuremodules/pagination/Pagination";
+import {EntityThumbnail} from "./EntityAndTags";
 
 export const EntityBrowser = ({width, dispatch, refreshToken}) => {
 
@@ -19,8 +19,6 @@ export const EntityBrowser = ({width, dispatch, refreshToken}) => {
   const [pageLimit,] = useState(8);
   const [group, setGroup] = useState("geom");
   const {entities, pageInfo} = useQLEntityMeta(searchQuery, group, page, pageLimit, refreshToken);
-
-  console.log(pageInfo);
 
   return <>
     <Flex width={width}>
@@ -65,7 +63,7 @@ export const EntityBrowser = ({width, dispatch, refreshToken}) => {
             window.Module.addScriptLine(`rr.addSceneObject("${elem.hash}", "${group}", false)`);
             dispatch(['loadEntity', elem]);
           }}>
-            <Img100 src={`https://${process.env.REACT_APP_EH_CLOUD_HOST}/media/entities/${elem.group}/${elem.thumb}`}/>
+            <EntityThumbnail entity={elem} refreshToken={refreshToken}/>
           </ButtonDiv>
           <My25/>
           {elem.tags.map(tag => <Badge key={tag} variant={"secondary"} className={"m-1"}>{tag}</Badge>)}

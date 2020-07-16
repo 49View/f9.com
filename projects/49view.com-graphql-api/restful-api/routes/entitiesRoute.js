@@ -97,7 +97,10 @@ router.post("/:upsertThumb/:group/:id", async (req, res, next) => {
       entity = await entityController.getEntityById(req.params.id);
     }
     if ( !entity ) {
-      entity = await entityController.getEntityByName(req.params.id);
+      entity = await entityController.getEntityByName(req.params.group, req.params.id);
+    }
+    if ( !entity ) {
+      entity = await entityController.getEntityByHash(req.params.group, req.params.id);
     }
     if ( entity ) {
       const thumbName = entity.hash + "_thumb.jpg";

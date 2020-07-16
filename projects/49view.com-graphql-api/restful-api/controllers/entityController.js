@@ -467,8 +467,8 @@ const groupThumbnailSourceContent = async (entity, gtr) => {
       for (element of entity.metadata.deps) {
         if (element.key === "image") {
           const dep0Entity = await getEntityByHash(
-            element.value[0],
-            entity.project
+            entity.group,
+            element.value[0]
           );
           return await getEntityContent(dep0Entity._id, dep0Entity.project);
         }
@@ -531,17 +531,17 @@ const upsertTags = async (entityId, tags) => {
   return 204;
 }
 
-const getEntityByHash = async (entityId, project) => {
+const getEntityByHash = async (group, entityHash) => {
   let query;
-  query = {project: project, "metadata.hash": entityId};
+  query = {group, "hash": entityHash};
   const result = await entityModel.findOne(query);
 
   return result !== null ? result.toObject() : null;
 }
 
-const getEntityByName = async (project, group, name) => {
+const getEntityByName = async (group, name) => {
   let query;
-  query = {project: project, group: group, "metadata.name": name};
+  query = {group, name};
   const result = await entityModel.findOne(query);
 
   return result !== null ? result.toObject() : null;
