@@ -922,7 +922,7 @@ module.exports = {
         filename: entity.filename,
         group: entity.group,
         thumb: entity.thumb,
-        userId: entity.userId,
+        userId: entity.updatedBy ? entity.updatedBy : entity.userId,
         entityId: entity._id
       });
     return updatedEntity;

@@ -14,41 +14,43 @@ import {Buy} from "./components/dashboardUser/subcomponents/UserSubscriptions";
 import {Excalibur} from "./components/excalibur/Excalibur";
 import WasmCanvas from "./futuremodules/reactwasmcanvas/localreacwasmcanvas";
 import {AnimFadeSection} from "./futuremodules/reactComponentStyles/reactCommon.animations";
+import {antiForgeryTokenCLIPair} from "./futuremodules/auth/authAccessors";
 
 const App = () => {
 
   let location = useLocation();
 
   return (
-      <Content>
-        <Navbar/>
-        <FakeNavBar/>
-        <Body>
-          {/*<AnimatePresence exitBeforeEnter initial={false}>*/}
-            <Switch location={location} key={location.pathname}>
-            <Route exact path="/" component={Landing}/>
-            <Route exact path="/register" component={Register}/>
-            <Route exact path="/login" component={Login}/>
-            <Route exact path="/buy" component={Buy}/>
-            <Route exact path="/excalibur" component={Excalibur}/>
-            <Route exact path="/dashboarduser" component={DashboardUser}/>
-            <Route exact path="/property/:pid" component={Property}/>
-          </Switch>
-          {/*</AnimatePresence>*/}
-        </Body>
-        <EHAlert/>
-        <AnimFadeSection>
-          <WasmCanvas
-            wasmName='../wasm_renderer'
-            borderRadius={"5px"}
-            border={"1px solid var(--middle-grey-color)"}
-            argumentList={[
-              `hostname=${window.location.hostname}`,
-            ]}
-            mandatoryWebGLVersionSupporNumber="webgl2"
-          />
-        </AnimFadeSection>
-      </Content>
+    <Content>
+      <Navbar/>
+      <FakeNavBar/>
+      <Body>
+        {/*<AnimatePresence exitBeforeEnter initial={false}>*/}
+        <Switch location={location} key={location.pathname}>
+          <Route exact path="/" component={Landing}/>
+          <Route exact path="/register" component={Register}/>
+          <Route exact path="/login" component={Login}/>
+          <Route exact path="/buy" component={Buy}/>
+          <Route exact path="/excalibur" component={Excalibur}/>
+          <Route exact path="/dashboarduser" component={DashboardUser}/>
+          <Route exact path="/property/:pid" component={Property}/>
+        </Switch>
+        {/*</AnimatePresence>*/}
+      </Body>
+      <EHAlert/>
+      <AnimFadeSection>
+        <WasmCanvas
+          wasmName='../wasm_renderer'
+          borderRadius={"5px"}
+          border={"1px solid var(--middle-grey-color)"}
+          argumentList={[
+            `hostname=${window.location.hostname}`,
+            antiForgeryTokenCLIPair(),
+          ]}
+          mandatoryWebGLVersionSupporNumber="webgl2"
+        />
+      </AnimFadeSection>
+    </Content>
   );
 };
 

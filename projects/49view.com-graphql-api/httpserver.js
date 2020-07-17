@@ -48,7 +48,9 @@ export const initServer = () => {
   thumbnailMakerModel.watch().on('change', async data => {
     console.log("Thumbnail have been created", data);
     const updateDoc = await thumbnailMakerModel.findById(data.documentKey._id);
-    const user = await usersModel.findById(updateDoc.toObject().userId);
+    const updateDocO = updateDoc.toObject();
+    const user = await usersModel.findById(updateDocO.updatedBy ? updateDocO.updatedBy : updateDocO.userId);
+    console.log("thumbnail updated by: ", user.toObject().name );
     sendToOneUser( user.toObject().name, JSON.stringify({
       type: "watchmessage",
       data
