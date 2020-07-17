@@ -20,5 +20,7 @@ RUN npm run build
 
 FROM nginx
 EXPOSE 3000
-COPY ./nginx-portal/default.conf /etc/nginx/conf.d/default.conf
+COPY ./nginx-portal/http.conf /etc/nginx/conf.d/http.conf
+COPY ./nginx-portal/nginx.conf /etc/nginx/nginx.conf
+
 COPY --from=builder /app/build /usr/share/nginx/html
