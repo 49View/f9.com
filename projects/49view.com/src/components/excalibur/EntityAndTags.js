@@ -20,8 +20,8 @@ import {convertLength} from "../../futuremodules/utils/utils";
 const ReactTags = require("react-tag-autocomplete");
 
 export const EntityThumbnail = ({entity, refreshToken}) => {
-  return <Img100
-    src={`https://${process.env.REACT_APP_EH_CLOUD_HOST}/media/entities/${entity.group}/${entity.thumb}?${refreshToken}`}/>;
+  const imgLink = ( !entity.thumb || entity.thumb.length === 0 ) ? 'na.jpg' : `media/entities/${entity.group}/${entity.thumb}?${refreshToken}`;
+  return <Img100 src={`https://${process.env.REACT_APP_EH_CLOUD_HOST}/${imgLink}`}/>;
 }
 
 export const EntityAndTags = ({entity, dispatch, refreshToken}) => {
@@ -71,7 +71,7 @@ export const EntityAndTags = ({entity, dispatch, refreshToken}) => {
       <My05/>
       <Flex flexDirection={"column"} alignItems={"normal"}>
         <DivBorder>
-          {entity.thumb && <EntityThumbnail entity={entity} refreshToken={refreshToken}/>}
+          <EntityThumbnail entity={entity} refreshToken={refreshToken}/>
         </DivBorder>
         <Flex>
         <LightColorTextSpan fontSize={"var(--font-size-normal)"}>#{entity.hash}</LightColorTextSpan>
