@@ -100,6 +100,7 @@ const LocationSearchResults = () => {
         type="text"
         id="search-bar"
         autoComplete={"off"}
+        spellCheck={"false"}
         onChange={e => setPartialLocationString(e.target.value)}
         onKeyDown={(evt) => {
           if (evt.keyCode === 13 || evt.keyCode === 14) {
