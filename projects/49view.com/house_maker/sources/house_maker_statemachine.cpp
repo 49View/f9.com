@@ -58,7 +58,11 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
 
     // This acts like a classic update loop function in conventional render/update rendering, expect it's wired in the
     // state machine so we can unify the whole code path.
-    backEnd->process_event(OnTickEvent{_aid});
+    if ( _aid.mods().isControlKeyDown ) {
+        backEnd->process_event(OnTickControlKeyEvent{_aid});
+    } else {
+        backEnd->process_event(OnTickEvent{_aid});
+    }
 
     if ( _aid.mods().isAltPressed ) {
         backEnd->process_event(OnAltPressedEvent{});
@@ -84,7 +88,7 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
 
     if ( _aid.isMouseTouchedDownFirstTime(TOUCH_ZERO) ) {
         if ( _aid.mods().isControlKeyDown ) {
-            backEnd->process_event(OnFirstTimeTouchDownWithModKeyCtrlEvent{ _aid.mousePos(TOUCH_ZERO) });
+            backEnd->process_event(OnFirstTimeTouchDownWithModKeyCtrlEvent{ _aid.mousePos(TOUCH_ZERO), _aid });
         } else {
             backEnd->process_event(OnFirstTimeTouchDownEvent{ _aid.mousePos(TOUCH_ZERO) });
         }
@@ -92,7 +96,7 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
     }
     if ( _aid.isMouseTouchedDownAndMoving(TOUCH_ZERO) ) {
         if ( _aid.mods().isControlKeyDown ) {
-            backEnd->process_event(OnTouchMoveWithModKeyCtrlEvent{ _aid.mousePos(TOUCH_ZERO) });
+            backEnd->process_event(OnTouchMoveWithModKeyCtrlEvent{ _aid.mousePos(TOUCH_ZERO) , _aid});
         } else {
             backEnd->process_event(OnTouchMoveEvent{ _aid.mousePos(TOUCH_ZERO) });
             backEnd->process_event(OnTouchMoveViewportSpaceEvent{ _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC()) });
