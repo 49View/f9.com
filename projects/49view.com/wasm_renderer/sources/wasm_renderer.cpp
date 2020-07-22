@@ -107,59 +107,6 @@ void Showcaser::updateImpl( const AggregatedInputData& _aid ) {
 //        LightmapManager::apply( scene, rsg.RR());
 //    }
 
-
-    // This acts like a classic update loop function in conventional render/update rendering, expect it's wired in the
-    // state machine so we can unify the whole code path.
-    if ( _aid.mods().isControlKeyDown ) {
-        backEnd->process_event(OnTickControlKeyEvent{_aid});
-    } else {
-        backEnd->process_event(OnTickEvent{_aid});
-    }
-    
-    if ( _aid.mods().isControlKeyDown ) {
-        if ( _aid.mods().isShiftPressed && _aid.TI().checkKeyToggleOn(GMK_Z) ) {
-            backEnd->process_event(OnRedoEvent{});
-        } else if ( _aid.TI().checkKeyToggleOn(GMK_Z) ) {
-            backEnd->process_event(OnUndoEvent{});
-        }
-        if ( _aid.TI().checkKeyToggleOn(GMK_T) ) {
-            backEnd->process_event(OnSpecialSpaceEvent{});
-        }
-    }
-
-    // Comprehensive mouse events taps with mod keys
-
-    if ( _aid.isMouseTouchedDownFirstTime(TOUCH_ZERO) ) {
-        if ( _aid.mods().isControlKeyDown ) {
-            backEnd->process_event(OnFirstTimeTouchDownWithModKeyCtrlEvent{ _aid.mousePos(TOUCH_ZERO), _aid });
-        } else {
-            backEnd->process_event(OnFirstTimeTouchDownEvent{ _aid.mousePos(TOUCH_ZERO) });
-        }
-        backEnd->process_event(OnFirstTimeTouchDownViewportSpaceEvent{ _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC()) });
-    }
-    if ( _aid.isMouseTouchedDownAndMoving(TOUCH_ZERO) ) {
-        if ( _aid.mods().isControlKeyDown ) {
-            backEnd->process_event(OnTouchMoveWithModKeyCtrlEvent{ _aid.mousePos(TOUCH_ZERO) , _aid});
-        } else {
-            backEnd->process_event(OnTouchMoveEvent{ _aid.mousePos(TOUCH_ZERO) });
-            backEnd->process_event(OnTouchMoveViewportSpaceEvent{ _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC()) });
-        }
-    }
-    if ( _aid.isMouseSingleTap( TOUCH_ZERO) ) {
-        if ( !_aid.mods().isControlKeyDown ) {
-            backEnd->process_event(OnSingleTapEvent{ _aid.mousePos(TOUCH_ZERO) });
-        }
-        backEnd->process_event(OnSingleTapViewportSpaceEvent{ _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC()) });
-    }
-    if ( _aid.isMouseTouchedUp(TOUCH_ZERO) ) {
-        if ( _aid.mods().isControlKeyDown ) {
-            backEnd->process_event(OnTouchUpWithModKeyCtrlEvent{ _aid.mousePos(TOUCH_ZERO) });
-        } else {
-            backEnd->process_event(OnTouchUpEvent{ _aid.mousePos(TOUCH_ZERO) });
-        }
-        backEnd->process_event(OnTouchUpViewportSpaceEvent{ _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC()) });
-    }
-
 //    if ( _aid.TI().checkKeyToggleOn(GMK_5) ) {
 //        backEnd->process_event(OnTourToggleEvent{});
 //    }
@@ -217,4 +164,8 @@ void Showcaser::updateImpl( const AggregatedInputData& _aid ) {
     ImGuiLuaConsole(rsg);
 #endif
 
+}
+
+void Showcaser::backEndIOServices( const AggregatedInputData& _aid ) {
+    backEndIOEvents( backEnd.get(), _aid, rsg.DC().get() );
 }

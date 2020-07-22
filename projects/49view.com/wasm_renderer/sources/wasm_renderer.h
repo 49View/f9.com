@@ -27,7 +27,7 @@ public:
 
     void updateImpl( const AggregatedInputData& _aid ) override;
     void activateImpl() override;
-
+    void backEndIOServices( const AggregatedInputData& _aid ) override;
 protected:
     void activatePostLoad() override;
     void luaFunctionsSetup() override;
