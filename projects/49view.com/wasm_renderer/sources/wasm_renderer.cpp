@@ -107,39 +107,6 @@ void Showcaser::updateImpl( const AggregatedInputData& _aid ) {
 //        LightmapManager::apply( scene, rsg.RR());
 //    }
 
-    asg.updateViewingModes(_aid);
-
-    bool isShiftPressed = _aid.TI().checkKeyPressed(GMK_LEFT_SHIFT);
-
-    if ( _aid.TI().checkModKeyPressed(GMK_LEFT_CONTROL) ) {
-        if ( isShiftPressed && _aid.TI().checkKeyToggleOn(GMK_Z) ) {
-            backEnd->process_event(OnRedoEvent{});
-        } else if ( _aid.TI().checkKeyToggleOn(GMK_Z) ) {
-            backEnd->process_event(OnUndoEvent{});
-        }
-        if ( _aid.TI().checkKeyToggleOn(GMK_T) ) {
-            backEnd->process_event(OnSpecialSpaceEvent{});
-        }
-    }
-
-    if ( _aid.isMouseTouchedDownFirstTime(TOUCH_ZERO) ) {
-        backEnd->process_event(OnFirstTimeTouchDownEvent{ _aid.mousePos(TOUCH_ZERO) });
-        backEnd->process_event(OnFirstTimeTouchDownViewportSpaceEvent{ _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC()) });
-    }
-    if ( _aid.hasMouseMoved(TOUCH_ZERO) && _aid.isMouseTouchedDown(TOUCH_ZERO) ) {
-        backEnd->process_event(OnTouchMoveEvent{ _aid.mousePos(TOUCH_ZERO) });
-        backEnd->process_event(OnTouchMoveViewportSpaceEvent{ _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC()) });
-    }
-    if ( _aid.isMouseSingleTap(TOUCH_ZERO) ) {
-        backEnd->process_event(OnSingleTapEvent{ _aid.mousePos(TOUCH_ZERO) });
-        backEnd->process_event(OnSingleTapViewportSpaceEvent{ _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC()) });
-    } else {
-        if ( _aid.isMouseTouchedUp(TOUCH_ZERO) ) {
-            backEnd->process_event(OnTouchUpEvent{ _aid.mousePos(TOUCH_ZERO) });
-            backEnd->process_event(OnTouchUpViewportSpaceEvent{ _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC()) });
-        }
-    }
-
 //    if ( _aid.TI().checkKeyToggleOn(GMK_5) ) {
 //        backEnd->process_event(OnTourToggleEvent{});
 //    }
@@ -163,20 +130,6 @@ void Showcaser::updateImpl( const AggregatedInputData& _aid ) {
 //    }
 //    if ( _aid.TI().checkKeyToggleOn(GMK_H) ) {
 //        fader(0.33f, 0.0f, rsg.RR().CLI(CommandBufferLimits::GridStart));
-//    }
-//    if ( _aid.TI().checkKeyToggleOn(GMK_0) ) {
-//        fader(0.33f, 0.0f, rsg.RR().CLI(CommandBufferLimits::GridStart), AnimEndCallback{
-//            [&]() {
-//                backEnd->process_event(OnTakeScreenShotEvent{
-//                        [&]( const SerializableContainer& image ) {
-//                            auto resourceID = sg.getCurrLoadedEntityId();
-//                            if ( !resourceID.empty() ) {
-//                                Http::post(Url{ "/entities/upsertThumb/geom/" + resourceID }, image);
-//                            }
-//                        }
-//                });
-//            }
-//        });
 //    }
 
 #ifdef _USE_IMGUI_
@@ -211,4 +164,8 @@ void Showcaser::updateImpl( const AggregatedInputData& _aid ) {
     ImGuiLuaConsole(rsg);
 #endif
 
+}
+
+void Showcaser::backEndIOServices( const AggregatedInputData& _aid ) {
+    backEndIOEvents( backEnd.get(), _aid, rsg.DC().get() );
 }

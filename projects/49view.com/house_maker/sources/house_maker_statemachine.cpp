@@ -4,9 +4,8 @@
 
 #include "house_maker_statemachine.h"
 #include <core/math/vector_util.hpp>
-#include <core/file_manager.h>
 #include <graphics/render_light_manager.h>
-#include <poly/scene_dependency_resolver.hpp>
+#include <render_scene_graph/backend_io_services.hpp>
 
 #include <eh_arch/render/wall_render.hpp>
 #include <eh_arch/render/room_render.hpp>
@@ -56,72 +55,11 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
 
     gui->update();
 
-    // This acts like a classic update loop function in conventional render/update rendering, expect it's wired in the
-    // state machine so we can unify the whole code path.
-    if ( _aid.mods().isControlKeyDown ) {
-        backEnd->process_event(OnTickControlKeyEvent{_aid});
-    } else {
-        backEnd->process_event(OnTickEvent{_aid});
-    }
-
-    if ( _aid.mods().isAltPressed ) {
-        backEnd->process_event(OnAltPressedEvent{});
-    }
-    if ( _aid.mods().isShiftPressed ) {
-        if ( _aid.TI().checkKeyToggleOn(GMK_DELETE) ) {
-            backEnd->process_event(OnClearEvent{});
-        }
-    }
-
-    if ( _aid.mods().isControlKeyDown ) {
-        if ( _aid.mods().isShiftPressed && _aid.TI().checkKeyToggleOn(GMK_Z) ) {
-            backEnd->process_event(OnRedoEvent{});
-        } else if ( _aid.TI().checkKeyToggleOn(GMK_Z) ) {
-            backEnd->process_event(OnUndoEvent{});
-        }
-        if ( _aid.TI().checkKeyToggleOn(GMK_T) ) {
-            backEnd->process_event(OnSpecialSpaceEvent{});
-        }
-    }
-
-    // Comprehensive mouse events taps with mod keys
-
-    if ( _aid.isMouseTouchedDownFirstTime(TOUCH_ZERO) ) {
-        if ( _aid.mods().isControlKeyDown ) {
-            backEnd->process_event(OnFirstTimeTouchDownWithModKeyCtrlEvent{ _aid.mousePos(TOUCH_ZERO), _aid });
-        } else {
-            backEnd->process_event(OnFirstTimeTouchDownEvent{ _aid.mousePos(TOUCH_ZERO) });
-        }
-        backEnd->process_event(OnFirstTimeTouchDownViewportSpaceEvent{ _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC()) });
-    }
-    if ( _aid.isMouseTouchedDownAndMoving(TOUCH_ZERO) ) {
-        if ( _aid.mods().isControlKeyDown ) {
-            backEnd->process_event(OnTouchMoveWithModKeyCtrlEvent{ _aid.mousePos(TOUCH_ZERO) , _aid});
-        } else {
-            backEnd->process_event(OnTouchMoveEvent{ _aid.mousePos(TOUCH_ZERO) });
-            backEnd->process_event(OnTouchMoveViewportSpaceEvent{ _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC()) });
-        }
-    }
-    if ( _aid.isMouseSingleTap( TOUCH_ZERO) ) {
-        if ( !_aid.mods().isControlKeyDown ) {
-            backEnd->process_event(OnSingleTapEvent{ _aid.mousePos(TOUCH_ZERO) });
-        }
-        backEnd->process_event(OnSingleTapViewportSpaceEvent{ _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC()) });
-    }
-    if ( _aid.isMouseTouchedUp(TOUCH_ZERO) ) {
-        if ( _aid.mods().isControlKeyDown ) {
-            backEnd->process_event(OnTouchUpWithModKeyCtrlEvent{ _aid.mousePos(TOUCH_ZERO) });
-        } else {
-            backEnd->process_event(OnTouchUpEvent{ _aid.mousePos(TOUCH_ZERO) });
-        }
-        backEnd->process_event(OnTouchUpViewportSpaceEvent{ _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC()) });
-    }
-
     if ( _aid.TI().checkKeyToggleOn(GMK_A) ) {
         backEnd->process_event(OnKeyToggleEvent{ GMK_A });
     }
     if ( _aid.TI().checkKeyToggleOn(GMK_D) ) {
-        backEnd->process_event(OnKeyToggleEvent{ GMK_D, _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC()) });
+        backEnd->process_event(OnKeyToggleEvent{ GMK_D, _aid.mouseViewportPos(TOUCH_ZERO, rsg.DC().get()) });
     }
 
     if ( _aid.TI().checkKeyToggleOn(GMK_5) ) {
@@ -168,18 +106,9 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
         backEnd->process_event(OnIncrementalScaleEvent{0.05f});
     }
 
-    if ( _aid.TI().checkKeyToggleOn(GMK_ENTER) ) {
-        backEnd->process_event(OnFinaliseEvent{});
-    }
-    if ( _aid.TI().checkKeyToggleOn(GMK_SPACE) ) {
-        backEnd->process_event( OnSpaceEvent{} );
-    }
-    if ( _aid.TI().checkKeyToggleOn(GMK_ESCAPE) ) {
-        backEnd->process_event(OnEscapeEvent{});
-    }
-    if ( _aid.TI().checkKeyToggleOn(GMK_DELETE) ) {
-        backEnd->process_event(OnDeleteEvent{});
-    }
+}
 
+void HouseMakerStateMachine::backEndIOServices( const AggregatedInputData& _aid ) {
+    backEndIOEvents( backEnd.get(), _aid, rsg.DC().get() );
 }
 
