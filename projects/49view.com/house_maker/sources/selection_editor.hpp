@@ -12,15 +12,15 @@
 #include <eh_arch/models//house_service.hpp>
 #include <eh_arch/render/house_render.hpp>
 #include <eh_arch/controller/arch_orchestrator.hpp>
+#include <eh_arch/controller/remote_entity_selector.hpp>
 #include <eh_arch/controller/arch_render_controller.hpp>
 
 #include "eh_arch/state_machine/arch_sm_events__fsm.hpp"
 #include "property_listing_orchestrator.hpp"
-#include "remote_entity_selector.hpp"
 
 class HouseMakerSelectionEditor {
 public:
-    HouseMakerSelectionEditor( SceneGraph& sg, RenderOrchestrator& rsg, ArchOrchestrator& asg,
+    [[maybe_unused]] HouseMakerSelectionEditor( SceneGraph& sg, RenderOrchestrator& rsg, ArchOrchestrator& asg,
                                ArchRenderController& arc, PropertyListingOrchestrator& _plo,
                                RemoteEntitySelector& _res ) : sg(sg), rsg(rsg), asg(asg), arc(arc), plo(_plo),
                                                               res(_res) {}
@@ -166,7 +166,7 @@ private:
     }
 
     template<typename BE>
-    void roomFurnitureEditor( RoomBSData *room, BE *backEnd ) {
+    void roomFurnitureEditor( RoomBSData *room, [[maybe_unused]] BE *backEnd ) {
         ImGui::Separator();
         ImGui::NewLine();
         ImGui::Text("Furnitures");
