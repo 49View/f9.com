@@ -9,10 +9,10 @@
 #include <graphics/imgui/im_gui_utils.h>
 #include <graphics/imgui/ImGuizmo.h>
 
-#include <eh_arch/models//house_service.hpp>
+#include <eh_arch/models/house_service.hpp>
+#include <eh_arch/models/htypes_functions.hpp>
 #include <eh_arch/render/house_render.hpp>
 #include <eh_arch/controller/arch_orchestrator.hpp>
-#include <eh_arch/controller/remote_entity_selector.hpp>
 #include <eh_arch/controller/arch_render_controller.hpp>
 
 #include "eh_arch/state_machine/arch_sm_events__fsm.hpp"
@@ -21,9 +21,7 @@
 class HouseMakerSelectionEditor {
 public:
     [[maybe_unused]] HouseMakerSelectionEditor( SceneGraph& sg, RenderOrchestrator& rsg, ArchOrchestrator& asg,
-                               ArchRenderController& arc, PropertyListingOrchestrator& _plo,
-                               RemoteEntitySelector& _res ) : sg(sg), rsg(rsg), asg(asg), arc(arc), plo(_plo),
-                                                              res(_res) {}
+                               ArchRenderController& arc, PropertyListingOrchestrator& _plo) : sg(sg), rsg(rsg), asg(asg), arc(arc), plo(_plo) {}
     template<typename BE>
     void update( BE *backEnd, const std::string& mediaFolder ) {
 
@@ -103,7 +101,7 @@ private:
         C4f target = targetMP->color;
         if ( ImGui::ImageButton(ImGuiRenderTexture(im), ImVec2(thumbSize, thumbSize), ImVec2(0, 0), ImVec2(1, 1), -1,
                                 ImVec4(0, 0, 0, 0), ImVec4(target.x(), target.y(), target.z(), 1.0f)) ) {
-            res.prepare(label, "", ResourceGroup::Material);
+//            res.prepare(label, "", ResourceGroup::Material);
             currLabel = label;
         }
         if ( ImGui::IsItemHovered() ) {
@@ -174,7 +172,7 @@ private:
         ImGui::Columns(3);
         for ( const auto& ff : room->mFittedFurniture ) {
             if ( ImGui::Button( ff->name.c_str() ) ) {
-                res.prepare(GHType::Furniture, ff->name, ResourceGroup::Geom);
+//                res.prepare(GHType::Furniture, ff->name, ResourceGroup::Geom);
                 currLabel = GHType::Furniture;
             }
             ImGui::NextColumn();
@@ -187,7 +185,7 @@ private:
         for ( auto fth = 0; fth < FurnitureTypeHandler::FT_Invalid; fth++ ) {
             auto ft = static_cast<FurnitureTypeHandler::Type>(fth);
             if ( ImGui::Button(FurnitureTypeHandler::name(ft).c_str()) ) {
-                res.prepare(GHType::Furniture, FurnitureTypeHandler::name(ft), ResourceGroup::Geom);
+//                res.prepare(GHType::Furniture, FurnitureTypeHandler::name(ft), ResourceGroup::Geom);
                 currLabel = GHType::Furniture;
             }
             ImGui::NextColumn();
@@ -233,7 +231,7 @@ private:
 
     template<typename BE>
     void roomSelector( RoomBSData *room, BE *backEnd, const std::string& mediaFolder ) {
-        res.update(backEnd, mediaFolder, sg, rsg, room);
+//        res.update(backEnd, mediaFolder, sg, rsg, room);
         materialChange(GHType::Wall, room);
         ImGui::SameLine();
         materialChange(GHType::Floor, room);
@@ -260,6 +258,5 @@ private:
     ArchOrchestrator& asg;
     ArchRenderController& arc;
     PropertyListingOrchestrator& plo;
-    RemoteEntitySelector& res;
     GHTypeT currLabel{ GHType::None };
 };
