@@ -134,22 +134,22 @@ void Showcaser::updateImpl( const AggregatedInputData& _aid ) {
 
 #ifndef __EMSCRIPTEN__
 #ifdef _USE_IMGUI_
-    ImGui::Begin("SceneGraph");
-    sg.visitNodes([](const GeomSPConst elem ) {
-        ImGui::Text("%s", elem->Name().c_str());
-    });
-    ImGui::End();
-
-    ImGui::Begin("Camera");
-    std::ostringstream camDump;
-    camDump << *sg.DC().get();
-    auto lines = split(camDump.str(), '\n');
-    for (const auto& line: lines ) {
-        ImGui::Text("%s", line.c_str());
-    }
-    ImGui::End();
-
-    ImGuiLuaConsole(rsg);
+//    ImGui::Begin("SceneGraph");
+//    sg.visitNodes([](const GeomSPConst elem ) {
+//        ImGui::Text("%s", elem->Name().c_str());
+//    });
+//    ImGui::End();
+//
+//    ImGui::Begin("Camera");
+//    std::ostringstream camDump;
+//    camDump << *sg.DC().get();
+//    auto lines = split(camDump.str(), '\n');
+//    for (const auto& line: lines ) {
+//        ImGui::Text("%s", line.c_str());
+//    }
+//    ImGui::End();
+//
+//    ImGuiLuaConsole(rsg);
 #endif
 #endif
 
