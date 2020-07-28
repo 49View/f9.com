@@ -85,30 +85,30 @@ private:
     template<typename R>
     void materialChange( GHTypeT label, R *elem ) {
 
-        MaterialAndColorProperty *targetMP = getCommonMaterialChangeMapping(label, elem);
-        if ( !targetMP ) return;
-
-        auto imr = sg.get<Material>(targetMP->materialHash);
-        if ( !imr ) return;
-
-        ImGui::BeginGroup();
-        ImGui::Text("%s", GHTypeToString(label).c_str());
-
-        auto im = rsg.TH(imr->getDiffuseTexture());
-        auto matButtonId = std::to_string(label) + targetMP->materialHash;
-
-        ImGui::PushID(matButtonId.c_str());
-        C4f target = targetMP->color;
-        if ( ImGui::ImageButton(ImGuiRenderTexture(im), ImVec2(thumbSize, thumbSize), ImVec2(0, 0), ImVec2(1, 1), -1,
-                                ImVec4(0, 0, 0, 0), ImVec4(target.x(), target.y(), target.z(), 1.0f)) ) {
-//            res.prepare(label, "", ResourceGroup::Material);
-            currLabel = label;
-        }
-        if ( ImGui::IsItemHovered() ) {
-            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-        }
-        ImGui::PopID();
-        ImGui::EndGroup();
+//        MaterialAndColorProperty *targetMP = getCommonMaterialChangeMapping(label, elem, elem);
+//        if ( !targetMP ) return;
+//
+//        auto imr = sg.get<Material>(targetMP->materialHash);
+//        if ( !imr ) return;
+//
+//        ImGui::BeginGroup();
+//        ImGui::Text("%s", GHTypeToString(label).c_str());
+//
+//        auto im = rsg.TH(imr->getDiffuseTexture());
+//        auto matButtonId = std::to_string(label) + targetMP->materialHash;
+//
+//        ImGui::PushID(matButtonId.c_str());
+//        C4f target = targetMP->color;
+//        if ( ImGui::ImageButton(ImGuiRenderTexture(im), ImVec2(thumbSize, thumbSize), ImVec2(0, 0), ImVec2(1, 1), -1,
+//                                ImVec4(0, 0, 0, 0), ImVec4(target.x(), target.y(), target.z(), 1.0f)) ) {
+////            res.prepare(label, "", ResourceGroup::Material);
+//            currLabel = label;
+//        }
+//        if ( ImGui::IsItemHovered() ) {
+//            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+//        }
+//        ImGui::PopID();
+//        ImGui::EndGroup();
     }
 
     template<typename BE>
