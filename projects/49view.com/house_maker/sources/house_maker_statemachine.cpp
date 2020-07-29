@@ -37,7 +37,6 @@ void HouseMakerStateMachine::activatePostLoad() {
     rsg.RR().createGrid(CommandBufferLimits::GridStart, 1.0f, ( Color4f::PASTEL_GRAYLIGHT ),
                         ( Color4f::DARK_GRAY ), V2f{ 15.0f }, 0.015f);
     rsg.createSkybox(SkyBoxInitParams{ SkyBoxMode::CubeProcedural });
-    rsg.changeTime("14:00");
 
     rsg.useSkybox(true);
 
