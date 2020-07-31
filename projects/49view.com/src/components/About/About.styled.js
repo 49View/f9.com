@@ -14,10 +14,10 @@ export const AboutNominalContainer = styled.div`{
   border: 1px solid var(--dark);
   background-image: linear-gradient(var(--logo-color-2), var(--dark-color-transparent-text-readable) );
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.9), 0 4px 10px 0 rgba(0, 0, 0, 0.99);
-    :hover {
-    border: 1px solid var(--warning);
-    box-shadow: 0 0 1px 1px var(--dark);
-  }
+  //  :hover {
+  //  border: 1px solid var(--warning);
+  //  box-shadow: 0 0 1px 1px var(--dark);
+  //}
   
   //:active {
   //  border: 1px solid var(--primary-color);
