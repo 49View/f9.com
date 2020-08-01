@@ -59,6 +59,7 @@
     "styled-components": "^5.0.1",
     "subscriptions-transport-ws": "^0.9.16",
     "tar-stream": "^2.1.0",
+    "vertical-timeline-component-for-react": "^1.0.7",
     "websocket": "^1.0.31"
   },
   "scripts": {

@@ -34,10 +34,9 @@ void HouseMakerStateMachine::activatePostLoad() {
     RoomServiceFurniture::addDefaultFurnitureSet("uk_default");
     asg.loadFurnitureMapStorage("uk_default");
 
-    rsg.RR().createGrid(CommandBufferLimits::GridStart, 1.0f, ( Color4f::PASTEL_GRAYLIGHT ),
-                        ( Color4f::DARK_GRAY ), V2f{ 15.0f }, 0.015f);
+    rsg.RR().drawGridV2(CommandBufferLimits::GridStart, 1.0f, ( Color4f::PASTEL_GRAYLIGHT ),
+                        ( Color4f::DARK_GRAY ), V2f{ 45.0f }, 0.015f);
     rsg.createSkybox(SkyBoxInitParams{ SkyBoxMode::CubeProcedural });
-    rsg.changeTime("14:00");
 
     rsg.useSkybox(true);
 
@@ -90,6 +89,14 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
     if ( _aid.TI().checkKeyToggleOn(GMK_R) ) {
         backEnd->process_event(OnKeyToggleEvent{ GMK_R });
     }
+//    if ( _aid.TI().checkKeyToggleOn(GMK_L) ) {
+//        backEnd->process_event(OnLoadFloorPlanEvent{ plo.PropertyList().back() });
+//    }
+//    if ( _aid.TI().checkKeyToggleOn(GMK_SEMICOLON) ) {
+//        arc.setFloorPlanTransparencyFactor(1.0f);
+//        fader(0.9f, 1.0f, rsg.RR().CLI(CommandBufferLimits::UI2dStart));
+//        asg.showIMHouse();
+//    }
 
 
     if ( _aid.TI().checkKeyToggleOn(GMK_J) ) {

@@ -3,6 +3,7 @@ import React from "react";
 import {Route, Switch, useLocation} from 'react-router-dom';
 import Landing from "./components/Landing/Landing";
 import Navbar from "./components/Navbar/Navbar";
+import Dado from "./components/About/Dado/Dado";
 import Register from "./futuremodules/auth/components/Register";
 import Login from "./futuremodules/auth/components/Login";
 import {DashboardUser} from "./components/dashboardUser/DashboardUser";
@@ -32,6 +33,7 @@ const App = () => {
           <Route exact path="/login" component={Login}/>
           <Route exact path="/buy" component={Buy}/>
           <Route exact path="/excalibur" component={Excalibur}/>
+          <Route exact path="/about/dado" component={Dado}/>
           <Route exact path="/dashboarduser" component={DashboardUser}/>
           <Route exact path="/property/:pid" component={Property}/>
         </Switch>

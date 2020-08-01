@@ -53,9 +53,14 @@ router.get("/list/color/:category", async (req, res, next) => {
   try {
     logger.info(req.url);
     const category = req.params.category;
-    const foundEntities = await entityController.getColorsInCategory(category);
+    let foundEntities = await entityController.getColorsInCategory(category);
     if (foundEntities !== null && foundEntities.length > 0) {
-      res.send(foundEntities);
+      const fixedEntities = foundEntities.map( e => {
+        let newElement = e.toObject();
+        newElement.hash = newElement._hash;
+        return newElement;
+      });
+      res.send(fixedEntities);
     } else {
       res.sendStatus(204);
     }
