@@ -46,13 +46,15 @@ void HouseMakerStateMachine::activatePostLoad() {
     rsg.RR().useFilmGrain(false);
     rsg.useSunLighting(true);
 
-
     backEnd->process_event(OnActivateEvent{FloorPlanRenderMode::Debug3d});
 }
 
 void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
 
-    gui->update();
+    static bool showGUI = false;
+    if ( showGUI ) {
+        gui->update();
+    }
 
     if ( _aid.TI().checkKeyToggleOn(GMK_A) ) {
         backEnd->process_event(OnKeyToggleEvent{ GMK_A });
@@ -89,15 +91,16 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
     if ( _aid.TI().checkKeyToggleOn(GMK_R) ) {
         backEnd->process_event(OnKeyToggleEvent{ GMK_R });
     }
-//    if ( _aid.TI().checkKeyToggleOn(GMK_L) ) {
-//        backEnd->process_event(OnLoadFloorPlanEvent{ plo.PropertyList().back() });
-//    }
-//    if ( _aid.TI().checkKeyToggleOn(GMK_SEMICOLON) ) {
-//        arc.setFloorPlanTransparencyFactor(1.0f);
-//        fader(0.9f, 1.0f, rsg.RR().CLI(CommandBufferLimits::UI2dStart));
-//        asg.showIMHouse();
-//    }
-
+    if ( _aid.TI().checkKeyToggleOn(GMK_APOSTROPHE) ) {
+        showGUI = !showGUI;
+    }
+    if ( _aid.TI().checkKeyToggleOn(GMK_L) ) {
+        backEnd->process_event(OnLoadFloorPlanEvent{ plo.PropertyList().back() });
+    }
+    if ( _aid.TI().checkKeyToggleOn(GMK_SEMICOLON) ) {
+        fader(0.9f, 1.0f, rsg.RR().CLI(CommandBufferLimits::UI2dStart));
+        fader(0.9f, 0.0f, rsg.RR().CLI(CommandBufferLimits::UnsortedCustom));
+    }
 
     if ( _aid.TI().checkKeyToggleOn(GMK_J) ) {
         backEnd->process_event(OnPushTourPathEvent{});

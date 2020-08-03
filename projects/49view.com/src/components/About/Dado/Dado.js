@@ -4,14 +4,14 @@ import {
   Flex,
   FlexVertical,
   H2,
-  H3,
+  H3, H5,
   HR,
   Img100Round,
   ImgRoundedCardH,
   InfoTextSpanBold,
   LightColorTextSpanBold,
   LightTextSpan,
-  Logo1TextSpanBold,
+  Logo1TextSpanBold, Mx05,
   Mx1,
   My05,
   My2,
@@ -42,8 +42,8 @@ import JFDPLabs from "./jfdplabs-logo.png"
 import F9View from "./49view_logo_text.png"
 import GitHubLogo from "./github_logo.svg"
 import OculusLogo from "./oculus_horizontal.svg"
-import {OverlayTrigger, Popover} from "react-bootstrap";
-import { Timeline, TimelineItem }  from 'vertical-timeline-component-for-react';
+import {Badge, OverlayTrigger, Popover} from "react-bootstrap";
+import {Timeline, TimelineItem} from 'vertical-timeline-component-for-react';
 
 const popoverParadiseRemastered = (
   <Popover id="popover-basic">
@@ -416,31 +416,31 @@ const CareerHighlightsApps = () => {
         <My2/>
         <Flex width={"100%"} justifyContent={"space-around"}>
           <OverlayTrigger trigger="hover" placement="right" overlay={popoverPaperCamera}>
-          <ImgRoundedCardH margin={"0 20px 0 0"} height={"128px"} src={PaperCamera} alt="Paper Camera"/>
+            <ImgRoundedCardH margin={"0 20px 0 0"} height={"128px"} src={PaperCamera} alt="Paper Camera"/>
           </OverlayTrigger>
           <OverlayTrigger trigger="hover" placement="right" overlay={popoverPaperArist}>
-          <ImgRoundedCardH margin={"0 20px 0 0"} height={"128px"} src={PaperArtist} alt="Paper Artist"/>
+            <ImgRoundedCardH margin={"0 20px 0 0"} height={"128px"} src={PaperArtist} alt="Paper Artist"/>
           </OverlayTrigger>
           <OverlayTrigger trigger="hover" placement="left" overlay={popoverCamera2}>
-          <ImgRoundedCardH margin={"0 20px 0 0"} height={"128px"} src={Camera2} alt="Camera2"/>
+            <ImgRoundedCardH margin={"0 20px 0 0"} height={"128px"} src={Camera2} alt="Camera2"/>
           </OverlayTrigger>
         </Flex>
         <My2/>
         <Flex>
           <Div>
-          <InfoTextSpanBold>Partnerships with other amazing developers:</InfoTextSpanBold>
+            <InfoTextSpanBold>Partnerships with other amazing developers:</InfoTextSpanBold>
           </Div>
           <Div>
-          <img height={"48px"} src={OculusLogo} alt={"Oculus VR"}/>
+            <img height={"48px"} src={OculusLogo} alt={"Oculus VR"}/>
           </Div>
         </Flex>
         <My2/>
         <Flex width={"100%"} justifyContent={"space-around"}>
           <OverlayTrigger trigger="hover" placement="right" overlay={popoverStarChart}>
-          <ImgRoundedCardH margin={"0 20px 0 0"} height={"128px"} src={StarChart} alt="Star Chart"/>
+            <ImgRoundedCardH margin={"0 20px 0 0"} height={"128px"} src={StarChart} alt="Star Chart"/>
           </OverlayTrigger>
           <OverlayTrigger trigger="hover" placement="left" overlay={popoverNuclear}>
-          <ImgRoundedCardH margin={"0 20px 0 0"} height={"128px"} src={Nuclear} alt="Nuclear"/>
+            <ImgRoundedCardH margin={"0 20px 0 0"} height={"128px"} src={Nuclear} alt="Nuclear"/>
           </OverlayTrigger>
         </Flex>
       </FlexVertical>
@@ -498,7 +498,7 @@ const Personal = () => {
           <Mx1/>
           <Div height={"32px"}>
             <a href={"https://github.com/ziocleto"}>
-            <img width="32px" src={GitHubLogo} alt={"githubLogo"}/>
+              <img width="32px" src={GitHubLogo} alt={"githubLogo"}/>
             </a>
           </Div>
         </Flex>
@@ -507,37 +507,8 @@ const Personal = () => {
       <Timeline lineColor={'var(--light)'}>
         <TimelineItem
           key="001"
-          dateText="11/2010 – Present"
-          style={{ color: 'var()' }}
-        >
-          <h3>Title, Company</h3>
-          <h4>Subtitle</h4>
-          <p>
-            Est incididunt sint eu minim dolore mollit velit velit commodo ex nulla
-            exercitation. Veniam velit adipisicing anim excepteur nostrud magna
-            nostrud aliqua dolor. Sunt aute est duis ut nulla officia irure
-            reprehenderit laborum fugiat dolore in elit. Adipisicing do qui duis Lorem
-            est.
-          </p>
-          <p>
-            Est incididunt sint eu minim dolore mollit velit velit commodo ex nulla
-            exercitation. Veniam velit adipisicing anim excepteur nostrud magna
-            nostrud aliqua dolor. Sunt aute est duis ut nulla officia irure
-            reprehenderit laborum fugiat dolore in elit. Adipisicing do qui duis Lorem
-            est.
-          </p>
-          <p>
-            Est incididunt sint eu minim dolore mollit velit velit commodo ex nulla
-            exercitation. Veniam velit adipisicing anim excepteur nostrud magna
-            nostrud aliqua dolor. Sunt aute est duis ut nulla officia irure
-            reprehenderit laborum fugiat dolore in elit. Adipisicing do qui duis Lorem
-            est.
-          </p>
-        </TimelineItem>
-        <TimelineItem
-          key="002"
-          dateText="04/2009 – 11/2010"
-          dateInnerStyle={{ background: '#61b8ff', color: '#000' }}
+          dateText="2010 – Present"
+          dateInnerStyle={{background: 'var(--success)', color: 'var(--dark)'}}
           bodyContainerStyle={{
             background: '#ddd',
             padding: '20px',
@@ -545,83 +516,159 @@ const Personal = () => {
             boxShadow: '0.5rem 0.5rem 2rem 0 rgba(0, 0, 0, 0.2)',
           }}
         >
-          <h3 style={{ color: '#61b8ff' }}>Title, Company</h3>
-          <h4 style={{ color: '#61b8ff' }}>Subtitle</h4>
+          <H3 color={'var(--secondary-alt-color)'}>JFDP Labs and 49view</H3>
+          <H5 color={'var(--info)'}>Founder, Programmer and everyday operations</H5>
+          <p/>
           <p>
-            Est incididunt sint eu minim dolore mollit velit velit commodo ex nulla
-            exercitation. Veniam velit adipisicing anim excepteur nostrud magna
-            nostrud aliqua dolor. Sunt aute est duis ut nulla officia irure
-            reprehenderit laborum fugiat dolore in elit. Adipisicing do qui duis Lorem
-            est.
+            After my experience in the game industry I've boostrapped few companies which had one simple rule at core:
+            <p><p/>
+            "Make something technically so advanced (and beautiful) that's impossible to copy".
+            </p>
           </p>
           <p>
-            Est incididunt sint eu minim dolore mollit velit velit commodo ex nulla
-            exercitation. Veniam velit adipisicing anim excepteur nostrud magna
-            nostrud aliqua dolor. Sunt aute est duis ut nulla officia irure
-            reprehenderit laborum fugiat dolore in elit. Adipisicing do qui duis Lorem
-            est.
+            In 2010 we were the only company doing real time camera effects on mobile phone, the following year we've applied the same tech to video productions, note that at the time the iPhone didn't even have an option to record videos.
+            </p>
+          <p>
+            With that tech we've created <InfoTextSpanBold>Paper Camera</InfoTextSpanBold> and <InfoTextSpanBold>Paper Artist</InfoTextSpanBold> apps, preinstalled on 100m Samsung devices from 2012 to 2015.</p>
+          <p>
+          <p>
+            We've had deals with: Samsung, Google, Apple, Amazon, BlackBerry, and a plethora of telecomm companies and app stores.
           </p>
+            <p> In 2012 we've received a <SecondaryAltColorTextSpan>boyout offer from Facebook</SecondaryAltColorTextSpan>, which we declined in order to keep our company and vision independent.</p>
+            All coding, design and tech has been done in-house.</p>
+          <p>We develop 100% of our tech, we do not rely on 3rd party.</p>
+          <p>
+            Since 2016 we have specialised in high end front/back end system for architectural visualisation, using
+            AR/VR proprietary tech.
+            You can have a sneak peek here <a href={"https://49view.com"}>49view.com</a>
+          </p>
+          <p>Average team size: 5 people</p>
+          <h3>
+            Stacks used
+          </h3>
+          <p>
+            <Badge variant={"info"}>C/C++</Badge><Mx05/>
+            <Badge variant={"info"}>Java</Badge><Mx05/>
+            <Badge variant={"info"}>Javascript</Badge><Mx05/>
+            <Badge variant={"info"}>OpenGL</Badge><Mx05/>
+            <Badge variant={"info"}>Node.js</Badge><Mx05/>
+            <Badge variant={"info"}>MongoDB</Badge><Mx05/>
+            <Badge variant={"info"}>GraphQL</Badge><Mx05/>
+            <Badge variant={"info"}>OpenCV</Badge><Mx05/>
+            <Badge variant={"info"}>Wasm</Badge><Mx05/>
+            <Badge variant={"info"}>Oculus VR</Badge><Mx05/>
+            <Badge variant={"info"}>Open VR</Badge><Mx05/>
+            <Badge variant={"info"}>MySQL</Badge><Mx05/>
+            <Badge variant={"info"}>Objective-C</Badge><Mx05/>
+            <Badge variant={"info"}>C#</Badge><Mx05/>
+            <Badge variant={"info"}>Ruby on Rails</Badge><Mx05/>
+            <Badge variant={"info"}>PHP</Badge><Mx05/>
+            <Badge variant={"info"}>Python</Badge><Mx05/>
+            <Badge variant={"info"}>Rust</Badge><Mx05/>
+            <Badge variant={"info"}>NGINX</Badge><Mx05/>
+            <Badge variant={"info"}>Docker</Badge><Mx05/>
+            <Badge variant={"info"}>AWS</Badge><Mx05/>
+            <Badge variant={"info"}>Heroku</Badge><Mx05/>
+            <Badge variant={"info"}>GitHub</Badge><Mx05/>
+            <Badge variant={"info"}>Atlassian</Badge><Mx05/>
+            <Badge variant={"info"}>DigitalOcean</Badge><Mx05/>
+            <Badge variant={"info"}>CircleCI</Badge><Mx05/>
+            <Badge variant={"info"}>Kubernetes</Badge><Mx05/>
+            <Badge variant={"info"}>Azure</Badge><Mx05/>
+            <Badge variant={"info"}>DataDog</Badge><Mx05/>
+            <Badge variant={"info"}>Linux</Badge><Mx05/>
+            <Badge variant={"info"}>Mac</Badge><Mx05/>
+            <Badge variant={"info"}>Windows</Badge><Mx05/>
+            <Badge variant={"info"}>iOS</Badge><Mx05/>
+            <Badge variant={"info"}>Android</Badge><Mx05/>
+            <Badge variant={"info"}>Blackberry</Badge><Mx05/>
+            <Badge variant={"info"}>Tizen</Badge><Mx05/>
+            <Badge variant={"info"}>Windows Mobile</Badge><Mx05/>
+          </p>
+        </TimelineItem>
+        <TimelineItem
+          key="002"
+          dateText="2005 – 2010"
+          dateInnerStyle={{background: 'var(--primary)', color: 'var(--light)'}}
+          bodyContainerStyle={{
+            background: '#ddd',
+            padding: '20px',
+            borderRadius: '8px',
+            boxShadow: '0.5rem 0.5rem 2rem 0 rgba(0, 0, 0, 0.2)',
+          }}
+        >
+          <H3 color={'var(--secondary-alt-color)'}>Electronic Arts</H3>
+          <H5 color={'var(--info)'}>Senior/Lead Programmer</H5>
+          <p/>
+          <p>
+            Joined as Criterion Games were just acquired by EA, starting as Graphics Programmer on <InfoTextSpanBold>Black</InfoTextSpanBold>, a technically impressive PS2 video game. Also helped with Burnout Revenge, the successor of the immensely popular Burnout 3: Takedown.
+            I've helped making the graphic engine run super fast and look beautiful, we've achieved 60fps throughout the game, which featured some very complex scenes and huge poly-count.
+          </p>
+          <p>
+            Next game was <InfoTextSpanBold>Burnout Paradise</InfoTextSpanBold>, for many considered the best and first open world true racing game.
+            I've modelled the rendering and material system of the graphic engine, low level C++/assembly and PS3/Xbox programming.
+          </p>
+          <p>
+            After Burnout Paradise I've taken the lead of the internal graphics team. We've been working on supporting the "year of paradise" updates, and kickstarting what it will become Need for Speed: Hot Pursuit.
+          </p>
+          <p>
+            For <InfoTextSpanBold>Need for Speed</InfoTextSpanBold> I've taken a slightly more managerial role, taking care of developing an internal game tracking system, html based with PHP, which at the time was a very popular choice for web applications. I've left EA halfway through development to bootstrap my first company.
+          </p>
+          <p>Average team size: 100 people</p>
         </TimelineItem>
         <TimelineItem
           key="003"
-          dateComponent={(
-            <div
-              style={{
-                display: 'block',
-                float: 'left',
-                padding: '10px',
-                background: 'rgb(150, 150, 150)',
-                color: '#fff',
-              }}
-            >
-              11/2008 – 04/2009
-            </div>
-          )}
+          dateText="2000 – 2004"
+          dateInnerStyle={{background: 'var(--primary)', color: 'var(--light)'}}
+          bodyContainerStyle={{
+            background: '#ddd',
+            padding: '20px',
+            borderRadius: '8px',
+            boxShadow: '0.5rem 0.5rem 2rem 0 rgba(0, 0, 0, 0.2)',
+          }}
         >
-          <h3>Title, Company</h3>
-          <h4>Subtitle</h4>
+          <H3 color={'var(--secondary-alt-color)'}>Sony Interactive Entertainment</H3>
+          <H5 color={'var(--info)'}>Graphics Programmer</H5>
+          <p/>
           <p>
-            Est incididunt sint eu minim dolore mollit velit velit commodo ex nulla
-            exercitation. Veniam velit adipisicing anim excepteur nostrud magna
-            nostrud aliqua dolor. Sunt aute est duis ut nulla officia irure
-            reprehenderit laborum fugiat dolore in elit. Adipisicing do qui duis Lorem
-            est.
+            My first real experience in the AAA video games world. Joined as a graphics programmer on <InfoTextSpanBold>Wipeout Fusion</InfoTextSpanBold>, the first PS2 version of their legendary title: Wipeout.
+            I've looked after all the special effects and optimisation for the PS2 hardware, going very very deep down to the metal.
           </p>
           <p>
-            Est incididunt sint eu minim dolore mollit velit velit commodo ex nulla
-            exercitation. Veniam velit adipisicing anim excepteur nostrud magna
-            nostrud aliqua dolor. Sunt aute est duis ut nulla officia irure
-            reprehenderit laborum fugiat dolore in elit. Adipisicing do qui duis Lorem
-            est.
+            After Wipeout I've helped the other studio team finishing <InfoTextSpanBold>F1 2002</InfoTextSpanBold> game, the official Formula 1 game, a sport very popular in europe.
+            Again, I was taking care of graphics and special effects, low level coding and optimisations.
           </p>
           <p>
-            Est incididunt sint eu minim dolore mollit velit velit commodo ex nulla
-            exercitation. Veniam velit adipisicing anim excepteur nostrud magna
-            nostrud aliqua dolor. Sunt aute est duis ut nulla officia irure
-            reprehenderit laborum fugiat dolore in elit. Adipisicing do qui duis Lorem
-            est.
+            We then moved to few years of cancelled titles doing mostly R&D, we've developed half dozen game concepts that never achieved the green light unfortunately.
           </p>
+          <p>Average team size: 15 people</p>
         </TimelineItem>
         <TimelineItem
           key="004"
-          dateText="08/2008 – 11/2008"
-          dateInnerStyle={{ background: '#76bb7f' }}
+          dateText="1982 – 2000"
+          dateInnerStyle={{background: 'var(--primary)', color: 'var(--light)'}}
+          bodyContainerStyle={{
+            background: '#ddd',
+            padding: '20px',
+            borderRadius: '8px',
+            boxShadow: '0.5rem 0.5rem 2rem 0 rgba(0, 0, 0, 0.2)',
+          }}
         >
-          <h3>Title, Company</h3>
-          <h4>Subtitle</h4>
+          <H3 color={'var(--secondary-alt-color)'}>Learning and studying</H3>
+          <H5 color={'var(--info)'}>everything</H5>
+          <p/>
           <p>
-            Est incididunt sint eu minim dolore mollit velit velit commodo ex nulla
-            exercitation. Veniam velit adipisicing anim excepteur nostrud magna
-            nostrud aliqua dolor. Sunt aute est duis ut nulla officia irure
-            reprehenderit laborum fugiat dolore in elit. Adipisicing do qui duis Lorem
-            est.
+            I've wrote my first computer game age 7 ona BBC Acorn electron. I dont even recall the name, but it was written after Italy won the football world cup in 1982, it was a glorious football manager game, maybe the first in history, there was a trick btw, Italy always won in that game, and you could just play the same matches Italy played in that world cup.
           </p>
           <p>
-            Est incididunt sint eu minim dolore mollit velit velit commodo ex nulla
-            exercitation. Veniam velit adipisicing anim excepteur nostrud magna
-            nostrud aliqua dolor. Sunt aute est duis ut nulla officia irure
-            reprehenderit laborum fugiat dolore in elit. Adipisicing do qui duis Lorem
-            est.
+            I've then released version 2 of that game for another world cup, Italy 1990, but it wasn't meant to be as Italy lost in the semi-finals.
+          </p>
+          <p>
+            As a student I was too focused in math and programming, I didn't even get to finish uni as I was too absorbed programming, on average 20 hours a day.
+          </p>
+          <p>
+            I've joined my first video-game company in 1995, "ImaginAction", in Rome, but we didn't manage to release anything, the tech although was amazing.
+            Few years later I've joined another startup: "Prograph Research", in the North of Italy, we've actually managed to release a game or two but they were just plain terrible!
           </p>
         </TimelineItem>
       </Timeline>
