@@ -39,6 +39,7 @@ public:
         Http::getNoCache(Url{ "/property/list/0/40" }, [&]( HttpResponeParams params ) {
             plo.PropertyList() = deserializeVector<PropertyListing>(params.BufferString());
         });
+        floorPlanTransparency = std::make_shared<AnimType<float>>(1.0f, "FloorPlanTransparencyMenu");
     }
 
     void elaborateHouseCallback( std::vector<std::string>& _paths ) {
@@ -169,10 +170,13 @@ public:
             ImGui::Text("Walkable Area: %s", sqmToString(asg.H()->walkableArea).c_str());
             ImGui::Text("Num floors: %lu", asg.H()->mFloors.size());
 
-            static float fptf = arc.getFloorPlanTransparencyFactor();
-            if ( ImGui::SliderFloat("floorPlanTransparencyFactor", &fptf, 0.0f, 1.0f) ) {
-                arc.setFloorPlanTransparencyFactor(fptf);
-                asg.showIMHouse();
+            if ( ImGui::SliderFloat("floorPlanTransparencyFactor", &floorPlanTransparency->value, 0.0f, 1.0f) ) {
+                rsg.RR().CLI( CommandBufferLimits::UI2dStart, [&](const std::shared_ptr<VPList>& v) {
+                    v->setMaterialConstantAlpha( 1.0f-floorPlanTransparency->value );
+                });
+                rsg.RR().CLI( CommandBufferLimits::UnsortedCustom, [&](const std::shared_ptr<VPList>& v) {
+                    v->setMaterialConstantAlpha( floorPlanTransparency->value );
+                });
             }
 
             if ( ImGui::Button("Save") ) {
@@ -295,8 +299,8 @@ public:
 
         // Modal callbacks
         if ( !rsg.CallbackPaths().empty() ) {
-            ImGui::OpenPopup("qeqwew");
-            if ( ImGui::BeginPopupModal("qeqwew", nullptr, ImGuiWindowFlags_AlwaysAutoResize) ) {
+            ImGui::OpenPopup("New Floorplan");
+            if ( ImGui::BeginPopupModal("New Floorplan", nullptr, ImGuiWindowFlags_AlwaysAutoResize) ) {
                 if ( ImGui::Button("Import as new") ) {
                     this->backEnd->process_event(OnCreateNewPropertyFromFloorplanImageEvent{ rsg.CallbackPaths()[0] });
                     rsg.CallbackPaths().clear();
@@ -333,4 +337,5 @@ private:
     ArchRenderController& arc;
     HouseMakerSelectionEditor& selectionEditor;
     PropertyListingOrchestrator& plo;
+    floata floorPlanTransparency;
 };
