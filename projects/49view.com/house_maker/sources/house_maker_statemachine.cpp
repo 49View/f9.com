@@ -51,7 +51,7 @@ void HouseMakerStateMachine::activatePostLoad() {
 
 void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
 
-    static bool showGUI = false;
+    static bool showGUI = true;
     if ( showGUI ) {
         gui->update();
     }
