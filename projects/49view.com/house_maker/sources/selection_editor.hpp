@@ -83,7 +83,7 @@ private:
     }
 
     template<typename R>
-    void materialChange( GHTypeT label, R *elem ) {
+    void materialChange( [[maybe_unused]] GHTypeT label, [[maybe_unused]] R *elem ) {
 
 //        MaterialAndColorProperty *targetMP = getCommonMaterialChangeMapping(label, elem, elem);
 //        if ( !targetMP ) return;
@@ -137,12 +137,12 @@ private:
         for ( auto rn = startIndex; rn < ASType::LastRoom; rn++ ) {
             if ( ImGui::Checkbox(RoomService::roomTypeToName1to1(rn).c_str(), &hasRoomV[rn - startIndex]) ) {
                 if ( hasRoomV[rn - startIndex] ) {
-                    RoomService::addRoomType(room, rn, asg.H());
+                    RoomService::addRoomType(room, rn);
                     RoomService::removeRoomType(room, ASType::GenericRoom);
                 } else {
                     RoomService::removeRoomType(room, rn);
                     if ( room->roomTypes.empty() ) {
-                        RoomService::addRoomType(room, ASType::GenericRoom, asg.H());
+                        RoomService::addRoomType(room, ASType::GenericRoom);
                     }
                 }
                 HouseService::reevaluateDoorsAndWindowsAfterRoomChange(asg.H());
