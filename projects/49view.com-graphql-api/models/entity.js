@@ -12,5 +12,7 @@ export const entityModel = mongoose.model("entities", new mongoose.Schema({
   hash: {type: String},
   userId: {type: mongoose.Schema.Types.ObjectId, ref: "users", index: true, unique: false},
   thumb: {type: String},
-  tags: [{type: String}]
+  tags: [{type: String}],
+  bboxSize: [{type: Number}],
+  bbox3d: [{type: Number}]
 }, {timestamps: true, strict: false}));

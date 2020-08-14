@@ -22,7 +22,7 @@ exports.getSet = async name => {
     if ( elemMeta && elemMeta[0] ) {
       furnitureSetWithBBox.set.push( {
         ...elem,
-        bboxSize: elemMeta[0].bboxSize
+        bbox3d: elemMeta[0].bbox3d
       });
     }
   }

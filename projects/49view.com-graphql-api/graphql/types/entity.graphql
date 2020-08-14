@@ -12,6 +12,7 @@ type Entity {
     thumb: String
     tags: [String]
     bboxSize: [Float]
+    bbox3d: [Float]
 }
 
 type EntityPage {
