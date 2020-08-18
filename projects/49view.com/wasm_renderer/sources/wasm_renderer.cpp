@@ -46,7 +46,7 @@ void Showcaser::activatePostLoad() {
     rsg.RR().useVignette(true);
     rsg.useSSAO(true);
     rsg.RR().useFilmGrain(false);
-    rsg.changeTime("14:00");
+//    rsg.changeTime("14:00", H()->sourceData.northCompassAngle);
 
     backEnd->process_event(OnActivateEvent{ FloorPlanRenderMode::Debug3d });
 
