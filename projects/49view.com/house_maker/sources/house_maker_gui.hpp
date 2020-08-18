@@ -134,14 +134,14 @@ public:
             if ( ImGui::SliderFloat("Brightness", &asg.H()->sourceData.sourceBrightness, 0.0f, 255.0f) ) {
                 this->backEnd->process_event(OnUpdateHMBEvent{});
             }
-            if ( ImGui::SliderFloat("Gaussian", &asg.H()->sourceData.sourceGuassian, 1.0f, 5.0f) ) {
+            if ( ImGui::SliderFloat("Gaussian", &asg.H()->sourceData.sourceGaussian, 1.0f, 5.0f) ) {
                 this->backEnd->process_event(OnUpdateHMBEvent{});
             }
-            if ( ImGui::SliderInt("Gaussian Sigma", &asg.H()->sourceData.sourceGuassianSigma, 1, 21) ) {
-                if ( !isOdd(asg.H()->sourceData.sourceGuassianSigma) ) asg.H()->sourceData.sourceGuassianSigma++;
+            if ( ImGui::SliderInt("Gaussian Sigma", &asg.H()->sourceData.sourceGaussianSigma, 1, 21) ) {
+                if ( !isOdd(asg.H()->sourceData.sourceGaussianSigma) ) asg.H()->sourceData.sourceGaussianSigma++;
                 this->backEnd->process_event(OnUpdateHMBEvent{});
             }
-            if ( ImGui::SliderFloat("Gaussian Beta", &asg.H()->sourceData.sourceGuassianBeta, -5.0f, 5.0f) ) {
+            if ( ImGui::SliderFloat("Gaussian Beta", &asg.H()->sourceData.sourceGaussianBeta, -5.0f, 5.0f) ) {
                 this->backEnd->process_event(OnUpdateHMBEvent{});
             }
             if ( ImGui::SliderFloat("minBinThreshold", &asg.H()->sourceData.minBinThreshold, 0.0f, 255.0f) ) {
