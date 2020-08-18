@@ -108,10 +108,10 @@ const updatePropertyBinaries = async (result, propertyId) => {
   let inc = 0;
   for (const elem of result.images) {
     const thumbUrl =
-      await saveImageFromUrl(elem.thumbnailUrl, mp, `${propertyId}${elem.caption}_thumb_${inc}`);
+      await saveImageFromUrl(elem.thumbnailUrl, mp, `${propertyId}${encodeURIComponent(elem.caption)}_thumb_${inc}`);
 
     const imageUrl =
-      await saveImageFromUrl(elem.masterUrl, mp, `${propertyId}${elem.caption}_image_${inc}`);
+      await saveImageFromUrl(elem.masterUrl, mp, `${propertyId}${encodeURIComponent(elem.caption)}_image_${inc}`);
     inc++;
     thumbs.push(thumbUrl);
     images.push(imageUrl);
