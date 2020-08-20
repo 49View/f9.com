@@ -11,8 +11,9 @@
 #include <eh_arch/state_machine/arch_sm_events__fsm.hpp>
 
 #include <eh_arch/state_machine/arch_sm_actions__fsm.hpp>
-#include "eh_arch/makers/arch_sm_actions_bespoke_builder.hpp"
-#include "eh_arch/makers/arch_sm_actions_maker_builder.hpp"
+#include <eh_arch/makers/arch_sm_actions_bespoke_builder.hpp>
+#include <eh_arch/makers/arch_sm_actions_balcony_builder.hpp>
+#include <eh_arch/makers/arch_sm_actions_maker_builder.hpp>
 
 #include <eh_arch/state_machine/arch_transition_tables_viewing_modes.hpp>
 #include <eh_arch/state_machine/arch_transition_tables_editing.hpp>
@@ -25,6 +26,7 @@ struct FrontEndStateMachineSML {
             *state<class Initial> + event<OnActivateEvent> / InitializeHouseMaker{} = state<MakerStateMachine>
 
             ,state<MakerStateMachine> + event<OnAltPressedEvent> / []{} = state<BespokeStateMachine>
+            ,state<MakerStateMachine> + event<OnBalconyBuilderEvent> / []{} = state<BalconyStateMachine>
             ,state<MakerStateMachine> + event<OnTourToggleEvent> / ActivateTourView{} = state<TourStateMachine>
             ,state<MakerStateMachine> + event<OnExploreToggleEvent> / ActivateWalkView{} = state<ExploreStateMachine>
             ,state<MakerStateMachine> + event<OnDollyHouseToggleEvent> / ActivateDollyHouseView{} = state<DollyHouseStateMachine>
@@ -43,6 +45,8 @@ struct FrontEndStateMachineSML {
 
             ,state<BespokeStateMachine> + event<OnFinaliseEvent> / FinaliseBespoke{} = state<MakerStateMachine>
             ,state<BespokeStateMachine> + event<OnEscapeEvent> / ExitBespoke{} = state<MakerStateMachine>
+
+            ,state<BalconyStateMachine> + event<OnFinaliseEvent> / FinaliseBalcony{} = state<MakerStateMachine>
 
             ,state<TourStateMachine> + event<OnTopDownToggleEvent> / ActivateTopDownView{} = state<TopDownStateMachine>
             ,state<TourStateMachine> + event<OnExploreToggleEvent> / ActivateWalkView{} = state<ExploreStateMachine>

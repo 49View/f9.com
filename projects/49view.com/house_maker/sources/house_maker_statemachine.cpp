@@ -20,7 +20,8 @@ HouseMakerStateMachine::HouseMakerStateMachine( SceneGraph& _sg, RenderOrchestra
         asg(_asg), arc(_arc), selectionEditor(_se), plo(_plo) {
     arc.renderMode(FloorPlanRenderMode::Debug3d);
     rb = std::make_shared<RoomBuilder>(_sg, _rsg);
-    backEnd = std::make_shared<FrontEnd>(*this, this->cliParams, rb.get(), _asg, _sg, _rsg, _arc);
+    bb = std::make_shared<BalconyBuilder>(_sg, _rsg);
+    backEnd = std::make_shared<FrontEnd>(*this, this->cliParams, rb.get(), bb.get(), _asg, _sg, _rsg, _arc);
     gui = std::make_shared<HouseMakerGUI<FrontEnd>>(this->cliParams, _sg, _rsg, _asg, _arc, _se, _plo);
     gui->setBackEnd(backEnd);
 }
@@ -88,14 +89,11 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
     if ( _aid.TI().checkKeyToggleOn(GMK_C) ) {
         backEnd->process_event(OnKeyToggleEvent{ GMK_C });
     }
-    if ( _aid.TI().checkKeyToggleOn(GMK_R) ) {
-        backEnd->process_event(OnKeyToggleEvent{ GMK_R });
+    if ( _aid.TI().checkKeyToggleOn(GMK_B) ) {
+        backEnd->process_event(OnBalconyBuilderEvent{});
     }
     if ( _aid.TI().checkKeyToggleOn(GMK_APOSTROPHE) ) {
         showGUI = !showGUI;
-    }
-    if ( _aid.TI().checkKeyToggleOn(GMK_L) ) {
-        backEnd->process_event(OnLoadFloorPlanEvent{ plo.PropertyList().back() });
     }
     if ( _aid.TI().checkKeyToggleOn(GMK_SEMICOLON) ) {
         fader(0.9f, 1.0f, rsg.RR().CLI(CommandBufferLimits::UI2dStart));
