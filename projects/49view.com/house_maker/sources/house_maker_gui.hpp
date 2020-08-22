@@ -128,6 +128,9 @@ public:
             if ( ImGui::SliderFloat("NorthAngle", &asg.H()->sourceData.northCompassAngle, 0.0f, TWO_PI) ) {
                 this->backEnd->process_event(OnUpdateHMBEvent{});
             }
+            if ( ImGui::Button("Toggle Collisions") ) {
+                asg.toggleCollisions();
+            }
             if ( ImGui::SliderFloat("Contrast", &asg.H()->sourceData.sourceContrast, 0.0f, 20.0f) ) {
                 this->backEnd->process_event(OnUpdateHMBEvent{});
             }
