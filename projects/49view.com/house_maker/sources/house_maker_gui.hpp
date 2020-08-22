@@ -232,7 +232,7 @@ public:
 //                asg.H()->mFloors[0]->z = 0.0f;
 //                asg.H()->mFloors[0]->number = 0;
 //                for ( auto& room : asg.H()->mFloors[0]->rooms ) {
-//                    room->BBox3dW().translate(V3f::UP_AXIS_NEG*2.75f);
+//                    room->BBox3dEmergencyWrite().translate(V3f::UP_AXIS_NEG*2.75f);
 //                }
 //            }
 
