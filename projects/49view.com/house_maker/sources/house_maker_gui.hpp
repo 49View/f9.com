@@ -128,6 +128,9 @@ public:
             if ( ImGui::SliderFloat("NorthAngle", &asg.H()->sourceData.northCompassAngle, 0.0f, TWO_PI) ) {
                 this->backEnd->process_event(OnUpdateHMBEvent{});
             }
+            if ( ImGui::InputFloat("Elevation", &asg.H()->elevation, 3.0f, 9.0f, "%.0f") ) {
+                this->backEnd->process_event(OnHouseChangeElevationEvent{});
+            }
             if ( ImGui::Button("Toggle Collisions") ) {
                 asg.toggleCollisions();
             }
