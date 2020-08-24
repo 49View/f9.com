@@ -232,14 +232,6 @@ public:
             auto colorOk = C4f::SPRING_GREEN;
             auto colorBad = C4f::INDIAN_RED;
 
-//            if ( ImGui::Button("Move First Floor Down") ) {
-//                asg.H()->mFloors[0]->z = 0.0f;
-//                asg.H()->mFloors[0]->number = 0;
-//                for ( auto& room : asg.H()->mFloors[0]->rooms ) {
-//                    room->BBox3dEmergencyWrite().translate(V3f::UP_AXIS_NEG*2.75f);
-//                }
-//            }
-
             if ( ImGui::Button("Set Starting Position") ) {
                 asg.H()->bestInternalViewingPosition = rsg.DC()->getPosition();
                 asg.H()->bestInternalViewingAngle = rsg.DC()->quatAngle();
