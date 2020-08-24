@@ -12,7 +12,7 @@
 #include <eh_arch/controller/arch_orchestrator.hpp>
 #include <eh_arch/models/property_list.hpp>
 #include <eh_arch/makers/image/house_maker_bitmap.hpp>
-#include <eh_arch/makers/balcony_builder.hpp>
+#include <eh_arch/makers/outdoor_area_builder.hpp>
 #include <eh_arch/makers/room_builder.hpp>
 #include <eh_arch/controller/arch_render_controller.hpp>
 #include "house_maker_gui.hpp"
@@ -38,7 +38,7 @@ protected:
 
 protected:
     std::shared_ptr<RoomBuilder> rb;
-    std::shared_ptr<BalconyBuilder> bb;
+    std::shared_ptr<OutdoorAreaBuilder> bb;
     ArchOrchestrator& asg;
     ArchRenderController& arc;
     std::shared_ptr<HouseMakerGUI<FrontEnd>> gui;
