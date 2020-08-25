@@ -25,6 +25,7 @@
 #include <eh_arch/render/house_render.hpp>
 #include <eh_arch/controller/arch_orchestrator.hpp>
 #include <eh_arch/controller/arch_render_controller.hpp>
+#include <eh_arch/controller/gui/outdoor_area_ui.hpp>
 #include <eh_arch/makers/image/house_maker_bitmap.hpp>
 
 #include "property_listing_orchestrator.hpp"
@@ -33,8 +34,8 @@ template<typename T>
 class HouseMakerGUI : public BackEndService<T> {
 public:
     HouseMakerGUI( const CLIParamMap& _cli, SceneGraph& sg, RenderOrchestrator& rsg, ArchOrchestrator& asg, ArchRenderController& arc,
-                   HouseMakerSelectionEditor& selectionEditor, PropertyListingOrchestrator& _plo ) : cli(_cli), sg(sg), rsg(rsg), asg(asg), arc(arc),
-                                                                  selectionEditor(selectionEditor), plo(_plo) {
+                   HouseMakerSelectionEditor& selectionEditor, PropertyListingOrchestrator& _plo, OutdoorAreaUI& _oa ) : cli(_cli), sg(sg), rsg(rsg), asg(asg), arc(arc),
+                                                                  selectionEditor(selectionEditor), plo(_plo), outdoorAreaUI(_oa) {
         rsg.setDragAndDropFunction(std::bind(&HouseMakerGUI::elaborateHouseCallback, this, std::placeholders::_1));
         Http::getNoCache(Url{ "/property/list/0/40" }, [&]( HttpResponeParams params ) {
             plo.PropertyList() = deserializeVector<PropertyListing>(params.BufferString());
@@ -344,5 +345,6 @@ private:
     ArchRenderController& arc;
     HouseMakerSelectionEditor& selectionEditor;
     PropertyListingOrchestrator& plo;
+    OutdoorAreaUI& outdoorAreaUI;
     floata floorPlanTransparency;
 };
