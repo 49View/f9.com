@@ -26,7 +26,7 @@ struct FrontEndStateMachineSML {
             *state<class Initial> + event<OnActivateEvent> / InitializeHouseMaker{} = state<MakerStateMachine>
 
             ,state<MakerStateMachine> + event<OnAltPressedEvent> / []{} = state<BespokeStateMachine>
-            ,state<MakerStateMachine> + event<OnOutdoorAreaBuilderEvent> / []{} = state<OutdoorAreaStateMachine>
+            ,state<MakerStateMachine> + event<OnActivateOutdoorAreaBuilderEvent> / ActivateOutdoorAreaUI{} = state<OutdoorAreaStateMachine>
             ,state<MakerStateMachine> + event<OnTourToggleEvent> / ActivateTourView{} = state<TourStateMachine>
             ,state<MakerStateMachine> + event<OnExploreToggleEvent> / ActivateWalkView{} = state<ExploreStateMachine>
             ,state<MakerStateMachine> + event<OnDollyHouseToggleEvent> / ActivateDollyHouseView{} = state<DollyHouseStateMachine>
@@ -47,6 +47,7 @@ struct FrontEndStateMachineSML {
             ,state<BespokeStateMachine> + event<OnEscapeEvent> / ExitBespoke{} = state<MakerStateMachine>
 
             ,state<OutdoorAreaStateMachine> + event<OnEscapeEvent> / ExitOutdoorArea{} = state<MakerStateMachine>
+            ,state<OutdoorAreaStateMachine> + event<OnActivateOutdoorAreaBuilderEvent> / ExitOutdoorArea{} = state<MakerStateMachine>
 
             ,state<TourStateMachine> + event<OnTopDownToggleEvent> / ActivateTopDownView{} = state<TopDownStateMachine>
             ,state<TourStateMachine> + event<OnExploreToggleEvent> / ActivateWalkView{} = state<ExploreStateMachine>

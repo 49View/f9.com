@@ -302,6 +302,7 @@ public:
         ImGuiLuaConsole(rsg);
 
         selectionEditor.update(this->BackEnd(), *cli.getParam("mediaFolder"));
+        outdoorAreaUI.update( asg, rsg );
 
 //        ImGui::ShowDemoWindow();
 

@@ -21,7 +21,7 @@ HouseMakerStateMachine::HouseMakerStateMachine( SceneGraph& _sg, RenderOrchestra
     arc.renderMode(FloorPlanRenderMode::Debug3d);
     rb = std::make_shared<RoomBuilder>(_sg, _rsg);
     bb = std::make_shared<OutdoorAreaBuilder>(_sg, _rsg);
-    backEnd = std::make_shared<FrontEnd>(*this, this->cliParams, rb.get(), bb.get(), _asg, _sg, _rsg, _arc);
+    backEnd = std::make_shared<FrontEnd>(*this, this->cliParams, rb.get(), bb.get(), _asg, _sg, _rsg, _arc, _oaUI);
     gui = std::make_shared<HouseMakerGUI<FrontEnd>>(this->cliParams, _sg, _rsg, _asg, _arc, _se, _plo, _oaUI);
     gui->setBackEnd(backEnd);
 }
@@ -90,7 +90,7 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
         backEnd->process_event(OnKeyToggleEvent{ GMK_C });
     }
     if ( _aid.TI().checkKeyToggleOn(GMK_B) ) {
-        backEnd->process_event(OnOutdoorAreaBuilderEvent{});
+        backEnd->process_event(OnActivateOutdoorAreaBuilderEvent{});
     }
     if ( _aid.TI().checkKeyToggleOn(GMK_APOSTROPHE) ) {
         showGUI = !showGUI;
