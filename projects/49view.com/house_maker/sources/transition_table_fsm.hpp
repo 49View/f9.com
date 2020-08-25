@@ -46,7 +46,7 @@ struct FrontEndStateMachineSML {
             ,state<BespokeStateMachine> + event<OnFinaliseEvent> / FinaliseBespoke{} = state<MakerStateMachine>
             ,state<BespokeStateMachine> + event<OnEscapeEvent> / ExitBespoke{} = state<MakerStateMachine>
 
-            ,state<OutdoorAreaStateMachine> + event<OnFinaliseEvent> / FinaliseOutdoorArea{} = state<MakerStateMachine>
+            ,state<OutdoorAreaStateMachine> + event<OnEscapeEvent> / ExitOutdoorArea{} = state<MakerStateMachine>
 
             ,state<TourStateMachine> + event<OnTopDownToggleEvent> / ActivateTopDownView{} = state<TopDownStateMachine>
             ,state<TourStateMachine> + event<OnExploreToggleEvent> / ActivateWalkView{} = state<ExploreStateMachine>
