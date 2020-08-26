@@ -20,8 +20,7 @@ HouseMakerStateMachine::HouseMakerStateMachine( SceneGraph& _sg, RenderOrchestra
         asg(_asg), arc(_arc), selectionEditor(_se), plo(_plo), outdoorAreaUI(_oaUI) {
     arc.renderMode(FloorPlanRenderMode::Debug3d);
     rb = std::make_shared<RoomBuilder>(_sg, _rsg);
-    bb = std::make_shared<OutdoorAreaBuilder>(_sg, _rsg);
-    backEnd = std::make_shared<FrontEnd>(*this, this->cliParams, rb.get(), bb.get(), _asg, _sg, _rsg, _arc, _oaUI);
+    backEnd = std::make_shared<FrontEnd>(*this, this->cliParams, rb.get(), _asg, _sg, _rsg, _arc, _oaUI);
     gui = std::make_shared<HouseMakerGUI<FrontEnd>>(this->cliParams, _sg, _rsg, _asg, _arc, _se, _plo, _oaUI);
     gui->setBackEnd(backEnd);
 }

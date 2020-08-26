@@ -25,7 +25,7 @@
 #include <eh_arch/render/house_render.hpp>
 #include <eh_arch/controller/arch_orchestrator.hpp>
 #include <eh_arch/controller/arch_render_controller.hpp>
-#include <eh_arch/controller/gui/outdoor_area_ui.hpp>
+#include <eh_arch/controller/outdoorArea/outdoor_area_ui.hpp>
 #include <eh_arch/makers/image/house_maker_bitmap.hpp>
 
 #include "property_listing_orchestrator.hpp"
