@@ -12,7 +12,8 @@
 
 #include <eh_arch/state_machine/arch_sm_actions__fsm.hpp>
 #include <eh_arch/makers/arch_sm_actions_bespoke_builder.hpp>
-#include <eh_arch/controller/outdoorArea/outdoor_area_builder_sm_actions.hpp>
+#include <eh_arch/controller/outdoor_area/outdoor_area_sm_actions.hpp>
+#include <eh_arch/controller/outdoor_area/outdoor_area_sm_transition_table.hpp>
 #include <eh_arch/makers/arch_sm_actions_maker_builder.hpp>
 
 #include <eh_arch/state_machine/arch_transition_tables_viewing_modes.hpp>

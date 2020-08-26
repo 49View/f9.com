@@ -11,8 +11,8 @@
 #include <render_scene_graph/scene_loader.hpp>
 #include <eh_arch/controller/arch_orchestrator.hpp>
 #include <eh_arch/controller/arch_render_controller.hpp>
-#include <eh_arch/controller/outdoorArea/outdoor_area_ui.hpp>
-#include <eh_arch/controller/outdoorArea/outdoor_area_builder.hpp>
+#include <eh_arch/controller/outdoor_area/outdoor_area_ui.hpp>
+#include <eh_arch/controller/outdoor_area/outdoor_area_builder.hpp>
 #include <eh_arch/models/property_list.hpp>
 #include <eh_arch/makers/image/house_maker_bitmap.hpp>
 #include <eh_arch/makers/room_builder.hpp>
