@@ -136,37 +136,7 @@ public:
             if ( ImGui::Button("Toggle Collisions") ) {
                 asg.toggleCollisions();
             }
-            if ( ImGui::SliderFloat("Contrast", &asg.H()->sourceData.sourceContrast, 0.0f, 20.0f) ) {
-                this->backEnd->process_event(OnUpdateHMBEvent{});
-            }
-            if ( ImGui::SliderFloat("Brightness", &asg.H()->sourceData.sourceBrightness, 0.0f, 255.0f) ) {
-                this->backEnd->process_event(OnUpdateHMBEvent{});
-            }
-            if ( ImGui::SliderFloat("Gaussian", &asg.H()->sourceData.sourceGaussian, 1.0f, 5.0f) ) {
-                this->backEnd->process_event(OnUpdateHMBEvent{});
-            }
-            if ( ImGui::SliderInt("Gaussian Sigma", &asg.H()->sourceData.sourceGaussianSigma, 1, 21) ) {
-                if ( !isOdd(asg.H()->sourceData.sourceGaussianSigma) ) asg.H()->sourceData.sourceGaussianSigma++;
-                this->backEnd->process_event(OnUpdateHMBEvent{});
-            }
-            if ( ImGui::SliderFloat("Gaussian Beta", &asg.H()->sourceData.sourceGaussianBeta, -5.0f, 5.0f) ) {
-                this->backEnd->process_event(OnUpdateHMBEvent{});
-            }
-            if ( ImGui::SliderFloat("minBinThreshold", &asg.H()->sourceData.minBinThreshold, 0.0f, 255.0f) ) {
-                this->backEnd->process_event(OnUpdateHMBEvent{});
-            }
-            if ( ImGui::SliderFloat("maxBinThreshold", &asg.H()->sourceData.maxBinThreshold, 0.0f, 255.0f) ) {
-                this->backEnd->process_event(OnUpdateHMBEvent{});
-            }
-            auto texBin = rsg.RR().TM()->get(asg.H()->propertyId + "_bin");
-            if ( texBin ) {
-                float tSize = 250.0f;
-                auto ar = texBin->getAspectRatioVector();
-                ImGui::Image(reinterpret_cast<ImTextureID *>(texBin->getHandle()), ImVec2{ tSize, tSize / ar.y() });
-            }
 
-            ImGui::Text("Winning Strategy: %d", asg.H()->sourceData.winningStrategy);
-            ImGui::Text("Winning Margin: %f", asg.H()->sourceData.winningMargin);
             static float oldScaleFactor = asg.H()->sourceData.rescaleFactor;
             static float currentScaleFactorMeters = centimetersToMeters(asg.H()->sourceData.rescaleFactor);
 
@@ -229,6 +199,42 @@ public:
         ImGui::End();
 
         if ( asg.H() ) {
+            ImGui::Begin("Conversion Parameters");
+            if ( ImGui::SliderFloat("Contrast", &asg.H()->sourceData.sourceContrast, 0.0f, 20.0f) ) {
+                this->backEnd->process_event(OnUpdateHMBEvent{});
+            }
+            if ( ImGui::SliderFloat("Brightness", &asg.H()->sourceData.sourceBrightness, 0.0f, 255.0f) ) {
+                this->backEnd->process_event(OnUpdateHMBEvent{});
+            }
+            if ( ImGui::SliderFloat("Gaussian", &asg.H()->sourceData.sourceGaussian, 1.0f, 5.0f) ) {
+                this->backEnd->process_event(OnUpdateHMBEvent{});
+            }
+            if ( ImGui::SliderInt("Gaussian Sigma", &asg.H()->sourceData.sourceGaussianSigma, 1, 21) ) {
+                if ( !isOdd(asg.H()->sourceData.sourceGaussianSigma) ) asg.H()->sourceData.sourceGaussianSigma++;
+                this->backEnd->process_event(OnUpdateHMBEvent{});
+            }
+            if ( ImGui::SliderFloat("Gaussian Beta", &asg.H()->sourceData.sourceGaussianBeta, -5.0f, 5.0f) ) {
+                this->backEnd->process_event(OnUpdateHMBEvent{});
+            }
+            if ( ImGui::SliderFloat("minBinThreshold", &asg.H()->sourceData.minBinThreshold, 0.0f, 255.0f) ) {
+                this->backEnd->process_event(OnUpdateHMBEvent{});
+            }
+            if ( ImGui::SliderFloat("maxBinThreshold", &asg.H()->sourceData.maxBinThreshold, 0.0f, 255.0f) ) {
+                this->backEnd->process_event(OnUpdateHMBEvent{});
+            }
+            auto texBin = rsg.RR().TM()->get(asg.H()->propertyId + "_bin");
+            if ( texBin ) {
+                float tSize = 250.0f;
+                auto ar = texBin->getAspectRatioVector();
+                ImGui::Image(reinterpret_cast<ImTextureID *>(texBin->getHandle()), ImVec2{ tSize, tSize / ar.y() });
+            }
+
+            ImGui::Text("Winning Strategy: %d", asg.H()->sourceData.winningStrategy);
+            ImGui::Text("Winning Margin: %f", asg.H()->sourceData.winningMargin);
+
+            ImGui::End();
+
+
             ImGui::Begin("House Properties");
             auto colorOk = C4f::SPRING_GREEN;
             auto colorBad = C4f::INDIAN_RED;
