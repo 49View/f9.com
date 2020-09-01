@@ -25,6 +25,7 @@
 #include <eh_arch/render/house_render.hpp>
 #include <eh_arch/controller/arch_orchestrator.hpp>
 #include <eh_arch/controller/arch_render_controller.hpp>
+#include <eh_arch/controller/outdoor_area/outdoor_area_ui.hpp>
 #include <eh_arch/makers/image/house_maker_bitmap.hpp>
 
 #include "property_listing_orchestrator.hpp"
@@ -33,8 +34,8 @@ template<typename T>
 class HouseMakerGUI : public BackEndService<T> {
 public:
     HouseMakerGUI( const CLIParamMap& _cli, SceneGraph& sg, RenderOrchestrator& rsg, ArchOrchestrator& asg, ArchRenderController& arc,
-                   HouseMakerSelectionEditor& selectionEditor, PropertyListingOrchestrator& _plo ) : cli(_cli), sg(sg), rsg(rsg), asg(asg), arc(arc),
-                                                                  selectionEditor(selectionEditor), plo(_plo) {
+                   HouseMakerSelectionEditor& selectionEditor, PropertyListingOrchestrator& _plo, OutdoorAreaUI& _oa ) : cli(_cli), sg(sg), rsg(rsg), asg(asg), arc(arc),
+                                                                  selectionEditor(selectionEditor), plo(_plo), outdoorAreaUI(_oa) {
         rsg.setDragAndDropFunction(std::bind(&HouseMakerGUI::elaborateHouseCallback, this, std::placeholders::_1));
         Http::getNoCache(Url{ "/property/list/0/40" }, [&]( HttpResponeParams params ) {
             plo.PropertyList() = deserializeVector<PropertyListing>(params.BufferString());
@@ -128,37 +129,14 @@ public:
             if ( ImGui::SliderFloat("NorthAngle", &asg.H()->sourceData.northCompassAngle, 0.0f, TWO_PI) ) {
                 this->backEnd->process_event(OnUpdateHMBEvent{});
             }
-            if ( ImGui::SliderFloat("Contrast", &asg.H()->sourceData.sourceContrast, 0.0f, 20.0f) ) {
-                this->backEnd->process_event(OnUpdateHMBEvent{});
+            static float slElevation = asg.H()->Elevation();
+            if ( ImGui::InputFloat("Elevation", &slElevation, 3.0f, 9.0f, "%.0f") ) {
+                this->backEnd->process_event(OnHouseChangeElevationEvent{slElevation});
             }
-            if ( ImGui::SliderFloat("Brightness", &asg.H()->sourceData.sourceBrightness, 0.0f, 255.0f) ) {
-                this->backEnd->process_event(OnUpdateHMBEvent{});
-            }
-            if ( ImGui::SliderFloat("Gaussian", &asg.H()->sourceData.sourceGaussian, 1.0f, 5.0f) ) {
-                this->backEnd->process_event(OnUpdateHMBEvent{});
-            }
-            if ( ImGui::SliderInt("Gaussian Sigma", &asg.H()->sourceData.sourceGaussianSigma, 1, 21) ) {
-                if ( !isOdd(asg.H()->sourceData.sourceGaussianSigma) ) asg.H()->sourceData.sourceGaussianSigma++;
-                this->backEnd->process_event(OnUpdateHMBEvent{});
-            }
-            if ( ImGui::SliderFloat("Gaussian Beta", &asg.H()->sourceData.sourceGaussianBeta, -5.0f, 5.0f) ) {
-                this->backEnd->process_event(OnUpdateHMBEvent{});
-            }
-            if ( ImGui::SliderFloat("minBinThreshold", &asg.H()->sourceData.minBinThreshold, 0.0f, 255.0f) ) {
-                this->backEnd->process_event(OnUpdateHMBEvent{});
-            }
-            if ( ImGui::SliderFloat("maxBinThreshold", &asg.H()->sourceData.maxBinThreshold, 0.0f, 255.0f) ) {
-                this->backEnd->process_event(OnUpdateHMBEvent{});
-            }
-            auto texBin = rsg.RR().TM()->get(asg.H()->propertyId + "_bin");
-            if ( texBin ) {
-                float tSize = 250.0f;
-                auto ar = texBin->getAspectRatioVector();
-                ImGui::Image(reinterpret_cast<ImTextureID *>(texBin->getHandle()), ImVec2{ tSize, tSize / ar.y() });
+            if ( ImGui::Button("Toggle Collisions") ) {
+                asg.toggleCollisions();
             }
 
-            ImGui::Text("Winning Strategy: %d", asg.H()->sourceData.winningStrategy);
-            ImGui::Text("Winning Margin: %f", asg.H()->sourceData.winningMargin);
             static float oldScaleFactor = asg.H()->sourceData.rescaleFactor;
             static float currentScaleFactorMeters = centimetersToMeters(asg.H()->sourceData.rescaleFactor);
 
@@ -221,6 +199,42 @@ public:
         ImGui::End();
 
         if ( asg.H() ) {
+            ImGui::Begin("Conversion Parameters");
+            if ( ImGui::SliderFloat("Contrast", &asg.H()->sourceData.sourceContrast, 0.0f, 20.0f) ) {
+                this->backEnd->process_event(OnUpdateHMBEvent{});
+            }
+            if ( ImGui::SliderFloat("Brightness", &asg.H()->sourceData.sourceBrightness, 0.0f, 255.0f) ) {
+                this->backEnd->process_event(OnUpdateHMBEvent{});
+            }
+            if ( ImGui::SliderFloat("Gaussian", &asg.H()->sourceData.sourceGaussian, 1.0f, 5.0f) ) {
+                this->backEnd->process_event(OnUpdateHMBEvent{});
+            }
+            if ( ImGui::SliderInt("Gaussian Sigma", &asg.H()->sourceData.sourceGaussianSigma, 1, 21) ) {
+                if ( !isOdd(asg.H()->sourceData.sourceGaussianSigma) ) asg.H()->sourceData.sourceGaussianSigma++;
+                this->backEnd->process_event(OnUpdateHMBEvent{});
+            }
+            if ( ImGui::SliderFloat("Gaussian Beta", &asg.H()->sourceData.sourceGaussianBeta, -5.0f, 5.0f) ) {
+                this->backEnd->process_event(OnUpdateHMBEvent{});
+            }
+            if ( ImGui::SliderFloat("minBinThreshold", &asg.H()->sourceData.minBinThreshold, 0.0f, 255.0f) ) {
+                this->backEnd->process_event(OnUpdateHMBEvent{});
+            }
+            if ( ImGui::SliderFloat("maxBinThreshold", &asg.H()->sourceData.maxBinThreshold, 0.0f, 255.0f) ) {
+                this->backEnd->process_event(OnUpdateHMBEvent{});
+            }
+            auto texBin = rsg.RR().TM()->get(asg.H()->propertyId + "_bin");
+            if ( texBin ) {
+                float tSize = 250.0f;
+                auto ar = texBin->getAspectRatioVector();
+                ImGui::Image(reinterpret_cast<ImTextureID *>(texBin->getHandle()), ImVec2{ tSize, tSize / ar.y() });
+            }
+
+            ImGui::Text("Winning Strategy: %d", asg.H()->sourceData.winningStrategy);
+            ImGui::Text("Winning Margin: %f", asg.H()->sourceData.winningMargin);
+
+            ImGui::End();
+
+
             ImGui::Begin("House Properties");
             auto colorOk = C4f::SPRING_GREEN;
             auto colorBad = C4f::INDIAN_RED;
@@ -294,6 +308,7 @@ public:
         ImGuiLuaConsole(rsg);
 
         selectionEditor.update(this->BackEnd(), *cli.getParam("mediaFolder"));
+        outdoorAreaUI.update( asg, rsg );
 
 //        ImGui::ShowDemoWindow();
 
@@ -337,5 +352,6 @@ private:
     ArchRenderController& arc;
     HouseMakerSelectionEditor& selectionEditor;
     PropertyListingOrchestrator& plo;
+    OutdoorAreaUI& outdoorAreaUI;
     floata floorPlanTransparency;
 };

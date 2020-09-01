@@ -4,7 +4,9 @@
 
 #include "house_maker_statemachine.h"
 #include <core/math/vector_util.hpp>
+#include <core/resources/resource_builder.hpp>
 #include <graphics/render_light_manager.h>
+#include <poly/converters/gltf2/gltf2.h>
 #include <render_scene_graph/backend_io_services.hpp>
 
 #include <eh_arch/render/wall_render.hpp>
@@ -14,14 +16,14 @@
 #include "house_maker_gui.hpp"
 
 HouseMakerStateMachine::HouseMakerStateMachine( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchOrchestrator& _asg,
-                                                ArchRenderController& _arc, HouseMakerSelectionEditor& _se, PropertyListingOrchestrator& _plo ) :
+                                                ArchRenderController& _arc, HouseMakerSelectionEditor& _se, PropertyListingOrchestrator& _plo, OutdoorAreaUI& _oaUI ) :
         RunLoopBackEndBase(_sg, _rsg),
         ScenePreLoader(_sg, _rsg),
-        asg(_asg), arc(_arc), selectionEditor(_se), plo(_plo) {
+        asg(_asg), arc(_arc), selectionEditor(_se), plo(_plo), outdoorAreaUI(_oaUI) {
     arc.renderMode(FloorPlanRenderMode::Debug3d);
     rb = std::make_shared<RoomBuilder>(_sg, _rsg);
-    backEnd = std::make_shared<FrontEnd>(*this, this->cliParams, rb.get(), _asg, _sg, _rsg, _arc);
-    gui = std::make_shared<HouseMakerGUI<FrontEnd>>(this->cliParams, _sg, _rsg, _asg, _arc, _se, _plo);
+    backEnd = std::make_shared<FrontEnd>(*this, this->cliParams, rb.get(), _asg, _sg, _rsg, _arc, _oaUI);
+    gui = std::make_shared<HouseMakerGUI<FrontEnd>>(this->cliParams, _sg, _rsg, _asg, _arc, _se, _plo, _oaUI);
     gui->setBackEnd(backEnd);
 }
 
@@ -30,6 +32,9 @@ void HouseMakerStateMachine::activateImpl() {
 }
 
 void HouseMakerStateMachine::activatePostLoad() {
+
+//    auto cc = sg.GB<GT::Shape>(ShapeType::Cube);
+//    GLTF2Service::save( sg, cc );
 
     RoomServiceFurniture::addDefaultFurnitureSet("uk_default");
     asg.loadFurnitureMapStorage("uk_default");
@@ -88,14 +93,11 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
     if ( _aid.TI().checkKeyToggleOn(GMK_C) ) {
         backEnd->process_event(OnKeyToggleEvent{ GMK_C });
     }
-    if ( _aid.TI().checkKeyToggleOn(GMK_R) ) {
-        backEnd->process_event(OnKeyToggleEvent{ GMK_R });
+    if ( _aid.TI().checkKeyToggleOn(GMK_B) ) {
+        backEnd->process_event(OnActivateOutdoorAreaBuilderEvent{});
     }
     if ( _aid.TI().checkKeyToggleOn(GMK_APOSTROPHE) ) {
         showGUI = !showGUI;
-    }
-    if ( _aid.TI().checkKeyToggleOn(GMK_L) ) {
-        backEnd->process_event(OnLoadFloorPlanEvent{ plo.PropertyList().back() });
     }
     if ( _aid.TI().checkKeyToggleOn(GMK_SEMICOLON) ) {
         fader(0.9f, 1.0f, rsg.RR().CLI(CommandBufferLimits::UI2dStart));
