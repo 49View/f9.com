@@ -4,7 +4,9 @@
 
 #include "house_maker_statemachine.h"
 #include <core/math/vector_util.hpp>
+#include <core/resources/resource_builder.hpp>
 #include <graphics/render_light_manager.h>
+#include <poly/converters/gltf2/gltf2.h>
 #include <render_scene_graph/backend_io_services.hpp>
 
 #include <eh_arch/render/wall_render.hpp>
@@ -30,6 +32,9 @@ void HouseMakerStateMachine::activateImpl() {
 }
 
 void HouseMakerStateMachine::activatePostLoad() {
+
+//    auto cc = sg.GB<GT::Shape>(ShapeType::Cube);
+//    GLTF2Service::save( sg, cc );
 
     RoomServiceFurniture::addDefaultFurnitureSet("uk_default");
     asg.loadFurnitureMapStorage("uk_default");
