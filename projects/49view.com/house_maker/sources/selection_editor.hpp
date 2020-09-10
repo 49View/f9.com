@@ -248,7 +248,7 @@ private:
 
 //        auto nodes = sg.Nodes();
 //        auto node = *nodes.begin();
-//        auto sel = Selectable{ C4f::RED, node.second->TRS(), node.second, SelectableFlag::Selected};
+//        auto sel = Selectable{ C4fc::RED, node.second->TRS(), node.second, SelectableFlag::Selected};
 //        showGizmo2( sel, rsg.DC() );
     }
 

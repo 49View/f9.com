@@ -180,9 +180,9 @@ public:
 
         ImGui::Begin("Listing");
         for ( const auto& property : plo.PropertyList() ) {
-            C4f color = C4f::DARK_BLUE;
-            if ( property.status == "live" ) color = C4f::DARK_RED;
-            if ( property.status == "defaults" ) color = C4f::FOREST_GREEN;
+            C4f color = C4fc::DARK_BLUE;
+            if ( property.status == "live" ) color = C4fc::DARK_RED;
+            if ( property.status == "defaults" ) color = C4fc::FOREST_GREEN;
 
             ImGui::PushID(property.status.c_str());
             ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(color.x(), color.y(), color.z(), 1.0f));
@@ -236,15 +236,15 @@ public:
 
 
             ImGui::Begin("House Properties");
-            auto colorOk = C4f::SPRING_GREEN;
-            auto colorBad = C4f::INDIAN_RED;
+            auto colorOk = C4fc::SPRING_GREEN;
+            auto colorBad = C4fc::INDIAN_RED;
 
             if ( ImGui::Button("Set Starting Position") ) {
                 asg.H()->bestInternalViewingPosition = rsg.DC()->getPosition();
                 asg.H()->bestInternalViewingAngle = rsg.DC()->quatAngle();
             }
             {
-                bool bestInternalPositionSet = asg.H()->bestInternalViewingPosition != V3f::ZERO;
+                bool bestInternalPositionSet = asg.H()->bestInternalViewingPosition != V3fc::ZERO;
                 auto color = bestInternalPositionSet ? colorOk : colorBad;
                 std::string ackText = bestInternalPositionSet ? "OK" : "Not set";
                 ImGui::SameLine();
@@ -256,7 +256,7 @@ public:
                 asg.H()->bestDollyViewingAngle = rsg.DC()->quatAngle();
             }
             {
-                bool bestDollyPositionSet = asg.H()->bestDollyViewingPosition != V3f::ZERO;
+                bool bestDollyPositionSet = asg.H()->bestDollyViewingPosition != V3fc::ZERO;
                 auto color = bestDollyPositionSet ? colorOk : colorBad;
                 std::string ackText = bestDollyPositionSet ? "OK" : "Not set";
                 ImGui::SameLine();

@@ -34,8 +34,8 @@ void HouseMakerStateMachine::activatePostLoad() {
     RoomServiceFurniture::addDefaultFurnitureSet("uk_default");
     asg.loadFurnitureMapStorage("uk_default");
 
-    rsg.RR().drawGridV2(CommandBufferLimits::GridStart, 1.0f, ( Color4f::PASTEL_GRAYLIGHT ),
-                        ( Color4f::DARK_GRAY ), V2f{ 45.0f }, 0.015f);
+    rsg.RR().drawGridV2(CommandBufferLimits::GridStart, 1.0f, ( C4fc::PASTEL_GRAYLIGHT ),
+                        ( C4fc::DARK_GRAY ), V2f{ 45.0f }, 0.015f);
     rsg.createSkybox(SkyBoxInitParams{ SkyBoxMode::CubeProcedural });
 
     rsg.useSkybox(true);

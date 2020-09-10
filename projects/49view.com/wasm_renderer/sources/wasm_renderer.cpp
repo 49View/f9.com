@@ -28,7 +28,7 @@ Showcaser::Showcaser( SceneGraph& _sg, RenderOrchestrator& _rsg, ArchOrchestrato
 
 void Showcaser::postLoadHouseCallback() {
     asg.make3dHouse([&]() {
-        Renderer::clearColor(C4f::XTORGBA("e0e0e0"));
+        Renderer::clearColor(C4fc::XTORGBA("e0e0e0"));
         if ( HouseService::hasTour(asg.H()) ) {
             backEnd->process_event(OnTourToggleEvent{});
         } else {
