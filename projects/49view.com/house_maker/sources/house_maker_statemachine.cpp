@@ -79,6 +79,10 @@ void HouseMakerStateMachine::updateImpl( const AggregatedInputData& _aid ) {
         backEnd->process_event(OnDollyHouseToggleEvent{});
     }
 
+    if ( _aid.TI().checkKeyToggleOn( GMK_L )) {
+        backEnd->process_event(OnBakeLightmapsEvent{});
+    }
+
     if ( _aid.TI().checkKeyToggleOn(GMK_Z) ) {
         backEnd->process_event(OnKeyToggleEvent{ GMK_Z });
     }

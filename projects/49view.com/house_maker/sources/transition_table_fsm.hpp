@@ -31,6 +31,9 @@ struct FrontEndStateMachineSML {
             ,state<MakerStateMachine> + event<OnTourToggleEvent> / ActivateTourView{} = state<TourStateMachine>
             ,state<MakerStateMachine> + event<OnExploreToggleEvent> / ActivateWalkView{} = state<ExploreStateMachine>
             ,state<MakerStateMachine> + event<OnDollyHouseToggleEvent> / ActivateDollyHouseView{} = state<DollyHouseStateMachine>
+#ifndef _PRODUCTION_
+            ,state<MakerStateMachine> + event<OnBakeLightmapsEvent> / BakeLightmaps{}
+#endif
             ,state<MakerStateMachine> + event<OnFirstTimeTouchDownViewportSpaceEvent>[TouchedDownFirstTimeFeatureManipulationGuard{}] / EnterFeatureManipulation{} = state<EditStateMachine>
             ,state<MakerStateMachine> + event<OnSingleTapViewportSpaceEvent>[SingleTapViewportHouseMakerManipulationGuard{}] / EnterFeatureManipulation{} = state<EditStateMachine>
 
