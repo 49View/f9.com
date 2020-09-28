@@ -15,7 +15,7 @@
 #include <eh_arch/controller/arch_render_controller.hpp>
 #include <eh_arch/models/house_service.hpp>
 #include <poly/scene_graph.h>
-#include <graphics/lightmap_manager.hpp>
+#include <render_scene_graph/lightmap_manager.hpp>
 #include "transition_table_fsm.hpp"
 
 //scene_t scene{ 0 };
