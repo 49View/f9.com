@@ -68,9 +68,13 @@ void Showcaser::activatePostLoad() {
 //    }
 //    sg.GB<GT::Shape>(ShapeType::Cube, V3f{0.0f, 0.1f, 0.0f}, GT::Scale(10.0f, 0.1f, 10.0f));
 
-    if ( auto pid = cliParams.getParam("pid"); pid ) {
-        asg.loadHouse(*pid, [this] { postLoadHouseCallback(); });
-    }
+    sg.loadMaterial("city,atlas", [this](HttpResouceCBSign res ) {
+        HouseService::loadPanorama(nullptr, sg);
+    });
+
+//    if ( auto pid = cliParams.getParam("pid"); pid ) {
+//        asg.loadHouse(*pid, [this] { postLoadHouseCallback(); });
+//    }
 }
 
 void Showcaser::luaFunctionsSetup() {
