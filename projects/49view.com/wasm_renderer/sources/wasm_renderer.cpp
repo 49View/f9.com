@@ -69,6 +69,7 @@ void Showcaser::activatePostLoad() {
 //    sg.GB<GT::Shape>(ShapeType::Cube, V3f{0.0f, 0.1f, 0.0f}, GT::Scale(10.0f, 0.1f, 10.0f));
 
     sg.loadMaterial("city,atlas", [this](HttpResouceCBSign res ) {
+        rsg.useSkybox(true);
         HouseService::loadPanorama(nullptr, sg);
     });
 
