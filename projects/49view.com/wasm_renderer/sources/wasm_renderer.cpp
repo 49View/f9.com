@@ -5,8 +5,9 @@
 #include "wasm_renderer.h"
 #include <poly/scene_events.h>
 #include <core/TTF.h>
+#include <core/descriptors/osm_bsdata.hpp>
 #include <render_scene_graph/render_orchestrator.h>
-//#include <core/resources/resource_builder.hpp>
+#include <core/resources/resource_builder.hpp>
 #include <core/lightmap_exchange_format.h>
 #include <graphics/render_light_manager.h>
 #include <graphics/shader_manager.h>
@@ -62,17 +63,25 @@ void Showcaser::activatePostLoad() {
 
 //    rsg.setLuaScriptHotReload(R"(rr.addSceneObject("cactus", "geom", false))");
 
-//    sg.loadAsset("spotlight");
+//    sg.loadAsset("fir,tree");
 //    for ( int q = 0; q < 25; q++ ) {
 //        sg.GB<GT::Shape>(ShapeType::Sphere, V3f{ 4.0f*signedUnitRand(), 0.5f, 4.0f*signedUnitRand()});
 //    }
 //    sg.GB<GT::Shape>(ShapeType::Cube, V3f{0.0f, 0.1f, 0.0f}, GT::Scale(10.0f, 0.1f, 10.0f));
 
-    sg.loadMaterial("city,atlas", [this](HttpResouceCBSign res ) {
+
+    HOD::resolver<OSMData>(sg, nullptr, [&]() {
         rsg.useSkybox(true);
-        HouseService::loadPanorama(nullptr, sg);
+        OSMData map{FM::readLocalFileC("../elements.json")};
+        auto cc = sg.GB<GT::OSMTile>(&map, V2f{-0.1344f, 51.4892f}, GT::Tag(SHADOW_MAGIC_TAG), GT::Bucket(GTBucket::NearUnsorted), GT::M("city,atlas"), GT::Program(S::SH_CITY_ATLAS));
+        sg.GB<GT::OSMBuildings>(&map, V2f{-0.1344f, 51.4892f}, GT::Tag(SHADOW_MAGIC_TAG), GT::Bucket(GTBucket::Near), GT::M("city,atlas"), GT::Program(S::SH_CITY_ATLAS));
     });
 
+//    sg.loadMaterial("city,atlas", [this](HttpResourceCBSign res ) {
+//        rsg.useSkybox(true);
+//        HouseService::loadPanorama(nullptr, sg);
+//    });
+//
 //    if ( auto pid = cliParams.getParam("pid"); pid ) {
 //        asg.loadHouse(*pid, [this] { postLoadHouseCallback(); });
 //    }
