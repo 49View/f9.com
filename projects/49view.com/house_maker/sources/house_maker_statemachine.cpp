@@ -40,7 +40,7 @@ void HouseMakerStateMachine::activatePostLoad() {
 
     rsg.useSkybox(true);
 
-    rsg.RR().setShadowZFightCofficient(0.002f*0.15f*0.5f);
+    rsg.RR().setShadowZFightCoefficient(0.002f*0.15f*0.5f);
     rsg.RR().useVignette(true);
     rsg.useSSAO(true);
     rsg.RR().useFilmGrain(false);

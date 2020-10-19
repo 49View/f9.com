@@ -47,7 +47,7 @@ void Showcaser::activatePostLoad() {
 //                        ( C4fc::DARK_GRAY ), V2f{ 45.0f }, 0.015f);
     rsg.useSkybox(false);
     rsg.useSunLighting(true);
-    rsg.RR().setShadowZFightCofficient(0.002f * 0.15f * 0.5f);
+    rsg.RR().setShadowZFightCoefficient(0.002f * 0.15f * 0.5f);
     rsg.RR().useVignette(true);
     rsg.useSSAO(true);
     rsg.RR().useFilmGrain(false);
@@ -74,7 +74,7 @@ void Showcaser::activatePostLoad() {
         rsg.useSkybox(true);
         OSMData map{FM::readLocalFileC("../elements.json")};
         auto cc = sg.GB<GT::OSMTile>(&map, V2f{-0.1344f, 51.4892f}, GT::Tag(SHADOW_MAGIC_TAG), GT::Bucket(GTBucket::NearUnsorted), GT::M("city,atlas"), GT::Program(S::SH_CITY_ATLAS));
-        sg.GB<GT::OSMBuildings>(&map, V2f{-0.1344f, 51.4892f}, GT::Tag(SHADOW_MAGIC_TAG), GT::Bucket(GTBucket::Near), GT::M("city,atlas"), GT::Program(S::SH_CITY_ATLAS));
+        sg.GB<GT::OSMBuildings>(&map, V2f{-0.1344f, 51.4892f}, GT::Bucket(GTBucket::Near), GT::M("city,atlas"), GT::Program(S::SH_CITY_ATLAS));
     });
 
 //    sg.loadMaterial("city,atlas", [this](HttpResourceCBSign res ) {
