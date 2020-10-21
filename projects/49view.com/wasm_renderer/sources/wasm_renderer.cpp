@@ -17,6 +17,7 @@
 #include <eh_arch/models/house_service.hpp>
 #include <poly/scene_graph.h>
 #include <render_scene_graph/lightmap_manager.hpp>
+#include <poly/osm/osm_orchestrator.hpp>
 #include "transition_table_fsm.hpp"
 
 //scene_t scene{ 0 };
@@ -73,6 +74,8 @@ void Showcaser::activatePostLoad() {
     HOD::resolver<OSMData>(sg, nullptr, [&]() {
         rsg.useSkybox(true);
         OSMData map{FM::readLocalFileC("../../elements.json")};
+        sg.loadCollisionMesh(OSMService::createCollisionMesh(&map));
+        sg.setCollisionEnabled(true);
         sg.GB<GT::OSMTile>(&map, V2f{-0.1344f, 51.4892f}, GT::Tag(SHADOW_MAGIC_TAG), GT::Bucket(GTBucket::NearUnsorted), GT::M("city,atlas"), GT::Program(S::SH_CITY_ATLAS));
         sg.GB<GT::OSMBuildings>(&map, V2f{-0.1344f, 51.4892f}, GT::Bucket(GTBucket::Near), GT::M("city,atlas"), GT::Program(S::SH_CITY_ATLAS));
     });
@@ -148,8 +151,10 @@ void Showcaser::updateImpl( const AggregatedInputData& _aid ) {
 //        backEnd->process_event(OnDollyHouseToggleEvent{});
 //    }
     if ( _aid.TI().checkKeyToggleOn(GMK_G) ) {
-        fader(0.33f, 1.0f, rsg.RR().CLI(CommandBufferLimits::GridStart));
+//        fader(0.33f, 1.0f, rsg.RR().CLI(CommandBufferLimits::GridStart));
+        sg.enableCollisionGravity(!sg.isCollisionGravityEnabled());
     }
+
 //    if ( _aid.TI().checkKeyToggleOn(GMK_H) ) {
 //        fader(0.33f, 0.0f, rsg.RR().CLI(CommandBufferLimits::GridStart));
 //    }
