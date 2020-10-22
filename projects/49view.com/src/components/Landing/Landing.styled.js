@@ -82,7 +82,7 @@ export const SearchResultsPropertyRecap = styled.div` {
   margin: auto;
   padding:7px;
   border-radius: 5px;
-  background-color: var(--dark-color-transparent);
+  background-color: var(--dark-color-transparent-text-readable);
 }`;
 
 export const LocationSearchResultsContainer = styled.div` {

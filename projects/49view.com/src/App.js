@@ -42,7 +42,7 @@ const App = () => {
       <EHAlert/>
       <AnimFadeSection>
         <WasmCanvas
-          wasmName='../wasm_renderer'
+          wasmName='../house_explorer'
           borderRadius={"5px"}
           border={"1px solid var(--middle-grey-color)"}
           argumentList={[
