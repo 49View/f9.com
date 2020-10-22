@@ -22,7 +22,8 @@ import {
   InfoTextSpan,
   LightColorTextSpan,
   LightColorTextSpanBold,
-  Logo1TextSpanBold
+  Logo1TextSpanBold,
+  SecondaryAltColorTextSpanBold
 } from "../../futuremodules/reactComponentStyles/reactCommon.styled";
 
 const SearchResults = ({partialString}) => {
@@ -56,9 +57,13 @@ const SearchResults = ({partialString}) => {
         )}
         {partialPropertySearch && partialPropertySearch.properties.length > 0 && !partialPropertySearch.withinRequestedArea && (
           <>
-            <LightColorTextSpan>
-              We couldn't find any property at that location, here are the closest ones
-            </LightColorTextSpan>
+            <LightColorTextSpanBold>
+              We are sorry, we couldn't find any property around that location...<br/>
+              But don't worry, we are adding new properties daily.<br/><br/>
+            </LightColorTextSpanBold>
+            <SecondaryAltColorTextSpanBold>
+              In the meantime, why not taking a look at our portfolio to see how 49view works?
+            </SecondaryAltColorTextSpanBold>
           </>
         )}
       </SearchResultsPropertyRecap>
@@ -122,7 +127,7 @@ const LocationSearchResults = () => {
             // evt.preventDefault();
           }
         }}
-        placeholder={"Desired location: e.g. 'Wimbledon', 'Surrey'"}
+        placeholder={"Desired location: e.g. 'Wimbledon'"}
       >
       </LandingSearchBar>
 
@@ -164,7 +169,7 @@ const Landing = () => {
           <SearchTextAlt>Home</SearchTextAlt>
         </SearchTitleText>
         <TaglineText>
-          Explore, visit and personalise any property in real-time
+          Visit, explore and personalise properties in real-time
         </TaglineText>
         <LocationSearchResults/>
       </LandingInner>
