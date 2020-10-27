@@ -3,11 +3,9 @@
 //
 
 #include "house_explorer.h"
-#include <poly/scene_events.h>
 #include <core/TTF.h>
 #include <core/descriptors/osm_bsdata.hpp>
 #include <render_scene_graph/render_orchestrator.h>
-#include <core/resources/resource_builder.hpp>
 #include <core/lightmap_exchange_format.h>
 #include <graphics/render_light_manager.h>
 #include <graphics/shader_manager.h>
@@ -16,7 +14,6 @@
 #include <eh_arch/controller/arch_render_controller.hpp>
 #include <eh_arch/models/house_service.hpp>
 #include <poly/scene_graph.h>
-#include <render_scene_graph/lightmap_manager.hpp>
 #include <poly/osm/osm_orchestrator.hpp>
 #include "transition_table_fsm.hpp"
 
