@@ -1,12 +1,11 @@
 #include "sources/map_explorer.h"
 
-#include <eh_arch/controller/arch_render_controller.hpp>
-#include <eh_arch/controller/arch_explorer.hpp>
+#include <poly/osm/osm_orchestrator.hpp>
 #include <render_scene_graph/event_horizon.h>
 
 int main( int argc, char *argv[] ) {
 
-    EventHorizon<Showcaser> ev{ argc, argv };
+    EventHorizon<MapExplorer> ev{ argc, argv };
 
     return 0;
 }
