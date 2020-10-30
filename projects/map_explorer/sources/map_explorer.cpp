@@ -57,14 +57,16 @@ void MapExplorer::activatePostLoad() {
 //    }
 //    sg.GB<GT::Shape>(ShapeType::Cube, V3f{0.0f, 0.1f, 0.0f}, GT::Scale(10.0f, 0.1f, 10.0f));
 
-    HOD::resolver<OSMData>(sg, nullptr, [&]() {
-        rsg.useSkybox(true);
-        OSMData map{FM::readLocalFileC("../../elements.json")};
-        sg.loadCollisionMesh(OSMService::createCollisionMesh(&map));
-        sg.setCollisionEnabled(true);
-        sg.GB<GT::OSMTile>(&map, V2f{-0.1344f, 51.4892f}, GT::Tag(SHADOW_MAGIC_TAG), GT::Bucket(GTBucket::NearUnsorted), GT::M("city,atlas"), GT::Program(S::SH_CITY_ATLAS));
-        sg.GB<GT::OSMBuildings>(&map, V2f{-0.1344f, 51.4892f}, GT::Bucket(GTBucket::Near), GT::M("city,atlas"), GT::Program(S::SH_CITY_ATLAS));
-    });
+//    HOD::resolver<OSMData>(sg, nullptr, [&]() {
+//        rsg.useSkybox(true);
+//        OSMData map{FM::readLocalFileC("../../elements.json")};
+//        sg.loadCollisionMesh(OSMService::createCollisionMesh(&map));
+//        sg.setCollisionEnabled(true);
+//        sg.GB<GT::OSMTile>(&map, V2f{-0.1344f, 51.4892f}, GT::Tag(SHADOW_MAGIC_TAG), GT::Bucket(GTBucket::NearUnsorted), GT::M("city,atlas"), GT::Program(S::SH_CITY_ATLAS));
+//        sg.GB<GT::OSMBuildings>(&map, V2f{-0.1344f, 51.4892f}, GT::Bucket(GTBucket::Near), GT::M("city,atlas"), GT::Program(S::SH_CITY_ATLAS));
+//    });
+
+    osg.loadOSM(50.8208,-0.1326,1.1);
 
 }
 

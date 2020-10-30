@@ -16,6 +16,7 @@ const locationRoute      = require("./restful-api/routes/locationRoute");
 const furnitureSetRoute  = require("./restful-api/routes/furnitureSetRoute");
 const propertyRoute      = require("./restful-api/routes/propertyRoute");
 const propertyBimRoute   = require("./restful-api/routes/propertyBimRoute");
+const osmRoute           = require("./restful-api/routes/osmRoute");
 const estateAgentRoute   = require("./restful-api/routes/estateAgentRoute");
 
 const init = () => {
@@ -34,6 +35,7 @@ const use = () => {
   app.use("/location", locationRoute);
   app.use("/furnitureset", furnitureSetRoute);
   app.use("/propertyBim", propertyBimRoute);
+  app.use("/osm", osmRoute);
   app.use(authController.authenticate);
   app.use("/entitymanager", entityManagerRoute);
   app.use("/fs", fsRoute);
