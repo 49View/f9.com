@@ -52,6 +52,7 @@
     "react-treebeard": "^3.2.4",
     "react-wasm-canvas": "^1.0.2",
     "react-zlib-js": "^1.0.4",
+    "reactjs-videobg": "^1.3.0",
     "reactn": "^2.2.6",
     "reactn-devtools": "^1.1.0",
     "redux": "^4.0.5",
