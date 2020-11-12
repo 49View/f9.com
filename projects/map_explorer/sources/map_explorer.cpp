@@ -66,7 +66,8 @@ void MapExplorer::activatePostLoad() {
 //        sg.GB<GT::OSMBuildings>(&map, V2f{-0.1344f, 51.4892f}, GT::Bucket(GTBucket::Near), GT::M("city,atlas"), GT::Program(S::SH_CITY_ATLAS));
 //    });
 
-    osg.loadOSM(-0.1326,50.8208,1.5);
+    osg.loadOSM(114.1730795,22.2957289,0.2);
+//    osg.loadOSM(-0.125376,51.4992784,0.5);
 
 }
 
